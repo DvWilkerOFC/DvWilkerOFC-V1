@@ -7,7 +7,6 @@ const app = express();
 const PORT = process.env.PORT || 3032;
 
 app.set('trust proxy', 1);
-
 app.use(express.json());
 
 const aiGemini = require('./routes/ai/gemini');
@@ -20,6 +19,9 @@ const dlIg = require('./routes/download/instagramvid');
 const dlTw = require('./routes/download/twitter');
 const dlPin = require('./routes/download/pinterest');
 const dlTt = require('./routes/download/tiktok');
+const userAuth = require('./routes/users');
+
+app.use('/api/auth', userAuth);
 
 app.use('/api/ai/gemini', authHandler, aiGemini);
 app.use('/api/tools/qr', authHandler, toolQr);
@@ -35,12 +37,7 @@ app.use('/api/download/tiktok', authHandler, dlTt);
 app.get('/:page', (req, res, next) => {
     const page = req.params.page;
     const filePath = path.join(__dirname, 'public', `${page}.html`);
-
-    res.sendFile(filePath, (err) => {
-        if (err) {
-            next();
-        }
-    });
+    res.sendFile(filePath, (err) => { if (err) next(); });
 });
 
 app.get('/', (req, res) => {
@@ -54,13 +51,5 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`
-    ===========================================
-    🚀 KAZUMA API - SERVIDOR INICIADO
-    ===========================================
-    📍 Puerto: ${PORT}
-    🛡️  Auth: Database JSON (authHandler)
-    📂 Public: Rutas Limpias Habilitadas
-    ===========================================
-    `);
+    console.log(`Kazuma API escuchando en el puerto ${PORT}`);
 });
