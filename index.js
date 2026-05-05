@@ -8,18 +8,13 @@ const PORT = process.env.PORT || 3032;
 app.set('trust proxy', 1);
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
 const validateApiKey = (req, res, next) => {
     const { apiKey } = req.query;
     const masterKey = process.env.API_KEY || 'root';
 
     if (!apiKey || apiKey !== masterKey) {
-        return res.status(401).json({ 
-            status: false, 
-            creator: "Félix Ofc",
-            message: 'Acceso denegado. ApiKey inválida o ausente.' 
-        });
+        return res.status(401).sendFile(path.join(__dirname, 'public', '404.html'));
     }
     next();
 };
@@ -46,26 +41,27 @@ app.use('/api/download/twitter', validateApiKey, dlTw);
 app.use('/api/download/pinterest', validateApiKey, dlPin);
 app.use('/api/download/tiktok', validateApiKey, dlTt);
 
+app.get('/:page', (req, res, next) => {
+    const page = req.params.page;
+    const filePath = path.join(__dirname, 'public', `${page}.html`);
+    
+    res.sendFile(filePath, (err) => {
+        if (err) {
+            next();
+        }
+    });
+});
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use((req, res) => {
-    res.status(404).json({ 
-        status: false, 
-        creator: "Félix Ofc",
-        message: 'Endpoint no encontrado' 
-    });
+    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
 
 app.listen(PORT, () => {
-    console.log(`
-    ===========================================
-    🚀 SERVIDOR API INICIADO CORRECTAMENTE
-    ===========================================
-    📍 Puerto: ${PORT}
-    🔗 URL: http://localhost:${PORT}
-    🛡️  Proxy: Habilitado (Nginx Ready)
-    ===========================================
-    `);
+    console.log(`Servidor corriendo en el puerto ${PORT} con rutas limpias.`);
 });
