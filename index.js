@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 require('dotenv').config();
+const { authHandler } = require('./middlewares/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3032;
@@ -8,16 +9,6 @@ const PORT = process.env.PORT || 3032;
 app.set('trust proxy', 1);
 
 app.use(express.json());
-
-const validateApiKey = (req, res, next) => {
-    const { apiKey } = req.query;
-    const masterKey = process.env.API_KEY || 'root';
-
-    if (!apiKey || apiKey !== masterKey) {
-        return res.status(401).sendFile(path.join(__dirname, 'public', '404.html'));
-    }
-    next();
-};
 
 const aiGemini = require('./routes/ai/gemini');
 const toolQr = require('./routes/tools/qrcode');
@@ -30,21 +21,21 @@ const dlTw = require('./routes/download/twitter');
 const dlPin = require('./routes/download/pinterest');
 const dlTt = require('./routes/download/tiktok');
 
-app.use('/api/ai/gemini', validateApiKey, aiGemini);
-app.use('/api/tools/qr', validateApiKey, toolQr);
-app.use('/api/tools/ssweb', validateApiKey, toolSsweb);
-app.use('/api/search/pinterest', validateApiKey, searchPin);
-app.use('/api/search/tiktok', validateApiKey, searchTt);
-app.use('/api/download/facebook', validateApiKey, dlFb);
-app.use('/api/download/instagram', validateApiKey, dlIg);
-app.use('/api/download/twitter', validateApiKey, dlTw);
-app.use('/api/download/pinterest', validateApiKey, dlPin);
-app.use('/api/download/tiktok', validateApiKey, dlTt);
+app.use('/api/ai/gemini', authHandler, aiGemini);
+app.use('/api/tools/qr', authHandler, toolQr);
+app.use('/api/tools/ssweb', authHandler, toolSsweb);
+app.use('/api/search/pinterest', authHandler, searchPin);
+app.use('/api/search/tiktok', authHandler, searchTt);
+app.use('/api/download/facebook', authHandler, dlFb);
+app.use('/api/download/instagram', authHandler, dlIg);
+app.use('/api/download/twitter', authHandler, dlTw);
+app.use('/api/download/pinterest', authHandler, dlPin);
+app.use('/api/download/tiktok', authHandler, dlTt);
 
 app.get('/:page', (req, res, next) => {
     const page = req.params.page;
     const filePath = path.join(__dirname, 'public', `${page}.html`);
-    
+
     res.sendFile(filePath, (err) => {
         if (err) {
             next();
@@ -63,5 +54,13 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT} con rutas limpias.`);
+    console.log(`
+    ===========================================
+    🚀 KAZUMA API - SERVIDOR INICIADO
+    ===========================================
+    📍 Puerto: ${PORT}
+    🛡️  Auth: Database JSON (authHandler)
+    📂 Public: Rutas Limpias Habilitadas
+    ===========================================
+    `);
 });
