@@ -3,7 +3,7 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-const PORT = 3032;
+const PORT = process.env.PORT || 3032;
 
 app.set('trust proxy', 1);
 
@@ -17,6 +17,7 @@ const validateApiKey = (req, res, next) => {
     if (!apiKey || apiKey !== masterKey) {
         return res.status(401).json({ 
             status: false, 
+            creator: "Félix Ofc",
             message: 'Acceso denegado. ApiKey inválida o ausente.' 
         });
     }
@@ -45,10 +46,26 @@ app.use('/api/download/twitter', validateApiKey, dlTw);
 app.use('/api/download/pinterest', validateApiKey, dlPin);
 app.use('/api/download/tiktok', validateApiKey, dlTt);
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.use((req, res) => {
-    res.status(404).json({ status: false, message: 'Endpoint no encontrado' });
+    res.status(404).json({ 
+        status: false, 
+        creator: "Félix Ofc",
+        message: 'Endpoint no encontrado' 
+    });
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor activo en puerto ${PORT}`);
+    console.log(`
+    ===========================================
+    🚀 SERVIDOR API INICIADO CORRECTAMENTE
+    ===========================================
+    📍 Puerto: ${PORT}
+    🔗 URL: http://localhost:${PORT}
+    🛡️  Proxy: Habilitado (Nginx Ready)
+    ===========================================
+    `);
 });
