@@ -12,6 +12,10 @@ const authHandler = (req, res, next) => {
         return res.status(401).sendFile(path.join(__dirname, '../public/404.html'));
     }
 
+    if (!fs.existsSync(dbPath)) {
+        return res.status(500).json({ status: false, message: "Error interno: Base de datos no encontrada" });
+    }
+
     let users = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
     const userIndex = users.findIndex(u => u.key === apiKey);
 
