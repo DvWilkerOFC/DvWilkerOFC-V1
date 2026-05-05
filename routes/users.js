@@ -80,4 +80,26 @@ router.get('/me', (req, res) => {
     });
 });
 
+router.get('/stats', (req, res) => {
+    const users = getUsers();
+    const routesPath = path.join(__dirname, '../routes');
+    
+    let endpointCount = 0;
+    const folders = fs.readdirSync(routesPath);
+    
+    folders.forEach(folder => {
+        const fullPath = path.join(routesPath, folder);
+        if (fs.lstatSync(fullPath).isDirectory()) {
+            const files = fs.readdirSync(fullPath);
+            endpointCount += files.length;
+        }
+    });
+
+    res.json({
+        status: true,
+        users: users.length,
+        endpoints: endpointCount
+    });
+});
+
 module.exports = router;
