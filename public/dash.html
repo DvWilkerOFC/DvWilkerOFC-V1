@@ -6,6 +6,9 @@
     <title>Kazuma | Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://www.google.com/recaptcha/api.js?render=6Lfw-dwsAAAAACc6y5K4sfFnplSqbskYPia1ADh5"></script>
+
     <style>
         :root { 
             --neon-blue: #00f3ff; 
@@ -37,6 +40,13 @@
             min-height: 100vh; 
             overflow-x: hidden; 
             transition: background-color var(--transition), color var(--transition);
+        }
+
+        /* Forzar que el badge de recaptcha se quede fijo abajo a la derecha */
+        .grecaptcha-badge { 
+            bottom: 20px !important; 
+            right: 15px !important; 
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2) !important;
         }
 
         #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: background var(--transition); }
@@ -140,8 +150,6 @@
             color: var(--text-main);
         }
 
-        body.light-mode .key-box span { color: var(--text-main); }
-
         .user-card { 
             display: flex; 
             align-items: center; 
@@ -170,7 +178,6 @@
 
         .loading-text { margin-top: 15px; font-weight: 900; font-size: 0.8rem; letter-spacing: 2px; color: var(--neon-blue); text-transform: uppercase; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -234,7 +241,6 @@
             const body = document.body;
             const themeBtn = document.getElementById('theme-btn');
             const icon = themeBtn.querySelector('i');
-
             body.classList.toggle('light-mode');
 
             if (body.classList.contains('light-mode')) {
@@ -273,12 +279,20 @@
         }
 
         async function loadDash() {
-            // Cargar tema guardado
+            // Cargar tema
             const savedTheme = localStorage.getItem('kazuma-theme');
             if (savedTheme === 'light') {
                 document.body.classList.add('light-mode');
                 document.getElementById('theme-btn').querySelector('i').classList.replace('fa-moon', 'fa-sun');
             }
+
+            // Ejecutar reCAPTCHA V3 automáticamente al cargar
+            grecaptcha.ready(function() {
+                grecaptcha.execute('6Lfw-dwsAAAAACc6y5K4sfFnplSqbskYPia1ADh5', {action: 'dashboard_load'}).then(function(token) {
+                    // Aquí podrías enviar el token al servidor para validar la sesión si quisieras
+                    console.log('Protocolo reCAPTCHA V3 Activo');
+                });
+            });
 
             const area = document.getElementById('content-area');
             const pre = document.getElementById('preloader');
