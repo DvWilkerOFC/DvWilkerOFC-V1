@@ -7,26 +7,104 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
-        :root { --neon-blue: #00f3ff; --dark-bg: #0d0d0d; --card-bg: #161625; }
-        body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; margin: 0; }
-        #safety-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; }
-        .glass { background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .input-kazuma { background: #080810; border: 1px solid rgba(255,255,255,0.1); color: #ffffff !important; transition: 0.3s; }
+        :root { 
+            --neon-blue: #00f3ff; 
+            --dark-bg: #0d0d0d; 
+            --card-bg: #161625; 
+            --text-main: #ffffff;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.light-mode {
+            --dark-bg: #f4f4f9;
+            --card-bg: #ffffff;
+            --text-main: #1a1a1a;
+        }
+
+        body { 
+            background: var(--dark-bg); 
+            color: var(--text-main); 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            transition: background var(--transition), color var(--transition);
+        }
+
+        /* Pantalla de seguridad absoluta */
+        #safety-overlay { 
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; 
+            z-index: 9999; 
+        }
+
+        .glass { 
+            background: var(--card-bg); 
+            border: 1px solid rgba(0, 243, 255, 0.1); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            transition: background var(--transition), border var(--transition);
+        }
+
+        body.light-mode .glass {
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .input-kazuma { 
+            background: #080810; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            color: #ffffff !important; 
+            transition: 0.3s; 
+        }
+
+        body.light-mode .input-kazuma {
+            background: #fdfdfd;
+            border: 1px solid rgba(0,0,0,0.1);
+            color: #1a1a1a !important;
+        }
+
         .input-kazuma:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
         .btn-blue { background: var(--neon-blue); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; color: #000; }
         .btn-blue:hover { filter: brightness(1.2); transform: translateY(-1px); }
-        
+
         .checkbox-container { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .checkbox-container input { display: none; }
         .checkmark { height: 18px; width: 18px; background-color: #080810; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; position: relative; }
+        
+        body.light-mode .checkmark { background-color: #e5e7eb; border-color: #d1d5db; }
+        
         .checkbox-container input:checked ~ .checkmark { background-color: var(--neon-blue); border-color: var(--neon-blue); }
         .checkmark:after { content: ""; position: absolute; display: none; left: 6px; top: 2px; width: 5px; height: 10px; border: solid black; border-width: 0 2px 2px 0; transform: rotate(45deg); }
         .checkbox-container input:checked ~ .checkmark:after { display: block; }
+
+        .g-recaptcha { display: flex; justify-content: center; margin: 15px 0; }
+
+        .theme-btn-fixed {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--neon-blue);
+            z-index: 1000;
+            transition: var(--transition);
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
     <div id="safety-overlay"></div>
+
+    <div class="theme-btn-fixed" onclick="toggleTheme()" id="theme-btn">
+        <i class="fas fa-moon"></i>
+    </div>
 
     <div class="glass p-8 rounded-3xl w-full max-w-md my-8">
         <div class="text-center mb-6">
@@ -64,6 +142,8 @@
                 </label>
             </div>
 
+            <div class="g-recaptcha" data-sitekey="6Lcz9dwsAAAAAMJ3mdr0wYqws6j7eys_hNdMDKcj" data-theme="dark" id="recaptcha-widget"></div>
+
             <button type="submit" id="btnSubmit" class="btn-blue w-full py-4 rounded-xl shadow-lg mt-2 font-black">
                 Registrar Cuenta
             </button>
@@ -78,15 +158,53 @@
     </div>
 
     <script>
-        window.onload = () => { document.getElementById('safety-overlay').style.display = 'none'; };
+        function toggleTheme() {
+            const body = document.body;
+            const themeBtn = document.getElementById('theme-btn');
+            const icon = themeBtn.querySelector('i');
+            body.classList.toggle('light-mode');
+            if (body.classList.contains('light-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('kazuma-theme', 'light');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('kazuma-theme', 'dark');
+            }
+        }
+
+        // Sistema de blindaje instantáneo
+        (function initialCheck() {
+            const user = localStorage.getItem('kazuma_user');
+            const savedTheme = localStorage.getItem('kazuma-theme');
+
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-btn').querySelector('i').classList.replace('fa-moon', 'fa-sun');
+            }
+
+            if (user) {
+                // Redirección en milisegundos si ya hay sesión
+                window.location.href = '/login';
+            } else {
+                window.onload = () => { 
+                    document.getElementById('safety-overlay').style.display = 'none'; 
+                };
+            }
+        })();
 
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const captchaResponse = grecaptcha.getResponse();
+            if (!captchaResponse) {
+                return Swal.fire({ title: 'Seguridad', text: 'Resuelve el CAPTCHA para continuar', icon: 'warning', background: 'var(--card-bg)', color: 'var(--text-main)' });
+            }
+
             const pass = document.getElementById('password').value;
             const confirm = document.getElementById('confirmPassword').value;
 
             if (pass !== confirm) {
-                return Swal.fire({ title: 'Error', text: 'Las contraseñas no coinciden', icon: 'error', background: '#161625', color: '#fff' });
+                return Swal.fire({ title: 'Error', text: 'Las contraseñas no coinciden', icon: 'error', background: 'var(--card-bg)', color: 'var(--text-main)' });
             }
 
             const btn = document.getElementById('btnSubmit');
@@ -100,7 +218,8 @@
                     body: JSON.stringify({
                         username: document.getElementById('username').value,
                         email: document.getElementById('email').value,
-                        password: pass
+                        password: pass,
+                        captcha: captchaResponse
                     })
                 });
 
@@ -111,22 +230,24 @@
                         title: 'REGISTRO EXITOSO',
                         html: `<p>Tu cuenta ha sido creada.</p><br><p style="color:var(--neon-blue); font-weight:bold; font-size:12px;">TU API KEY: ${data.key}</p>`,
                         icon: 'success',
-                        background: '#161625',
-                        color: '#fff',
+                        background: 'var(--card-bg)',
+                        color: 'var(--text-main)',
                         confirmButtonText: 'IR AL LOGIN',
                         confirmButtonColor: '#00f3ff'
                     }).then(() => {
                         window.location.href = '/login';
                     });
                 } else {
-                    Swal.fire({ title: 'Error', text: data.message, icon: 'error', background: '#161625', color: '#fff' });
+                    Swal.fire({ title: 'Error', text: data.message, icon: 'error', background: 'var(--card-bg)', color: 'var(--text-main)' });
                     btn.disabled = false;
                     btn.innerText = 'Registrar Cuenta';
+                    grecaptcha.reset();
                 }
             } catch (err) {
                 btn.disabled = false;
                 btn.innerText = 'Registrar Cuenta';
-                Swal.fire({ title: 'Error', text: 'Fallo al conectar con el servidor', icon: 'error', background: '#161625', color: '#fff' });
+                grecaptcha.reset();
+                Swal.fire({ title: 'Error', text: 'Fallo al conectar con el servidor', icon: 'error', background: 'var(--card-bg)', color: 'var(--text-main)' });
             }
         });
     </script>
