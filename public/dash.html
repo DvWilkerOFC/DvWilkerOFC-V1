@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { 
-            --neon-pink: #ff2d55; 
             --neon-blue: #00f3ff; 
             --dark-bg: #09090b; 
             --card-bg: #11111d; 
@@ -43,14 +42,14 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+            border-bottom: 1px solid rgba(0, 243, 255, 0.1); 
             position: sticky; 
             top: 0; 
             z-index: 1000; 
         }
 
         .brand { font-weight: 900; font-size: 1.2rem; letter-spacing: 1px; }
-        .brand span { color: var(--neon-pink); }
+        .brand span { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); }
 
         .container { 
             width: 100%; 
@@ -64,10 +63,10 @@
             width: 120px; 
             height: 120px; 
             border-radius: 50%; 
-            border: 3px solid var(--neon-pink); 
+            border: 3px solid var(--neon-blue); 
             margin-bottom: 15px; 
             object-fit: cover; 
-            box-shadow: 0 0 25px rgba(255, 45, 85, 0.5); 
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.3); 
         }
         .hero h1 { font-size: 1.6rem; font-weight: 900; margin: 0; text-transform: uppercase; }
 
@@ -76,7 +75,7 @@
             border-radius: 28px; 
             padding: 22px; 
             margin-bottom: 18px; 
-            border: 1px solid rgba(255,255,255,0.05); 
+            border: 1px solid rgba(0, 243, 255, 0.05); 
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
@@ -107,7 +106,7 @@
             bottom: 10px; 
             font-size: 1.8rem; 
             opacity: 0.1; 
-            color: var(--text-main);
+            color: var(--neon-blue);
         }
         .stat-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block;}
         .stat-value { font-size: 1.2rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
@@ -119,7 +118,7 @@
             background: rgba(0,0,0,0.4); 
             padding: 18px; 
             border-radius: 18px; 
-            border: 1px solid rgba(255,255,255,0.05); 
+            border: 1px solid rgba(0, 243, 255, 0.1); 
         }
         .key-box span { font-family: 'monospace'; font-size: 0.85rem; color: #fff; }
 
@@ -127,11 +126,11 @@
             display: flex; 
             align-items: center; 
             justify-content: space-between; 
-            background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(0,243,255,0.02) 100%); 
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(0,243,255,0.05) 100%); 
             padding: 12px 18px; 
             border-radius: 20px; 
             margin-bottom: 10px; 
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(0, 243, 255, 0.1);
         }
         .user-info-flex { display: flex; align-items: center; gap: 12px; }
         .user-avatar-circle { 
@@ -142,14 +141,18 @@
             box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
         }
 
-        .sidebar { position: fixed; top: 0; right: -100%; width: 85%; max-width: 320px; height: 100%; background: var(--sidebar-bg); transition: 0.3s ease; z-index: 2000; padding: 35px 20px; box-sizing: border-box; }
+        .sidebar { position: fixed; top: 0; right: -100%; width: 85%; max-width: 320px; height: 100%; background: var(--sidebar-bg); border-left: 1px solid rgba(0, 243, 255, 0.1); transition: 0.3s ease; z-index: 2000; padding: 35px 20px; box-sizing: border-box; }
         .sidebar.active { right: 0; }
-        .sidebar-link { display: flex; align-items: center; gap: 15px; color: #fff; text-decoration: none; padding: 14px; border-radius: 15px; margin-bottom: 8px; background: rgba(255,255,255,0.03); font-weight: 600; font-size: 0.95rem; }
+        .sidebar-link { display: flex; align-items: center; gap: 15px; color: #fff; text-decoration: none; padding: 14px; border-radius: 15px; margin-bottom: 8px; background: rgba(255,255,255,0.03); font-weight: 600; font-size: 0.95rem; transition: 0.3s; }
+        .sidebar-link:active { background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); }
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(5px); }
         .overlay.active { display: block; }
 
         .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.7rem; font-weight: 700; opacity: 0.6; }
+        
+        /* Ajuste para el botón de cerrar sesión */
+        .logout-btn { margin-top:40px; background: rgba(0, 243, 255, 0.05); border: 1px solid var(--neon-blue); color: var(--neon-blue); text-shadow: 0 0 5px rgba(0, 243, 255, 0.5); }
     </style>
 </head>
 <body>
@@ -167,13 +170,13 @@
 
     <nav class="sidebar" id="sidebar">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-            <span style="font-weight: 900; color: var(--neon-pink);">MENU PRINCIPAL</span>
-            <i class="fas fa-times" onclick="toggleMenu()" style="font-size: 1.5rem;"></i>
+            <span style="font-weight: 900; color: var(--neon-blue);">MENU PRINCIPAL</span>
+            <i class="fas fa-times" onclick="toggleMenu()" style="font-size: 1.5rem; color: var(--neon-blue);"></i>
         </div>
 
         <div id="admin-nav" style="display:none;">
             <p class="nav-category">Staff Control</p>
-            <a href="/admin" class="sidebar-link" style="border: 1px solid var(--neon-pink);"><i class="fas fa-user-shield"></i> Panel Admin</a>
+            <a href="/admin" class="sidebar-link" style="border: 1px solid var(--neon-blue);"><i class="fas fa-user-shield"></i> Panel Admin</a>
         </div>
 
         <p class="nav-category">Navegación</p>
@@ -186,7 +189,7 @@
         <a href="/endpoints/download" class="sidebar-link"><i class="fas fa-download"></i> Downloads</a>
         <a href="/endpoints/ai" class="sidebar-link"><i class="fas fa-robot"></i> AI Gemini</a>
 
-        <div class="sidebar-link" style="margin-top:40px; background: rgba(255,45,85,0.1); color:var(--neon-pink);" onclick="logout()"><i class="fas fa-power-off"></i> Cerrar Sesión</div>
+        <div class="sidebar-link logout-btn" onclick="logout()"><i class="fas fa-power-off"></i> Cerrar Sesión</div>
     </nav>
 
     <div class="container" id="content-area"></div>
@@ -233,11 +236,10 @@
         async function loadDash() {
             const area = document.getElementById('content-area');
             const pre = document.getElementById('preloader');
-            
+
             if (userData.role === 'admin') document.getElementById('admin-nav').style.display = 'block';
 
             try {
-                // Sincronizamos datos globales y específicos del usuario en paralelo
                 const [resGlobal, resMe] = await Promise.all([
                     fetch('/api/auth/dashboard-global'),
                     fetch(`/api/auth/me?apiKey=${userData.key}`)
@@ -246,7 +248,6 @@
                 const data = await resGlobal.json();
                 const me = await resMe.json();
 
-                // Actualizamos el cache local con los datos más recientes del servidor
                 if (me.status) {
                     const updatedUser = { ...userData, ...me.data };
                     localStorage.setItem('kazuma_user', JSON.stringify(updatedUser));
@@ -255,12 +256,12 @@
                 area.innerHTML = `
                 <section class="hero">
                     <img src="${me.data?.profile_img || 'https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg'}" class="hero-img">
-                    <h1>SISTEMA <span style="color:var(--neon-pink)">ACTIVO</span></h1>
+                    <h1>SISTEMA <span style="color:var(--neon-blue); text-shadow: 0 0 10px rgba(0,243,255,0.3)">ACTIVO</span></h1>
                     <p style="color:var(--text-muted); font-size: 0.85rem; font-weight:800; margin-top:8px;">USUARIO: ${userData.username.toUpperCase()}</p>
                 </section>
 
                 <div class="api-card">
-                    <p class="nav-category" style="color:var(--neon-blue)"><i class="fas fa-key"></i> Mi API Key</p>
+                    <p class="nav-category"><i class="fas fa-key"></i> Mi API Key</p>
                     <div class="key-box">
                         <span id="key-display">••••••••••••••••</span>
                         <div style="display:flex; gap:15px">
@@ -271,7 +272,7 @@
                 </div>
 
                 <div class="api-card">
-                    <p class="nav-category" style="color:var(--neon-blue)"><i class="fas fa-microchip"></i> Estado del Protocolo</p>
+                    <p class="nav-category"><i class="fas fa-microchip"></i> Estado del Protocolo</p>
                     <div class="stats-grid">
                         <div class="stat-box" style="grid-column: span 2;">
                             <i class="fas fa-users"></i>
@@ -281,9 +282,9 @@
                         <div class="stat-box">
                             <i class="fas fa-clock"></i>
                             <div class="stat-label">Server Uptime</div>
-                            <div class="stat-value" id="uptime-val" style="color:var(--neon-pink)">00:00:00</div>
+                            <div class="stat-value" id="uptime-val" style="color:var(--neon-blue)">00:00:00</div>
                         </div>
-                        <div class="stat-box" style="border-left-color: var(--neon-pink);">
+                        <div class="stat-box" style="border-left-color: var(--neon-blue);">
                             <i class="fas fa-chart-bar"></i>
                             <div class="stat-label">Consumo Diario</div>
                             <div class="stat-value">${me.data?.requests.today || 0} / ${me.data?.requests.limit || 0}</div>
@@ -292,11 +293,11 @@
                 </div>
 
                 <div class="api-card">
-                    <p class="nav-category" style="color:var(--neon-blue)"><i class="fas fa-ranking-star"></i> Ranking de Operadores</p>
+                    <p class="nav-category"><i class="fas fa-ranking-star"></i> Ranking de Operadores</p>
                     ${data.top5.map((u, i) => `
                         <div class="user-card">
                             <div class="user-info-flex">
-                                <div class="user-avatar-circle" style="background:${i==0?'#fbbf24':''}; box-shadow:${i==0?'0 0 15px #fbbf24':''}">
+                                <div class="user-avatar-circle" style="background:${i==0?'#fbbf24':''}; box-shadow:${i==0?'0 0 15px #fbbf24':''}; color:${i==0?'#000':''}">
                                     ${u.username.charAt(0).toUpperCase()}
                                 </div>
                                 <span style="font-size:0.95rem; font-weight:800">#${i+1} ${u.username}</span>
@@ -309,7 +310,7 @@
                 updateUptime(data.uptime);
             } catch (e) { 
                 console.error("Error al cargar Dashboard:", e);
-                area.innerHTML = "<p style='text-align:center; color:var(--neon-pink); font-weight:bold; margin-top:50px;'>FALLO EN EL PROTOCOLO DE CONEXIÓN</p>"; 
+                area.innerHTML = "<p style='text-align:center; color:var(--neon-blue); font-weight:bold; margin-top:50px;'>FALLO EN EL PROTOCOLO DE CONEXIÓN</p>"; 
             }
 
             setTimeout(() => { pre.style.display = 'none'; }, 800);
