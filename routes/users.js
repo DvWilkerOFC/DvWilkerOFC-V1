@@ -12,20 +12,18 @@ let startTime = Date.now();
 const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
 const saveUsers = (data) => fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 
-// REGISTRO: Ahora incluye la validación de CAPTCHA
+// REGISTRO
 router.post('/register', async (req, res) => {
     const { username, email, password, captcha } = req.body;
-    
-    // Validación de campos y CAPTCHA obligatorio para registro
+
     if (!username || !email || !password || !captcha) {
         return res.status(400).json({ status: false, message: "Faltan datos o CAPTCHA" });
     }
 
     try {
-        // Validar CAPTCHA con Google
         const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET}&response=${captcha}`;
         const captchaRes = await axios.post(verifyUrl);
-        
+
         if (!captchaRes.data.success) {
             return res.status(400).json({ status: false, message: "CAPTCHA inválido" });
         }
@@ -45,6 +43,7 @@ router.post('/register', async (req, res) => {
             limit: 100,
             requestToday: 0,
             totalRequest: 0,
+            profile_img: "https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg", // Foto por defecto
             lastRequestDate: new Date().toISOString().split('T')[0]
         };
 
@@ -57,7 +56,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// LOGIN: Sin validación de CAPTCHA
+// LOGIN
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -68,7 +67,7 @@ router.post('/login', async (req, res) => {
     try {
         let users = getUsers();
         const user = users.find(u => u.email === email && u.password === password);
-        
+
         if (!user) {
             return res.status(401).json({ status: false, message: "Credenciales incorrectas" });
         }
@@ -82,7 +81,8 @@ router.post('/login', async (req, res) => {
                 key: user.key,
                 role: user.role,
                 plan: user.plan,
-                limit: user.limit
+                limit: user.limit,
+                profileImg: user.profile_img || "https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg"
             }
         });
     } catch (err) {
@@ -90,8 +90,7 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// --- EL RESTO DE TUS RUTAS (me, stats, dashboard, admin) QUEDAN IGUAL ---
-
+// OBTENER DATOS DEL USUARIO (ME)
 router.get('/me', (req, res) => {
     const { apiKey } = req.query;
     if (!apiKey) return res.status(400).json({ status: false, message: "ApiKey requerida" });
@@ -109,6 +108,7 @@ router.get('/me', (req, res) => {
             key: user.key,
             role: user.role,
             plan: user.plan,
+            profile_img: user.profile_img || "https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg",
             requests: {
                 today: user.requestToday,
                 total: user.totalRequest,
@@ -119,6 +119,43 @@ router.get('/me', (req, res) => {
     });
 });
 
+// ACTUALIZACIÓN DE PERFIL (USUARIO)
+router.post('/update-profile', (req, res) => {
+    const { apiKey, type, value } = req.body;
+    
+    if (!apiKey || !type || value === undefined) {
+        return res.status(400).json({ status: false, message: "Faltan parámetros" });
+    }
+
+    let users = getUsers();
+    const userIdx = users.findIndex(u => u.key === apiKey);
+
+    if (userIdx === -1) {
+        return res.status(404).json({ status: false, message: "Llave maestra inválida" });
+    }
+
+    // Campos que el usuario tiene permitido editar
+    const allowedFields = ['username', 'email', 'password', 'profile_img'];
+    if (!allowedFields.includes(type)) {
+        return res.status(400).json({ status: false, message: "Acción no permitida para este campo" });
+    }
+
+    // Evitar que editen la cuenta principal de admin por seguridad si es que se loguea
+    if (users[userIdx].email === 'frasesbebor@gmail.com' && type === 'password') {
+         return res.status(403).json({ status: false, message: "No puedes cambiar la contraseña del ADMIN raíz" });
+    }
+
+    users[userIdx][type] = value;
+    saveUsers(users);
+
+    res.json({ 
+        status: true, 
+        message: "Protocolo actualizado",
+        field: type
+    });
+});
+
+// ESTADÍSTICAS GENERALES
 router.get('/stats', (req, res) => {
     const users = getUsers();
     const routesPath = path.join(__dirname, '../routes');
@@ -134,6 +171,7 @@ router.get('/stats', (req, res) => {
     res.json({ status: true, users: users.length, endpoints: endpointCount });
 });
 
+// DASHBOARD GLOBAL
 router.get('/dashboard-global', (req, res) => {
     const users = getUsers();
     let globalRequests = 0;
@@ -150,6 +188,7 @@ router.get('/dashboard-global', (req, res) => {
     res.json({ status: true, totalUsers: users.length, globalRequests, uptime: startTime, top5: topUsers });
 });
 
+// ADMIN: VER TODOS
 router.get('/admin/all', (req, res) => {
     const { apiKey } = req.query;
     const users = getUsers();
@@ -158,6 +197,7 @@ router.get('/admin/all', (req, res) => {
     res.json({ status: true, users });
 });
 
+// ADMIN: ACTUALIZAR CUALQUIER USUARIO
 router.post('/admin/update', (req, res) => {
     const { adminKey, targetEmail, newData } = req.body;
     let users = getUsers();
@@ -173,6 +213,7 @@ router.post('/admin/update', (req, res) => {
     res.status(404).json({ status: false });
 });
 
+// ADMIN: ELIMINAR USUARIO
 router.post('/admin/delete', (req, res) => {
     const { adminKey, targetEmail } = req.body;
     let users = getUsers();
