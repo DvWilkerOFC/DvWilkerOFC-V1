@@ -3,28 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Admin Panel | Kazuma</title>
+    <title>Kazuma | Staff Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --neon-blue: #00f3ff; --dark-bg: #0d0d0d; --card-bg: #161625; }
-        body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; display: none; }
-        .glass { background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.1); }
-        .btn-filter { padding: 10px; border-radius: 12px; font-size: 10px; font-weight: 900; uppercase; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-        .btn-filter.active { border-color: var(--neon-blue); color: var(--neon-blue); background: rgba(0,243,255,0.05); }
-        .user-card { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .input-edit { background: #080810; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px; border-radius: 8px; width: 100%; margin-bottom: 10px; font-size: 13px; }
+        :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #0d0d0d; }
+        body { background-color: var(--dark-bg) !important; color: white; font-family: 'Inter', sans-serif; display: none; }
+        .glass { background: rgba(22, 22, 37, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
+        .input-dark { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; }
+        .btn-filter { padding: 10px; border-radius: 12px; font-size: 10px; font-weight: 900; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .btn-filter.active { border-color: var(--neon-pink); color: var(--neon-pink); background: rgba(255, 45, 85, 0.05); }
+        tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+        .badge-premium { background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); border: 1px solid rgba(0, 243, 255, 0.2); }
+        .badge-user { background: rgba(255, 255, 255, 0.05); color: #888; border: 1px solid rgba(255, 255, 255, 0.1); }
     </style>
 </head>
-<body class="p-4">
-    <div class="max-w-4xl mx-auto">
-        <header class="flex justify-between items-center mb-8">
-            <a href="/dash" class="text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white transition">
-                <i class="fas fa-chevron-left mr-2"></i> Volver
-            </a>
-            <h1 class="text-xl font-black uppercase tracking-tighter">KZM <span style="color:var(--neon-blue)">ADMIN</span></h1>
-        </header>
+<body class="min-h-screen flex flex-col">
+    <header class="p-4 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
+        <div class="font-bold text-xl uppercase tracking-tighter">KAZUMA <span class="text-[#ff2d55]">STAFF</span></div>
+        <button onclick="location.href='/dash'" class="text-sm bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition">
+            <i class="fas fa-arrow-left mr-2"></i> Dashboard
+        </button>
+    </header>
+
+    <main class="container mx-auto p-4 flex-grow max-w-5xl">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 mt-4">
+            <div class="glass p-6 rounded-2xl border-l-4 border-[#ff2d55] flex justify-between items-center">
+                <div>
+                    <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Base de Datos</p>
+                    <h3 id="total-count" class="text-3xl font-black text-white mt-1">0 Usuarios</h3>
+                </div>
+                <div class="bg-pink-500/10 p-4 rounded-xl"><i class="fas fa-database text-[#ff2d55] text-xl"></i></div>
+            </div>
+        </div>
 
         <div class="grid grid-cols-3 gap-2 mb-6">
             <button onclick="filterUsers('all')" id="btn-all" class="btn-filter active">TODOS</button>
@@ -32,14 +45,29 @@
             <button onclick="filterUsers('admin')" id="btn-admin" class="btn-filter">ADMINS</button>
         </div>
 
-        <div class="glass rounded-3xl overflow-hidden" id="user-container">
-            <div class="p-10 text-center text-slate-500 uppercase font-black text-xs">Cargando base de datos...</div>
+        <div class="glass rounded-3xl overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-white/5 text-[10px] uppercase tracking-widest text-gray-500">
+                        <tr>
+                            <th class="p-5 font-black">Identidad</th>
+                            <th class="p-5 font-black">Plan</th>
+                            <th class="p-5 font-black">Consumo</th>
+                            <th class="p-5 text-center font-black">Gestión</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-table-body" class="text-sm">
+                        <tr><td colspan="4" class="p-10 text-center text-gray-500 uppercase font-black animate-pulse">Sincronizando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+    </main>
 
     <script>
         const userData = JSON.parse(localStorage.getItem('kazuma_user'));
         let allUsers = [];
+        const SUPER_ADMIN = "frasesbebor@gmail.com";
 
         if (!userData || userData.role !== 'admin') {
             window.location.href = '/dash';
@@ -49,63 +77,98 @@
         }
 
         async function loadUsers() {
-            const res = await fetch(`/api/auth/admin/all?apiKey=${userData.key}`);
-            const data = await res.json();
-            if (data.status) {
-                allUsers = data.users;
-                renderUsers(allUsers);
-            }
+            try {
+                const res = await fetch(`/api/auth/admin/all?apiKey=${userData.key}`);
+                const data = await res.json();
+                if (data.status) {
+                    allUsers = data.users;
+                    document.getElementById('total-count').innerText = `${allUsers.length} Usuarios`;
+                    renderTable(allUsers);
+                }
+            } catch (e) { console.error("Error cargando usuarios"); }
         }
 
-        function renderUsers(list) {
-            const container = document.getElementById('user-container');
-            container.innerHTML = '';
-            list.forEach(u => {
-                const isMe = u.email === 'frasesbebor@gmail.com';
-                container.innerHTML += `
-                    <div class="user-card">
-                        <div>
-                            <div class="font-bold text-sm">${u.username} ${isMe ? '<i class="fas fa-check-circle text-blue-400 ml-1"></i>' : ''}</div>
-                            <div class="text-[10px] text-slate-500">${u.email}</div>
+        function renderTable(list) {
+            const body = document.getElementById('user-table-body');
+            if (!list.length) {
+                body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-gray-600 font-bold uppercase">Sin registros</td></tr>';
+                return;
+            }
+
+            body.innerHTML = list.map(u => {
+                const isMe = u.email === SUPER_ADMIN;
+                return `
+                <tr class="hover:bg-white/[0.03]">
+                    <td class="p-5">
+                        <div class="font-black ${isMe ? 'text-pink-500' : 'text-white'} text-sm">
+                            ${u.username} ${isMe ? '<i class="fas fa-shield-alt ml-1"></i>' : ''}
                         </div>
+                        <div class="text-[10px] text-gray-500 font-mono uppercase">${u.email}</div>
+                    </td>
+                    <td class="p-5">
+                        <span class="text-[9px] font-black px-3 py-1 rounded-lg ${u.plan === 'premium' || u.role === 'admin' ? 'badge-premium' : 'badge-user'}">
+                            ${(u.plan || u.role).toUpperCase()}
+                        </span>
+                    </td>
+                    <td class="p-5 text-xs font-black text-white/70">
+                        ${u.requestToday || 0} <span class="text-gray-600">/</span> ${u.limit}
+                    </td>
+                    <td class="p-5 text-center">
                         ${isMe ? 
-                            '<i class="fas fa-lock text-slate-600 mr-2"></i>' : 
-                            `<button onclick="openEdit('${u.email}')" class="text-cyan-400 p-2"><i class="fas fa-cog"></i></button>`
+                            '<i class="fas fa-lock text-gray-700"></i>' : 
+                            `<button onclick="openEdit('${u.email}')" class="bg-white/5 hover:bg-pink-500/20 hover:text-pink-500 w-10 h-10 rounded-xl transition-all border border-white/5">
+                                <i class="fas fa-cog text-xs"></i>
+                            </button>`
                         }
-                    </div>
-                `;
-            });
+                    </td>
+                </tr>`;
+            }).join('');
         }
 
         function filterUsers(type) {
             document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
             document.getElementById(`btn-${type}`).classList.add('active');
-            if (type === 'all') renderUsers(allUsers);
-            else renderUsers(allUsers.filter(u => u.role === type || u.plan === type));
+            if (type === 'all') renderTable(allUsers);
+            else renderTable(allUsers.filter(u => u.role === type || u.plan === type));
         }
 
         async function openEdit(email) {
             const u = allUsers.find(user => user.email === email);
-            const { value: formValues } = await Swal.fire({
-                title: 'EDITAR PROTOCOLO',
+            const { value: formValues, isDenied } = await Swal.fire({
+                title: 'GESTIÓN DE USUARIO',
                 background: '#161625',
                 color: '#fff',
                 html: `
-                    <input id="swal-user" class="input-edit" value="${u.username}" placeholder="Username">
-                    <input id="swal-pass" class="input-edit" value="${u.password}" placeholder="Password">
-                    <select id="swal-role" class="input-edit">
-                        <option value="user" ${u.role === 'user' ? 'selected' : ''}>USER</option>
-                        <option value="premium" ${u.role === 'premium' ? 'selected' : ''}>PREMIUM</option>
-                        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>ADMIN</option>
-                    </select>
-                    <input id="swal-limit" class="input-edit" type="number" value="${u.limit}" placeholder="Límite">
+                    <div class="text-left">
+                        <label class="text-[9px] font-black text-gray-500 ml-1 uppercase">Username</label>
+                        <input id="swal-user" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl mb-3 text-sm outline-none focus:border-pink-500" value="${u.username}">
+                        
+                        <label class="text-[9px] font-black text-gray-500 ml-1 uppercase">Nueva Password</label>
+                        <input id="swal-pass" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl mb-3 text-sm outline-none" value="${u.password}">
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[9px] font-black text-gray-500 ml-1 uppercase">Rango</label>
+                                <select id="swal-role" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl mb-3 text-sm outline-none">
+                                    <option value="user" ${u.role === 'user' ? 'selected' : ''}>USER</option>
+                                    <option value="premium" ${u.role === 'premium' ? 'selected' : ''}>PREMIUM</option>
+                                    <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>ADMIN</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-black text-gray-500 ml-1 uppercase">Límite</label>
+                                <input id="swal-limit" type="number" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl mb-3 text-sm outline-none" value="${u.limit}">
+                            </div>
+                        </div>
+                    </div>
                 `,
                 showCancelButton: true,
                 showDenyButton: true,
                 confirmButtonText: 'GUARDAR',
                 denyButtonText: 'ELIMINAR',
-                confirmButtonColor: '#00f3ff',
-                denyButtonColor: '#ff4b4b'
+                confirmButtonColor: '#ff2d55',
+                denyButtonColor: '#444',
+                cancelButtonText: 'CANCELAR'
             });
 
             if (formValues) {
@@ -117,8 +180,8 @@
                     plan: document.getElementById('swal-role').value === 'user' ? 'free' : 'premium'
                 };
                 updateUser(email, newData);
-            } else if (Swal.getDenyButton() && Swal.isDenied) {
-                deleteUser(email);
+            } else if (isDenied) {
+                confirmDelete(email);
             }
         }
 
@@ -128,16 +191,32 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ adminKey: userData.key, targetEmail: email, newData })
             });
-            if (res.ok) loadUsers();
+            if (res.ok) {
+                Swal.fire({ icon: 'success', title: 'Actualizado', background: '#161625', color: '#fff', showConfirmButton: false, timer: 1000 });
+                loadUsers();
+            }
         }
 
-        async function deleteUser(email) {
-            const res = await fetch('/api/auth/admin/delete', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ adminKey: userData.key, targetEmail: email })
+        async function confirmDelete(email) {
+            const result = await Swal.fire({
+                title: '¿ESTÁS SEGURO?',
+                text: "Esta acción borrará al usuario de la base de datos.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff2d55',
+                confirmButtonText: 'SÍ, BORRAR',
+                background: '#161625',
+                color: '#fff'
             });
-            if (res.ok) loadUsers();
+            
+            if (result.isConfirmed) {
+                const res = await fetch('/api/auth/admin/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminKey: userData.key, targetEmail: email })
+                });
+                if (res.ok) loadUsers();
+            }
         }
     </script>
 </body>
