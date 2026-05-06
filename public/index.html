@@ -8,12 +8,22 @@
     <style>
         :root {
             --neon-blue: #00f3ff;
-            --neon-purple: #7000ff; /* Color de acento para degradados tipo Alya */
+            --neon-purple: #7000ff;
             --dark-bg: #09090b;
             --card-bg: #11111d;
             --sidebar-bg: #0c0c14;
             --text-main: #ffffff;
             --text-muted: #8e8e93;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Variables para Modo Claro */
+        body.light-mode {
+            --dark-bg: #f4f4f9;
+            --card-bg: #ffffff;
+            --sidebar-bg: #fdfdfd;
+            --text-main: #1a1a1a;
+            --text-muted: #636366;
         }
 
         body {
@@ -22,6 +32,7 @@
             font-family: 'Inter', -apple-system, sans-serif;
             margin: 0;
             overflow-x: hidden;
+            transition: background-color var(--transition), color var(--transition);
         }
 
         /* Header Estilo Alya */
@@ -36,6 +47,12 @@
             position: sticky;
             top: 0;
             z-index: 1000;
+            transition: background var(--transition);
+        }
+
+        body.light-mode header {
+            background: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .brand {
@@ -50,6 +67,7 @@
         .brand span { color: var(--neon-blue); }
 
         .header-icons { display: flex; gap: 15px; align-items: center; }
+        
         .btn-circle {
             background: rgba(255,255,255,0.05);
             border: none;
@@ -61,6 +79,12 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            transition: var(--transition);
+        }
+
+        body.light-mode .btn-circle {
+            background: rgba(0, 0, 0, 0.05);
+            color: #1a1a1a;
         }
 
         /* Banner Principal Inclinado */
@@ -101,6 +125,7 @@
             border-radius: 28px;
             overflow: hidden;
             position: relative;
+            transition: background var(--transition);
         }
 
         .hero-card-inner img {
@@ -125,6 +150,7 @@
             align-items: center;
             gap: 8px;
             border: 1px solid rgba(0, 243, 255, 0.3);
+            color: white;
         }
 
         .dot { width: 8px; height: 8px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 10px #00ff88; }
@@ -154,6 +180,7 @@
             font-size: 1rem;
             max-width: 300px;
             margin: 20px auto;
+            transition: color var(--transition);
         }
 
         /* Stats Estilo Moderno */
@@ -170,6 +197,12 @@
             padding: 15px 5px;
             border-radius: 20px;
             text-align: center;
+            transition: background var(--transition);
+        }
+
+        body.light-mode .stat-item {
+            background: rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .stat-item .val {
@@ -229,6 +262,12 @@
             align-items: center;
             gap: 20px;
             position: relative;
+            transition: background var(--transition), border var(--transition);
+        }
+
+        body.light-mode .feature-card {
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.02);
         }
 
         .feature-icon {
@@ -254,6 +293,11 @@
             padding: 30px 20px;
             text-align: center;
             border: 1px solid rgba(255,255,255,0.05);
+            transition: background var(--transition), border var(--transition);
+        }
+
+        body.light-mode .dev-section {
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .dev-avatar {
@@ -294,6 +338,11 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            transition: background var(--transition);
+        }
+
+        body.light-mode .skill-tag {
+            background: #f0f0f5;
         }
 
         /* Footer */
@@ -316,14 +365,20 @@
             transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             padding: 40px 25px;
             box-sizing: border-box;
+            color: var(--text-main);
         }
         .sidebar.active { right: 0; }
         .sidebar-link {
             display: flex; align-items: center; gap: 15px;
-            color: white; text-decoration: none;
+            color: var(--text-main); text-decoration: none;
             padding: 18px; border-radius: 20px;
             background: rgba(255,255,255,0.03);
             margin-bottom: 10px; font-weight: 700;
+            transition: background var(--transition);
+        }
+
+        body.light-mode .sidebar-link {
+            background: rgba(0,0,0,0.03);
         }
 
         .overlay {
@@ -339,7 +394,9 @@
     <header>
         <div class="brand"><i class="fas fa-microchip" style="color: var(--neon-blue);"></i> KAZUMA <span>API</span></div>
         <div class="header-icons">
-            <div class="btn-circle"><i class="fas fa-moon"></i></div>
+            <div class="btn-circle" onclick="toggleTheme()" id="theme-btn">
+                <i class="fas fa-moon"></i>
+            </div>
             <div class="btn-circle" onclick="toggleMenu()"><i class="fas fa-bars-staggered"></i></div>
         </div>
     </header>
@@ -436,28 +493,52 @@
     </footer>
 
     <script>
+        // Función para abrir/cerrar menú
         function toggleMenu() {
             document.getElementById('sidebar').classList.toggle('active');
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        async function fetchStats() {
+        // Función para cambiar el Tema (Light/Dark)
+        function toggleTheme() {
+            const body = document.body;
+            const themeBtn = document.getElementById('theme-btn');
+            const icon = themeBtn.querySelector('i');
+
+            body.classList.toggle('light-mode');
+
+            if (body.classList.contains('light-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('kazuma-theme', 'light');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('kazuma-theme', 'dark');
+            }
+        }
+
+        // Cargar estadísticas y tema guardado al iniciar
+        async function initPage() {
+            // 1. Verificar tema guardado
+            const savedTheme = localStorage.getItem('kazuma-theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-btn').querySelector('i').classList.replace('fa-moon', 'fa-sun');
+            }
+
+            // 2. Fetch de estadísticas
             try {
-                // Lógica de conexión con tu backend
                 const res = await fetch('/api/auth/stats');
                 const data = await res.json();
-                // Si tu backend devuelve { users: 100, endpoints: 50 }
                 document.getElementById('userCount').innerText = `+${data.users || 0}`;
                 document.getElementById('endpointCount').innerText = `+${data.endpoints || 0}`;
             } catch (e) {
                 console.log("Error sincronizando con backend Kurayami");
-                // Valores por defecto si falla la carga
                 document.getElementById('userCount').innerText = "+250";
                 document.getElementById('endpointCount').innerText = "+150";
             }
         }
 
-        window.onload = fetchStats;
+        window.onload = initPage;
     </script>
 </body>
 </html>
