@@ -31,7 +31,7 @@
             transition: background var(--transition), color var(--transition);
         }
 
-        /* Pantalla de seguridad absoluta */
+        /* Pantalla de seguridad absoluta (Negro puro) */
         #safety-overlay { 
             position: fixed; 
             top: 0; left: 0; width: 100%; height: 100%; 
@@ -142,7 +142,7 @@
                 </label>
             </div>
 
-            <div class="g-recaptcha" data-sitekey="6Lcz9dwsAAAAAMJ3mdr0wYqws6j7eys_hNdMDKcj" data-theme="dark" id="recaptcha-widget"></div>
+            <div class="g-recaptcha" data-sitekey="6Lcz9dwsAAAAAMJ3mdr0wYqws6j7eys_hNdMDKcj" data-theme="dark"></div>
 
             <button type="submit" id="btnSubmit" class="btn-blue w-full py-4 rounded-xl shadow-lg mt-2 font-black">
                 Registrar Cuenta
@@ -172,20 +172,22 @@
             }
         }
 
-        // Sistema de blindaje instantáneo
+        // Blindaje de Seguridad Instantáneo
         (function initialCheck() {
             const user = localStorage.getItem('kazuma_user');
             const savedTheme = localStorage.getItem('kazuma-theme');
 
+            // Cargar Tema
             if (savedTheme === 'light') {
                 document.body.classList.add('light-mode');
                 document.getElementById('theme-btn').querySelector('i').classList.replace('fa-moon', 'fa-sun');
             }
 
+            // Si hay sesión, redirección directa a Dash (Overlay permanece negro)
             if (user) {
-                // Redirección en milisegundos si ya hay sesión
-                window.location.href = '/login';
+                window.location.href = '/dash';
             } else {
+                // Solo si no hay sesión, mostramos el contenido tras cargar
                 window.onload = () => { 
                     document.getElementById('safety-overlay').style.display = 'none'; 
                 };
@@ -197,7 +199,7 @@
             
             const captchaResponse = grecaptcha.getResponse();
             if (!captchaResponse) {
-                return Swal.fire({ title: 'Seguridad', text: 'Resuelve el CAPTCHA para continuar', icon: 'warning', background: 'var(--card-bg)', color: 'var(--text-main)' });
+                return Swal.fire({ title: 'Seguridad', text: 'Resuelve el CAPTCHA', icon: 'warning', background: 'var(--card-bg)', color: 'var(--text-main)' });
             }
 
             const pass = document.getElementById('password').value;
@@ -232,10 +234,12 @@
                         icon: 'success',
                         background: 'var(--card-bg)',
                         color: 'var(--text-main)',
-                        confirmButtonText: 'IR AL LOGIN',
+                        confirmButtonText: 'IR AL DASHBOARD',
                         confirmButtonColor: '#00f3ff'
                     }).then(() => {
-                        window.location.href = '/login';
+                        // Una vez registrado, activamos la pantalla negra y vamos a Dash
+                        document.getElementById('safety-overlay').style.display = 'block';
+                        window.location.href = '/dash';
                     });
                 } else {
                     Swal.fire({ title: 'Error', text: data.message, icon: 'error', background: 'var(--card-bg)', color: 'var(--text-main)' });
