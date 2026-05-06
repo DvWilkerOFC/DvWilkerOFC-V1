@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kazuma API | Registro</title>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -17,7 +16,6 @@
         .input-kazuma:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
         .btn-blue { background: var(--neon-blue); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; color: #000; }
         .btn-blue:hover { filter: brightness(1.2); transform: translateY(-1px); }
-        .g-recaptcha { display: flex; justify-content: center; margin: 10px 0; transform: scale(0.75); }
         .checkbox-container { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .checkbox-container input { display: none; }
         .checkmark { height: 18px; width: 18px; background-color: #080810; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; position: relative; }
@@ -65,8 +63,6 @@
                 </label>
             </div>
 
-            <div class="g-recaptcha" data-sitekey="6LeYFNssAAAAAFQQJNfY4Og51qlF8zxSwLPmL1zr" data-theme="dark"></div>
-
             <button type="submit" id="btnSubmit" class="btn-blue w-full py-4 rounded-xl shadow-lg mt-2 font-black">
                 Registrar Cuenta
             </button>
@@ -87,14 +83,9 @@
             e.preventDefault();
             const pass = document.getElementById('password').value;
             const confirm = document.getElementById('confirmPassword').value;
-            const captcha = grecaptcha.getResponse();
 
             if (pass !== confirm) {
                 return Swal.fire({ title: 'Error', text: 'Las contraseñas no coinciden', icon: 'error', background: '#161625', color: '#fff' });
-            }
-
-            if (!captcha) {
-                return Swal.fire({ title: 'Seguridad', text: 'Resuelve el reCAPTCHA', icon: 'warning', background: '#161625', color: '#fff' });
             }
 
             const btn = document.getElementById('btnSubmit');
@@ -108,8 +99,7 @@
                     body: JSON.stringify({
                         username: document.getElementById('username').value,
                         email: document.getElementById('email').value,
-                        password: pass,
-                        captcha: captcha
+                        password: pass
                     })
                 });
 
@@ -130,11 +120,11 @@
                     Swal.fire({ title: 'Error', text: data.message, icon: 'error', background: '#161625', color: '#fff' });
                     btn.disabled = false;
                     btn.innerText = 'Registrar Cuenta';
-                    grecaptcha.reset();
                 }
             } catch (err) {
                 btn.disabled = false;
                 btn.innerText = 'Registrar Cuenta';
+                Swal.fire({ title: 'Error', text: 'Fallo al conectar con el servidor', icon: 'error', background: '#161625', color: '#fff' });
             }
         });
     </script>
