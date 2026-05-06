@@ -9,22 +9,26 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #0d0d0d; }
-        body { background-color: var(--dark-bg) !important; color: white; font-family: 'Inter', sans-serif; display: none; }
+        body { background-color: #000 !important; color: white; font-family: 'Inter', sans-serif; display: none; }
         .glass { background: rgba(22, 22, 37, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
-        .input-dark { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; }
+        .input-dark { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 13px; }
         .btn-filter { padding: 10px; border-radius: 12px; font-size: 10px; font-weight: 900; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
         .btn-filter.active { border-color: var(--neon-pink); color: var(--neon-pink); background: rgba(255, 45, 85, 0.05); }
         tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
         tr:hover { background: rgba(255,255,255,0.02); }
         .badge-premium { background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); border: 1px solid rgba(0, 243, 255, 0.2); }
         .badge-user { background: rgba(255, 255, 255, 0.05); color: #888; border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Estilo idéntico al modal viejo */
+        .swal2-popup { border-radius: 2.5rem !important; border: 1px solid rgba(255,255,255,0.1) !important; padding: 2rem !important; }
+        .swal-label { text-align: left; text-transform: uppercase; font-weight: 900; font-size: 10px; color: #666; display: block; margin-bottom: 4px; margin-left: 4px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
     <header class="p-4 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
         <div class="font-bold text-xl uppercase tracking-tighter">KAZUMA <span class="text-[#ff2d55]">STAFF</span></div>
         <button onclick="location.href='/dash'" class="text-sm bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition">
-            <i class="fas fa-arrow-left mr-2"></i> Dashboard
+            <i class="fas fa-arrow-left mr-2"></i> Volver
         </button>
     </header>
 
@@ -35,7 +39,7 @@
                     <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Base de Datos</p>
                     <h3 id="total-count" class="text-3xl font-black text-white mt-1">0 Usuarios</h3>
                 </div>
-                <div class="bg-pink-500/10 p-4 rounded-xl"><i class="fas fa-database text-[#ff2d55] text-xl"></i></div>
+                <div class="bg-pink-500/10 p-4 rounded-xl"><i class="fas fa-users text-[#ff2d55] text-xl"></i></div>
             </div>
         </div>
 
@@ -50,14 +54,14 @@
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-white/5 text-[10px] uppercase tracking-widest text-gray-500">
                         <tr>
-                            <th class="p-5 font-black">Identidad</th>
-                            <th class="p-5 font-black">Plan</th>
+                            <th class="p-5 font-black">Usuario / Email</th>
+                            <th class="p-5 font-black">Rango</th>
                             <th class="p-5 font-black">Consumo</th>
                             <th class="p-5 text-center font-black">Gestión</th>
                         </tr>
                     </thead>
                     <tbody id="user-table-body" class="text-sm">
-                        <tr><td colspan="4" class="p-10 text-center text-gray-500 uppercase font-black animate-pulse">Sincronizando...</td></tr>
+                        <tr><td colspan="4" class="p-10 text-center text-gray-500 font-black animate-pulse uppercase">Cargando Protocolos...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -85,41 +89,30 @@
                     document.getElementById('total-count').innerText = `${allUsers.length} Usuarios`;
                     renderTable(allUsers);
                 }
-            } catch (e) { console.error("Error cargando usuarios"); }
+            } catch (e) { console.error(e); }
         }
 
         function renderTable(list) {
             const body = document.getElementById('user-table-body');
-            if (!list.length) {
-                body.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-gray-600 font-bold uppercase">Sin registros</td></tr>';
-                return;
-            }
-
             body.innerHTML = list.map(u => {
                 const isMe = u.email === SUPER_ADMIN;
                 return `
                 <tr class="hover:bg-white/[0.03]">
                     <td class="p-5">
-                        <div class="font-black ${isMe ? 'text-pink-500' : 'text-white'} text-sm">
-                            ${u.username} ${isMe ? '<i class="fas fa-shield-alt ml-1"></i>' : ''}
-                        </div>
+                        <div class="font-black ${isMe ? 'text-pink-500' : 'text-white'} text-sm">${u.username}</div>
                         <div class="text-[10px] text-gray-500 font-mono uppercase">${u.email}</div>
                     </td>
                     <td class="p-5">
-                        <span class="text-[9px] font-black px-3 py-1 rounded-lg ${u.plan === 'premium' || u.role === 'admin' ? 'badge-premium' : 'badge-user'}">
-                            ${(u.plan || u.role).toUpperCase()}
+                        <span class="text-[9px] font-black px-3 py-1 rounded-lg ${u.role === 'admin' ? 'badge-premium' : 'badge-user'}">
+                            ${u.role.toUpperCase()}
                         </span>
                     </td>
                     <td class="p-5 text-xs font-black text-white/70">
-                        ${u.requestToday || 0} <span class="text-gray-600">/</span> ${u.limit}
+                        ${u.requestToday || 0} <span class="text-gray-800">/</span> ${u.limit}
                     </td>
                     <td class="p-5 text-center">
-                        ${isMe ? 
-                            '<i class="fas fa-lock text-gray-700"></i>' : 
-                            `<button onclick="openEdit('${u.email}')" class="bg-white/5 hover:bg-pink-500/20 hover:text-pink-500 w-10 h-10 rounded-xl transition-all border border-white/5">
-                                <i class="fas fa-cog text-xs"></i>
-                            </button>`
-                        }
+                        ${isMe ? '<i class="fas fa-lock text-gray-800"></i>' : 
+                        `<button onclick="openEdit('${u.email}')" class="bg-white/5 hover:bg-pink-500/20 hover:text-pink-500 w-10 h-10 rounded-xl transition-all border border-white/5"><i class="fas fa-user-cog text-xs"></i></button>`}
                     </td>
                 </tr>`;
             }).join('');
@@ -129,59 +122,71 @@
             document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
             document.getElementById(`btn-${type}`).classList.add('active');
             if (type === 'all') renderTable(allUsers);
-            else renderTable(allUsers.filter(u => u.role === type || u.plan === type));
+            else renderTable(allUsers.filter(u => u.role === type));
         }
 
         async function openEdit(email) {
             const u = allUsers.find(user => user.email === email);
             const { value: formValues, isDenied } = await Swal.fire({
-                title: 'GESTIÓN DE USUARIO',
+                title: '<span style="color:#ff2d55; font-weight:900; letter-spacing:-1px;">GESTIÓN STAFF</span>',
                 background: '#161625',
                 color: '#fff',
+                width: '450px',
                 html: `
-                    <div class="text-left">
-                        <label class="text-[9px] font-black text-gray-500 ml-1 uppercase">Username</label>
-                        <input id="swal-user" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl mb-3 text-sm outline-none focus:border-pink-500" value="${u.username}">
+                    <div style="text-align:left; margin-top:10px;">
+                        <span class="swal-label">Nombre de Usuario</span>
+                        <input id="swal-user" class="input-dark w-full p-3 rounded-xl mb-4 outline-none" value="${u.username}">
                         
-                        <label class="text-[9px] font-black text-gray-500 ml-1 uppercase">Nueva Password</label>
-                        <input id="swal-pass" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl mb-3 text-sm outline-none" value="${u.password}">
-                        
-                        <div class="grid grid-cols-2 gap-2">
+                        <span class="swal-label">Correo Electrónico</span>
+                        <input id="swal-email" class="input-dark w-full p-3 rounded-xl mb-4 outline-none" value="${u.email}">
+
+                        <span class="swal-label">Contraseña de Acceso</span>
+                        <input id="swal-pass" class="input-dark w-full p-3 rounded-xl mb-4 outline-none" value="${u.password}">
+
+                        <span class="swal-label">Llave Maestra (API KEY)</span>
+                        <input id="swal-key" class="input-dark w-full p-3 rounded-xl mb-4 outline-none font-mono text-cyan-400" value="${u.key}">
+
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="text-[9px] font-black text-gray-500 ml-1 uppercase">Rango</label>
-                                <select id="swal-role" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl mb-3 text-sm outline-none">
+                                <span class="swal-label">Rango</span>
+                                <select id="swal-role" class="input-dark w-full p-3 rounded-xl outline-none">
                                     <option value="user" ${u.role === 'user' ? 'selected' : ''}>USER</option>
                                     <option value="premium" ${u.role === 'premium' ? 'selected' : ''}>PREMIUM</option>
                                     <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>ADMIN</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[9px] font-black text-gray-500 ml-1 uppercase">Límite</label>
-                                <input id="swal-limit" type="number" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl mb-3 text-sm outline-none" value="${u.limit}">
+                                <span class="swal-label">Límite Diario</span>
+                                <input id="swal-limit" type="number" class="input-dark w-full p-3 rounded-xl outline-none" value="${u.limit}">
                             </div>
                         </div>
                     </div>
                 `,
                 showCancelButton: true,
                 showDenyButton: true,
-                confirmButtonText: 'GUARDAR',
-                denyButtonText: 'ELIMINAR',
+                confirmButtonText: 'GUARDAR CAMBIOS',
+                denyButtonText: 'ELIMINAR CUENTA',
                 confirmButtonColor: '#ff2d55',
-                denyButtonColor: '#444',
-                cancelButtonText: 'CANCELAR'
+                denyButtonColor: '#333',
+                customClass: {
+                    confirmButton: 'rounded-2xl font-black px-6 py-4',
+                    denyButton: 'rounded-2xl font-black text-[10px]'
+                }
             });
 
             if (formValues) {
                 const newData = {
                     username: document.getElementById('swal-user').value,
+                    email: document.getElementById('swal-email').value,
                     password: document.getElementById('swal-pass').value,
+                    key: document.getElementById('swal-key').value,
                     role: document.getElementById('swal-role').value,
                     limit: parseInt(document.getElementById('swal-limit').value),
                     plan: document.getElementById('swal-role').value === 'user' ? 'free' : 'premium'
                 };
                 updateUser(email, newData);
             } else if (isDenied) {
-                confirmDelete(email);
+                deleteUser(email);
             }
         }
 
@@ -192,24 +197,22 @@
                 body: JSON.stringify({ adminKey: userData.key, targetEmail: email, newData })
             });
             if (res.ok) {
-                Swal.fire({ icon: 'success', title: 'Actualizado', background: '#161625', color: '#fff', showConfirmButton: false, timer: 1000 });
+                Swal.fire({ icon: 'success', title: 'Protocolo Actualizado', background: '#161625', color: '#fff', showConfirmButton: false, timer: 1000 });
                 loadUsers();
             }
         }
 
-        async function confirmDelete(email) {
-            const result = await Swal.fire({
-                title: '¿ESTÁS SEGURO?',
-                text: "Esta acción borrará al usuario de la base de datos.",
+        async function deleteUser(email) {
+            const confirm = await Swal.fire({
+                title: '¿ELIMINAR?',
+                text: "Esta acción es irreversible.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ff2d55',
-                confirmButtonText: 'SÍ, BORRAR',
                 background: '#161625',
                 color: '#fff'
             });
-            
-            if (result.isConfirmed) {
+            if (confirm.isConfirmed) {
                 const res = await fetch('/api/auth/admin/delete', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
