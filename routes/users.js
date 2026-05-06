@@ -2,32 +2,25 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
-const axios = require('axios');
+// axios ya no es necesario si solo se usaba para el captcha
 const { generateKey } = require('../middlewares/auth');
 
 const dbPath = path.join(__dirname, '../database/users.json');
-const RECAPTCHA_SECRET = "6LeYFNssAAAAAL8vV99E4LzWkL6i8X9xYqG7N8_M";
 let startTime = Date.now();
 
 const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
 const saveUsers = (data) => fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 
-// REGISTRO
+// REGISTRO (SIN CAPTCHA)
 router.post('/register', async (req, res) => {
-    const { username, email, password, captcha } = req.body;
+    // Ya no pedimos 'captcha' en el body
+    const { username, email, password } = req.body;
 
-    if (!username || !email || !password || !captcha) {
-        return res.status(400).json({ status: false, message: "Faltan datos o CAPTCHA" });
+    if (!username || !email || !password) {
+        return res.status(400).json({ status: false, message: "Faltan datos obligatorios" });
     }
 
     try {
-        const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET}&response=${captcha}`;
-        const captchaRes = await axios.post(verifyUrl);
-
-        if (!captchaRes.data.success) {
-            return res.status(400).json({ status: false, message: "CAPTCHA inválido" });
-        }
-
         let users = getUsers();
         if (users.find(u => u.email === email)) {
             return res.status(400).json({ status: false, message: "El correo ya existe" });
@@ -43,7 +36,7 @@ router.post('/register', async (req, res) => {
             limit: 100,
             requestToday: 0,
             totalRequest: 0,
-            profile_img: "https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg", // Foto por defecto
+            profile_img: "https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg", 
             lastRequestDate: new Date().toISOString().split('T')[0]
         };
 
@@ -122,7 +115,7 @@ router.get('/me', (req, res) => {
 // ACTUALIZACIÓN DE PERFIL (USUARIO)
 router.post('/update-profile', (req, res) => {
     const { apiKey, type, value } = req.body;
-    
+
     if (!apiKey || !type || value === undefined) {
         return res.status(400).json({ status: false, message: "Faltan parámetros" });
     }
@@ -134,13 +127,11 @@ router.post('/update-profile', (req, res) => {
         return res.status(404).json({ status: false, message: "Llave maestra inválida" });
     }
 
-    // Campos que el usuario tiene permitido editar
     const allowedFields = ['username', 'email', 'password', 'profile_img'];
     if (!allowedFields.includes(type)) {
         return res.status(400).json({ status: false, message: "Acción no permitida para este campo" });
     }
 
-    // Evitar que editen la cuenta principal de admin por seguridad si es que se loguea
     if (users[userIdx].email === 'frasesbebor@gmail.com' && type === 'password') {
          return res.status(403).json({ status: false, message: "No puedes cambiar la contraseña del ADMIN raíz" });
     }
@@ -160,14 +151,18 @@ router.get('/stats', (req, res) => {
     const users = getUsers();
     const routesPath = path.join(__dirname, '../routes');
     let endpointCount = 0;
-    const folders = fs.readdirSync(routesPath);
-    folders.forEach(folder => {
-        const fullPath = path.join(routesPath, folder);
-        if (fs.lstatSync(fullPath).isDirectory()) {
-            const files = fs.readdirSync(fullPath);
-            endpointCount += files.length;
-        }
-    });
+    
+    try {
+        const folders = fs.readdirSync(routesPath);
+        folders.forEach(folder => {
+            const fullPath = path.join(routesPath, folder);
+            if (fs.lstatSync(fullPath).isDirectory()) {
+                const files = fs.readdirSync(fullPath);
+                endpointCount += files.length;
+            }
+        });
+    } catch (e) { endpointCount = 0; }
+    
     res.json({ status: true, users: users.length, endpoints: endpointCount });
 });
 
