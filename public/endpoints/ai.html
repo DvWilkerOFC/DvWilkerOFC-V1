@@ -99,17 +99,17 @@
                 <span class="text-[10px] bg-cyan-500/10 text-cyan-400 px-2 py-1 rounded font-black">AI MODEL</span>
             </div>
 
-            <div class="code-box" id="gemini-path">GET /api/ai/gemini?prompt=</div>
+            <div class="code-box" id="gemini-path">GET /api/ai/gemini?apiKey=</div>
             
             <div class="space-y-3">
                 <div>
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Cookie de Sesión</label>
-                    <input id="cookie-gemini" class="input-test" value="cookie" placeholder="Tu session cookie...">
+                    <input id="cookie-gemini" class="input-test" value="cokie" placeholder="Tu session cookie...">
                 </div>
                 
                 <div>
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Mensaje (Prompt)</label>
-                    <textarea id="prompt-gemini" class="input-test h-24 resize-none" placeholder="Escribe algo para Gemini..."></textarea>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Texto (Mensaje)</label>
+                    <textarea id="text-gemini" class="input-test h-24 resize-none" placeholder="Escribe algo para Gemini..."></textarea>
                 </div>
 
                 <button class="btn-test mt-2" onclick="testAi('gemini', '/api/ai/gemini')">Ejecutar Gemini</button>
@@ -128,7 +128,8 @@
         } else {
             document.addEventListener("DOMContentLoaded", () => {
                 const pathEl = document.getElementById('gemini-path');
-                if(pathEl) pathEl.innerText += `&cookie=...&apiKey=${userData.key}`;
+                // Ajustado al orden de tu ejemplo: apiKey, text, cookie
+                if(pathEl) pathEl.innerText += `${userData.key}&text=...&cookie=...`;
                 setTimeout(() => { document.getElementById('safety-block').style.display = 'none'; }, 300);
             });
         }
@@ -141,27 +142,27 @@
         }
 
         async function testAi(id, route) {
-            const prompt = document.getElementById(`prompt-${id}`).value.trim();
-            const cookie = document.getElementById(`cookie-${id}`).value.trim();
+            const textVal = document.getElementById(`text-gemini`).value.trim();
+            const cookieVal = document.getElementById(`cookie-gemini`).value.trim();
             const resBox = document.getElementById(`res-${id}`);
             const copyBtn = document.getElementById(`copy-${id}`);
             
-            if (!prompt) return Swal.fire({ icon: 'warning', title: 'Falta Mensaje', background: 'var(--card-bg)', color: 'var(--text-main)' });
+            if (!textVal) return Swal.fire({ icon: 'warning', title: 'Falta Texto', background: 'var(--card-bg)', color: 'var(--text-main)' });
 
             resBox.style.display = 'block';
-            resBox.innerText = "GEMINI ESTÁ PENSANDO...";
+            resBox.innerText = "PROCESANDO SOLICITUD...";
             copyBtn.style.display = 'none';
 
             try {
-                // Construcción de la URL con prompt, cookie y apiKey
-                const url = `${route}?prompt=${encodeURIComponent(prompt)}&cookie=${encodeURIComponent(cookie)}&apiKey=${userData.key}`;
+                // URL final siguiendo exactamente tu formato
+                const url = `${route}?apiKey=${userData.key}&text=${encodeURIComponent(textVal)}&cookie=${encodeURIComponent(cookieVal)}`;
                 const response = await fetch(url);
                 const data = await response.json();
                 
                 resBox.innerText = JSON.stringify(data, null, 2);
                 copyBtn.style.display = 'block';
             } catch (err) { 
-                resBox.innerText = "ERROR DE COMUNICACIÓN CON EL MODELO"; 
+                resBox.innerText = "ERROR DE RESPUESTA"; 
                 copyBtn.style.display = 'block';
             }
         }
