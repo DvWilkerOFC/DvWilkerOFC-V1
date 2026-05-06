@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kazuma API | Registro</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --neon-blue: #00f3ff; --dark-bg: #0d0d0d; --card-bg: #161625; }
+        body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; margin: 0; }
+        #safety-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; }
+        .glass { background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .input-kazuma { background: #080810; border: 1px solid rgba(255,255,255,0.1); color: #ffffff !important; transition: 0.3s; }
+        .input-kazuma:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
+        .btn-blue { background: var(--neon-blue); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; color: #000; }
+        .btn-blue:hover { filter: brightness(1.2); transform: translateY(-1px); }
+        .g-recaptcha { display: flex; justify-content: center; margin: 10px 0; transform: scale(0.75); }
+        .checkbox-container { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .checkbox-container input { display: none; }
+        .checkmark { height: 18px; width: 18px; background-color: #080810; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; position: relative; }
+        .checkbox-container input:checked ~ .checkmark { background-color: var(--neon-blue); border-color: var(--neon-blue); }
+        .checkmark:after { content: ""; position: absolute; display: none; left: 6px; top: 2px; width: 5px; height: 10px; border: solid black; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+        .checkbox-container input:checked ~ .checkmark:after { display: block; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div id="safety-overlay"></div>
+
+    <div class="glass p-8 rounded-3xl w-full max-w-md my-8">
+        <div class="text-center mb-6">
+            <h2 class="text-3xl font-black tracking-tighter uppercase">NUEVO <span style="color: var(--neon-blue);">PROTOCOLO</span></h2>
+            <p class="text-slate-500 text-[10px] mt-1 uppercase font-bold tracking-widest">Crear Credenciales de Acceso</p>
+        </div>
+
+        <form id="registerForm" class="space-y-4">
+            <div>
+                <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Username</label>
+                <input type="text" id="username" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="Usuario123" required>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Email</label>
+                <input type="email" id="email" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="correo@ejemplo.com" required>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Password</label>
+                    <input type="password" id="password" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="••••" required>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Confirmar</label>
+                    <input type="password" id="confirmPassword" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="••••" required>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="tos" required>
+                    <span class="checkmark"></span>
+                    <span class="text-slate-400 text-[11px] uppercase font-bold tracking-tight">
+                        Acepto los <a href="/tos/terms" class="font-black" style="color: var(--neon-blue);">términos y condiciones</a>
+                    </span>
+                </label>
+            </div>
+
+            <div class="g-recaptcha" data-sitekey="6LeYFNssAAAAAFQQJNfY4Og51qlF8zxSwLPmL1zr" data-theme="dark"></div>
+
+            <button type="submit" id="btnSubmit" class="btn-blue w-full py-4 rounded-xl shadow-lg mt-2 font-black">
+                Registrar Cuenta
+            </button>
+        </form>
+
+        <div class="mt-6 flex flex-col gap-3 text-center border-t border-white/5 pt-4">
+            <p class="text-slate-500 text-sm">¿Ya tienes cuenta? <a href="/login" class="font-bold" style="color: var(--neon-blue);">Inicia Sesión</a></p>
+            <a href="mailto:pixelcrewteam@gmail.com" class="py-3 rounded-xl text-[10px] font-black flex items-center justify-center gap-2 transition bg-white/5 text-slate-400 hover:text-white border border-white/10 uppercase tracking-widest">
+                <i class="fas fa-question-circle"></i> Necesitas Ayuda
+            </a>
+        </div>
+    </div>
+
+    <script>
+        window.onload = () => { document.getElementById('safety-overlay').style.display = 'none'; };
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pass = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            const captcha = grecaptcha.getResponse();
+
+            if (pass !== confirm) {
+                return Swal.fire({ title: 'Error', text: 'Las contraseñas no coinciden', icon: 'error', background: '#161625', color: '#fff' });
+            }
+
+            if (!captcha) {
+                return Swal.fire({ title: 'Seguridad', text: 'Resuelve el reCAPTCHA', icon: 'warning', background: '#161625', color: '#fff' });
+            }
+
+            const btn = document.getElementById('btnSubmit');
+            btn.disabled = true;
+            btn.innerText = 'PROCESANDO...';
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        email: document.getElementById('email').value,
+                        password: pass,
+                        captcha: captcha
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.status) {
+                    Swal.fire({
+                        title: 'REGISTRO EXITOSO',
+                        html: `<p>Tu cuenta ha sido creada.</p><br><p style="color:var(--neon-blue); font-weight:bold; font-size:12px;">TU API KEY: ${data.key}</p>`,
+                        icon: 'success',
+                        background: '#161625',
+                        color: '#fff',
+                        confirmButtonText: 'IR AL LOGIN'
+                    }).then(() => {
+                        window.location.href = '/login';
+                    });
+                } else {
+                    Swal.fire({ title: 'Error', text: data.message, icon: 'error', background: '#161625', color: '#fff' });
+                    btn.disabled = false;
+                    btn.innerText = 'Registrar Cuenta';
+                    grecaptcha.reset();
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerText = 'Registrar Cuenta';
+            }
+        });
+    </script>
+</body>
+</html>
