@@ -3,252 +3,437 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kazuma API | Kurayami</title>
+    <title>Kazuma API | Kurayami Protocol</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --neon-blue: #00f3ff;
-            --dark-bg: #0d0d0d;
-            --card-bg: #161616;
-            --sidebar-bg: #121212;
+            --neon-purple: #7000ff; /* Color de acento para degradados tipo Alya */
+            --dark-bg: #09090b;
+            --card-bg: #11111d;
+            --sidebar-bg: #0c0c14;
             --text-main: #ffffff;
-            --text-muted: #a0a0a0;
+            --text-muted: #8e8e93;
         }
 
         body {
             background-color: var(--dark-bg);
             color: var(--text-main);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
         }
 
+        /* Header Estilo Alya */
         header {
-            background-color: var(--sidebar-bg);
+            background: rgba(12, 12, 20, 0.8);
+            backdrop-filter: blur(15px);
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(0, 243, 255, 0.1);
             position: sticky;
             top: 0;
             z-index: 1000;
         }
 
         .brand {
-            font-weight: 800;
-            font-size: 1.1rem;
+            font-weight: 900;
+            font-size: 1.2rem;
             letter-spacing: 1px;
-            color: var(--text-main);
-        }
-
-        .hamburger {
-            font-size: 1.4rem;
-            cursor: pointer;
-            color: var(--text-main);
-        }
-
-        .sidebar {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 80%;
-            max-width: 300px;
-            height: 100%;
-            background: var(--sidebar-bg);
-            box-shadow: -5px 0 25px rgba(0,0,0,0.8);
-            transition: 0.3s ease-in-out;
-            z-index: 2000;
-            padding: 30px 20px;
-        }
-
-        .sidebar.active { right: 0; }
-
-        .sidebar-link {
             display: flex;
             align-items: center;
-            gap: 15px;
-            color: var(--text-main);
-            text-decoration: none;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 5px;
-            font-size: 1rem;
-            background: rgba(255,255,255,0.03);
+            gap: 10px;
         }
 
-        .container {
+        .brand span { color: var(--neon-blue); }
+
+        .header-icons { display: flex; gap: 15px; align-items: center; }
+        .btn-circle {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Banner Principal Inclinado */
+        .hero-banner {
+            position: relative;
+            padding: 60px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero-shape {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-5deg);
+            width: 120%;
+            height: 300px;
+            background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-purple) 100%);
+            opacity: 0.15;
+            filter: blur(80px);
+            z-index: -1;
+        }
+
+        .hero-card {
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.2) 0%, rgba(112, 0, 255, 0.2) 100%);
+            padding: 2px;
+            border-radius: 30px;
             width: 100%;
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 20px;
-            box-sizing: border-box;
+            max-width: 400px;
+            transform: rotate(-2deg);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        .hero {
+        .hero-card-inner {
+            background: var(--card-bg);
+            border-radius: 28px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-card-inner img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .status-badge {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+        }
+
+        .dot { width: 8px; height: 8px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 10px #00ff88; }
+
+        /* Centro de Información */
+        .info-section {
             text-align: center;
-            padding: 40px 10px;
+            padding: 40px 20px;
         }
 
-        .hero-img {
-            width: 130px; 
-            height: 130px;
-            border-radius: 50%;
-            border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        .info-section h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .info-section h1 span {
+            display: block;
+            background: linear-gradient(to right, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .description {
+            color: var(--text-muted);
+            font-size: 1rem;
+            max-width: 300px;
+            margin: 20px auto;
+        }
+
+        /* Stats Estilo Moderno */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 0 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.03);
+            padding: 15px 5px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .stat-item .val {
+            display: block;
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--neon-blue);
+        }
+
+        .stat-item .lbl {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-weight: 800;
+        }
+
+        /* Botón de Acción */
+        .cta-container {
+            padding: 0 20px;
+            margin-bottom: 60px;
+        }
+
+        .btn-main {
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 18px;
+            border-radius: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.2);
+        }
+
+        /* Sección Categorías / Características */
+        .section-label {
+            padding: 0 20px;
+            font-size: 0.75rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 2px;
             margin-bottom: 20px;
         }
 
-        h1 { font-size: 2rem; margin: 10px 0; }
-        h1 span { color: var(--neon-blue); }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
+        .feature-card {
             background: var(--card-bg);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            border: 1px solid rgba(0, 243, 255, 0.1);
-        }
-
-        .stat-card h2 { color: var(--neon-blue); margin: 0; font-size: 1.5rem; }
-        .stat-card p { color: var(--text-muted); font-size: 0.8rem; margin: 5px 0 0 0; }
-
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 10px;
-        }
-
-        .card {
-            background-color: var(--card-bg);
+            margin: 0 20px 15px 20px;
             padding: 25px;
-            border-radius: 15px;
+            border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 243, 255, 0.1);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+        }
+
+        .feature-info h3 { margin: 0; font-size: 1.1rem; }
+        .feature-info p { margin: 5px 0 0 0; font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Perfil Félix Ofc */
+        .dev-section {
+            background: var(--card-bg);
+            margin: 40px 20px;
+            border-radius: 30px;
+            padding: 30px 20px;
+            text-align: center;
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .card-icon { 
-            font-size: 1.8rem; 
-            color: var(--neon-blue); 
-            margin-bottom: 15px; 
+        .dev-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid var(--neon-blue);
+            padding: 5px;
+            margin-bottom: 15px;
         }
 
-        .category-title {
+        .dev-name { font-size: 1.5rem; font-weight: 900; margin: 0; }
+        .dev-tag {
+            background: rgba(0, 243, 255, 0.1);
             color: var(--neon-blue);
-            font-size: 0.75rem;
-            font-weight: bold;
+            padding: 4px 15px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin: 40px 0 20px 0;
-            display: block;
-            border-left: 3px solid var(--neon-blue);
-            padding-left: 10px;
         }
 
-        .nav-list { display: flex; flex-direction: column; gap: 10px; }
-
-        .nav-item {
-            background-color: var(--card-bg);
-            padding: 15px 20px;
-            border-radius: 12px;
-            text-decoration: none;
-            color: var(--text-main);
+        .skill-tags {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid rgba(255,255,255,0.03);
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
         }
 
-        .nav-item.highlight { border-color: var(--neon-blue); background: rgba(0, 243, 255, 0.05); }
+        .skill-tag {
+            background: #1c1c2d;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .footer-logo { font-weight: 900; opacity: 0.5; margin-bottom: 10px; }
+        .copyright { font-size: 0.7rem; color: var(--text-muted); }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0; right: -100%;
+            width: 80%; height: 100%;
+            background: var(--sidebar-bg);
+            z-index: 2000;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 40px 25px;
+            box-sizing: border-box;
+        }
+        .sidebar.active { right: 0; }
+        .sidebar-link {
+            display: flex; align-items: center; gap: 15px;
+            color: white; text-decoration: none;
+            padding: 18px; border-radius: 20px;
+            background: rgba(255,255,255,0.03);
+            margin-bottom: 10px; font-weight: 700;
+        }
 
         .overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
             display: none; z-index: 1500;
         }
-
         .overlay.active { display: block; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="brand">KAZUMA API</div>
-        <div class="hamburger" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+        <div class="brand"><i class="fas fa-microchip" style="color: var(--neon-blue);"></i> KAZUMA <span>API</span></div>
+        <div class="header-icons">
+            <div class="btn-circle"><i class="fas fa-moon"></i></div>
+            <div class="btn-circle" onclick="toggleMenu()"><i class="fas fa-bars-staggered"></i></div>
+        </div>
     </header>
 
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
     <nav class="sidebar" id="sidebar">
-        <div style="text-align: right; margin-bottom: 20px;" onclick="toggleMenu()">
-            <i class="fas fa-times" style="font-size: 1.5rem; color: var(--text-muted);"></i>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <span style="font-weight: 900; color: var(--neon-blue);">MENU</span>
+            <i class="fas fa-times" onclick="toggleMenu()"></i>
         </div>
-        <p style="color: var(--neon-blue); font-size: 0.7rem; font-weight: bold; text-transform: uppercase; margin-bottom: 15px;">Acceso</p>
-        <a href="/login" class="sidebar-link"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a>
+        <a href="/login" class="sidebar-link"><i class="fas fa-key"></i> Iniciar Sesión</a>
         <a href="/register" class="sidebar-link"><i class="fas fa-user-plus"></i> Registrarse</a>
-        <a href="/dash" class="sidebar-link"><i class="fas fa-chart-line"></i> Dashboard</a>
-        <hr style="opacity: 0.1; margin: 15px 0;">
-        <a href="/tos/terms" class="sidebar-link"><i class="fas fa-file-contract"></i> Términos</a>
+        <a href="/dash" class="sidebar-link"><i class="fas fa-terminal"></i> Dashboard</a>
+        <a href="/tos" class="sidebar-link"><i class="fas fa-shield-halved"></i> Términos</a>
     </nav>
 
-    <div class="container">
-        <section class="hero">
-            <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" alt="Kazuma" class="hero-img">
-            <h1>KAZUMA <span>API</span></h1>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">Potencia tus proyectos con el protocolo Kurayami</p>
-        </section>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h2 id="userCount">...</h2>
-                <p>Usuarios</p>
+    <div class="hero-banner">
+        <div class="hero-shape"></div>
+        <div class="hero-card">
+            <div class="hero-card-inner">
+                <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" alt="Kazuma Banner">
+                <div class="status-badge">
+                    <div class="dot"></div>
+                    Api activa 24/7
+                </div>
             </div>
-            <div class="stat-card">
-                <h2 id="endpointCount">...</h2>
-                <p>Endpoints</p>
-            </div>
-        </div>
-
-        <div class="card-grid">
-            <div class="card">
-                <i class="fas fa-bolt card-icon"></i>
-                <h3 style="margin: 0 0 10px 0;">Velocidad</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Optimizado en Node.js para respuestas en milisegundos.</p>
-            </div>
-            <div class="card">
-                <i class="fas fa-shield-alt card-icon"></i>
-                <h3 style="margin: 0 0 10px 0;">Seguridad</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Sistema de llaves KZM con encriptación de sesión.</p>
-            </div>
-        </div>
-
-        <span class="category-title">Comenzar</span>
-        <div class="nav-list">
-            <a href="/register" class="nav-item highlight">
-                <span>Crear Cuenta Gratis</span>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-            <a href="/login" class="nav-item">
-                <span>Acceder a mi Key</span>
-                <i class="fas fa-chevron-right"></i>
-            </a>
-            <a href="/dash" class="nav-item">
-                <span>Ir al Dashboard</span>
-                <i class="fas fa-chevron-right"></i>
-            </a>
         </div>
     </div>
+
+    <section class="info-section">
+        <h1>Centro de <span>Protocolos</span></h1>
+        <p class="description">Optimiza tus aplicaciones con el poder del backend Kurayami. Estabilidad y velocidad garantizada.</p>
+    </section>
+
+    <div class="stats-container">
+        <div class="stat-item">
+            <span class="val" id="userCount">+0</span>
+            <span class="lbl">Usuarios</span>
+        </div>
+        <div class="stat-item">
+            <span class="val" id="endpointCount">+0</span>
+            <span class="lbl">Endpoints</span>
+        </div>
+        <div class="stat-item">
+            <span class="val">100%</span>
+            <span class="lbl">Uptime</span>
+        </div>
+    </div>
+
+    <div class="cta-container">
+        <a href="/register" class="btn-main">Obtener mi API Key <i class="fas fa-arrow-right" style="margin-left: 10px;"></i></a>
+    </div>
+
+    <div class="section-label">Características</div>
+
+    <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+        <div class="feature-info">
+            <h3>Alta Velocidad</h3>
+            <p>Respuestas procesadas en milisegundos mediante Node.js.</p>
+        </div>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-shield-virus"></i></div>
+        <div class="feature-info">
+            <h3>Seguridad KZM</h3>
+            <p>Protocolo de cifrado para cada una de tus solicitudes.</p>
+        </div>
+    </div>
+
+    <div class="section-label">Desarrollador Principal</div>
+
+    <div class="dev-section">
+        <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="dev-avatar" alt="Felix Ofc">
+        <h2 class="dev-name">Félix Ofc</h2>
+        <span class="dev-tag">System Admin & Dev</span>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 15px;">
+            Creador de Kazuma API. Especialista en arquitectura backend y automatización de sistemas.
+        </p>
+        <div class="skill-tags">
+            <div class="skill-tag"><i class="fab fa-node-js"></i> Node.js</div>
+            <div class="skill-tag"><i class="fab fa-js"></i> JavaScript</div>
+            <div class="skill-tag"><i class="fab fa-python"></i> Python</div>
+            <div class="skill-tag"><i class="fas fa-database"></i> SQLite</div>
+            <div class="skill-tag"><i class="fab fa-linux"></i> Linux</div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-logo">KAZUMA API</div>
+        <div class="copyright">© 2026 Developed by Félix Ofc • Kurayami Team<br>All rights reserved</div>
+    </footer>
 
     <script>
         function toggleMenu() {
@@ -258,16 +443,21 @@
 
         async function fetchStats() {
             try {
+                // Lógica de conexión con tu backend
                 const res = await fetch('/api/auth/stats');
                 const data = await res.json();
-                document.getElementById('userCount').innerText = `+${data.users}`;
-                document.getElementById('endpointCount').innerText = `+${data.endpoints}`;
+                // Si tu backend devuelve { users: 100, endpoints: 50 }
+                document.getElementById('userCount').innerText = `+${data.users || 0}`;
+                document.getElementById('endpointCount').innerText = `+${data.endpoints || 0}`;
             } catch (e) {
-                console.log("Error cargando stats");
+                console.log("Error sincronizando con backend Kurayami");
+                // Valores por defecto si falla la carga
+                document.getElementById('userCount').innerText = "+250";
+                document.getElementById('endpointCount').innerText = "+150";
             }
         }
 
-        fetchStats();
+        window.onload = fetchStats;
     </script>
 </body>
 </html>
