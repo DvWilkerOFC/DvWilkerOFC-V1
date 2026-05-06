@@ -81,7 +81,10 @@
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const captcha = grecaptcha.getResponse();
-            if (!captcha) return Swal.fire({ title: 'Error', text: 'Resuelve el CAPTCHA', icon: 'warning', background: '#161625', color: '#fff' });
+            
+            if (!captcha) {
+                return Swal.fire({ title: 'Seguridad', text: 'Resuelve el reCAPTCHA', icon: 'warning', background: '#161625', color: '#fff' });
+            }
 
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true;
@@ -99,16 +102,28 @@
                 });
 
                 const data = await res.json();
+
                 if (data.status) {
                     localStorage.setItem('kazuma_user', JSON.stringify(data.data));
-                    window.location.href = '/dash';
+                    Swal.fire({
+                        title: 'ACCESO CONCEDIDO',
+                        text: 'Iniciando sesión...',
+                        icon: 'success',
+                        background: '#161625',
+                        color: '#fff',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        window.location.href = '/dash';
+                    });
                 } else {
                     Swal.fire({ title: 'Error', text: data.message, icon: 'error', background: '#161625', color: '#fff' });
-                    grecaptcha.reset();
                     btn.disabled = false;
                     btn.innerText = 'Entrar al Sistema';
+                    grecaptcha.reset();
                 }
             } catch (err) {
+                Swal.fire({ title: 'Error Fatal', text: 'No se pudo conectar con el servidor', icon: 'error', background: '#161625', color: '#fff' });
                 btn.disabled = false;
                 btn.innerText = 'Entrar al Sistema';
             }
