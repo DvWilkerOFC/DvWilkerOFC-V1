@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
+const axios = require('axios');
 const { generateKey } = require('../middlewares/auth');
-const dbPath = path.join(__dirname, '../database/users.json');
 
+const dbPath = path.join(__dirname, '../database/users.json');
+const RECAPTCHA_SECRET = "6LeYFNssAAAAAL8vV99E4LzWkL6i8X9xYqG7N8_M";
 let startTime = Date.now();
 
 const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
@@ -36,24 +38,35 @@ router.post('/register', (req, res) => {
     res.json({ status: true, creator: "Félix Ofc", message: "Registro exitoso", key: newUser.key });
 });
 
-router.post('/login', (req, res) => {
-    const { email, password } = req.body;
-    let users = getUsers();
-    const user = users.find(u => u.email === email && u.password === password);
+router.post('/login', async (req, res) => {
+    const { email, password, captcha } = req.body;
+    
+    if (!captcha) return res.status(400).json({ status: false, message: "CAPTCHA requerido" });
 
-    if (!user) return res.status(401).json({ status: false, message: "Credenciales inválidas" });
+    try {
+        const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET}&response=${captcha}`;
+        const captchaRes = await axios.post(verifyUrl);
+        if (!captchaRes.data.success) return res.status(400).json({ status: false, message: "CAPTCHA inválido" });
 
-    res.json({
-        status: true,
-        creator: "Félix Ofc",
-        data: {
-            username: user.username,
-            key: user.key,
-            role: user.role,
-            plan: user.plan,
-            limit: user.limit
-        }
-    });
+        let users = getUsers();
+        const user = users.find(u => u.email === email && u.password === password);
+
+        if (!user) return res.status(401).json({ status: false, message: "Credenciales incorrectas" });
+
+        res.json({
+            status: true,
+            creator: "Félix Ofc",
+            data: {
+                username: user.username,
+                key: user.key,
+                role: user.role,
+                plan: user.plan,
+                limit: user.limit
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ status: false, message: "Error en la verificación de seguridad" });
+    }
 });
 
 router.get('/me', (req, res) => {
