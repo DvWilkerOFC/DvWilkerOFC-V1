@@ -16,6 +16,7 @@
         .input-kazuma:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
         .btn-blue { background: var(--neon-blue); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; color: #000; }
         .btn-blue:hover { filter: brightness(1.2); transform: translateY(-1px); }
+        
         .checkbox-container { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .checkbox-container input { display: none; }
         .checkmark { height: 18px; width: 18px; background-color: #080810; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; position: relative; }
@@ -112,7 +113,8 @@
                         icon: 'success',
                         background: '#161625',
                         color: '#fff',
-                        confirmButtonText: 'IR AL LOGIN'
+                        confirmButtonText: 'IR AL LOGIN',
+                        confirmButtonColor: '#00f3ff'
                     }).then(() => {
                         window.location.href = '/login';
                     });
