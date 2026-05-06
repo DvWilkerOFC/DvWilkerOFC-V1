@@ -14,6 +14,16 @@
             --sidebar-bg: #0c0c14; 
             --text-main: #ffffff; 
             --text-muted: #8e8e93; 
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Variables para Modo Claro */
+        body.light-mode {
+            --dark-bg: #f4f4f9;
+            --card-bg: #ffffff;
+            --sidebar-bg: #fdfdfd;
+            --text-main: #1a1a1a;
+            --text-muted: #636366;
         }
 
         body { 
@@ -26,14 +36,12 @@
             flex-direction: column; 
             min-height: 100vh; 
             overflow-x: hidden; 
+            transition: background-color var(--transition), color var(--transition);
         }
 
-        #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
+        #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: background var(--transition); }
         .spinner { width: 50px; height: 50px; border: 3px solid rgba(0, 243, 255, 0.1); border-top: 3px solid var(--neon-blue); border-radius: 50%; animation: spin 1s linear infinite; box-shadow: 0 0 15px var(--neon-blue); }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .loading-text { margin-top: 15px; font-weight: 900; font-size: 0.8rem; letter-spacing: 2px; color: var(--neon-blue); text-transform: uppercase; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
         header { 
             background: rgba(12, 12, 20, 0.9); 
@@ -46,6 +54,25 @@
             position: sticky; 
             top: 0; 
             z-index: 1000; 
+            transition: background var(--transition), border var(--transition);
+        }
+
+        body.light-mode header {
+            background: rgba(255, 255, 255, 0.85);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .theme-toggle {
+            font-size: 1.2rem;
+            color: var(--neon-blue);
+            cursor: pointer;
+            transition: transform 0.3s ease;
         }
 
         .brand { font-weight: 900; font-size: 1.2rem; letter-spacing: 1px; }
@@ -58,7 +85,6 @@
             flex-grow: 1;
         }
 
-        .hero { text-align: center; padding: 25px 0; }
         .hero-img { 
             width: 120px; 
             height: 120px; 
@@ -68,7 +94,6 @@
             object-fit: cover; 
             box-shadow: 0 0 25px rgba(0, 243, 255, 0.3); 
         }
-        .hero h1 { font-size: 1.6rem; font-weight: 900; margin: 0; text-transform: uppercase; }
 
         .api-card { 
             background: var(--card-bg); 
@@ -77,21 +102,14 @@
             margin-bottom: 18px; 
             border: 1px solid rgba(0, 243, 255, 0.05); 
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: background var(--transition), border var(--transition), box-shadow var(--transition);
         }
 
-        .nav-category { 
-            color: var(--neon-blue); 
-            font-size: 0.75rem; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            margin-bottom: 15px; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px;
-            letter-spacing: 1px;
+        body.light-mode .api-card {
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .stat-box { 
             background: rgba(33, 33, 53, 0.5); 
             padding: 18px; 
@@ -99,17 +117,12 @@
             border-left: 4px solid var(--neon-blue); 
             position: relative;
             overflow: hidden;
+            transition: background var(--transition);
         }
-        .stat-box i { 
-            position: absolute; 
-            right: 10px; 
-            bottom: 10px; 
-            font-size: 1.8rem; 
-            opacity: 0.1; 
-            color: var(--neon-blue);
+
+        body.light-mode .stat-box {
+            background: rgba(0, 0, 0, 0.03);
         }
-        .stat-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block;}
-        .stat-value { font-size: 1.2rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
 
         .key-box { 
             display: flex; 
@@ -119,8 +132,15 @@
             padding: 18px; 
             border-radius: 18px; 
             border: 1px solid rgba(0, 243, 255, 0.1); 
+            transition: background var(--transition);
         }
-        .key-box span { font-family: 'monospace'; font-size: 0.85rem; color: #fff; }
+
+        body.light-mode .key-box {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-main);
+        }
+
+        body.light-mode .key-box span { color: var(--text-main); }
 
         .user-card { 
             display: flex; 
@@ -131,28 +151,26 @@
             border-radius: 20px; 
             margin-bottom: 10px; 
             border: 1px solid rgba(0, 243, 255, 0.1);
+            transition: border var(--transition);
         }
-        .user-info-flex { display: flex; align-items: center; gap: 12px; }
-        .user-avatar-circle { 
-            width: 32px; height: 32px; border-radius: 10px; 
-            background: var(--neon-blue); color: #000; 
-            display: flex; align-items: center; justify-content: center; 
-            font-weight: 900; font-size: 0.85rem;
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+
+        body.light-mode .user-card {
+            background: linear-gradient(90deg, rgba(0,0,0,0.02) 0%, rgba(0,243,255,0.05) 100%);
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .sidebar { position: fixed; top: 0; right: -100%; width: 85%; max-width: 320px; height: 100%; background: var(--sidebar-bg); border-left: 1px solid rgba(0, 243, 255, 0.1); transition: 0.3s ease; z-index: 2000; padding: 35px 20px; box-sizing: border-box; }
         .sidebar.active { right: 0; }
-        .sidebar-link { display: flex; align-items: center; gap: 15px; color: #fff; text-decoration: none; padding: 14px; border-radius: 15px; margin-bottom: 8px; background: rgba(255,255,255,0.03); font-weight: 600; font-size: 0.95rem; transition: 0.3s; }
-        .sidebar-link:active { background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); }
+        .sidebar-link { display: flex; align-items: center; gap: 15px; color: var(--text-main); text-decoration: none; padding: 14px; border-radius: 15px; margin-bottom: 8px; background: rgba(255,255,255,0.03); font-weight: 600; font-size: 0.95rem; transition: var(--transition); }
+        
+        body.light-mode .sidebar-link { background: rgba(0,0,0,0.03); }
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(5px); }
         .overlay.active { display: block; }
 
-        .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.7rem; font-weight: 700; opacity: 0.6; }
-        
-        /* Ajuste para el botón de cerrar sesión */
-        .logout-btn { margin-top:40px; background: rgba(0, 243, 255, 0.05); border: 1px solid var(--neon-blue); color: var(--neon-blue); text-shadow: 0 0 5px rgba(0, 243, 255, 0.5); }
+        .loading-text { margin-top: 15px; font-weight: 900; font-size: 0.8rem; letter-spacing: 2px; color: var(--neon-blue); text-transform: uppercase; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -163,7 +181,12 @@
 
     <header>
         <div class="brand">KAZUMA <span>DASH</span></div>
-        <div onclick="toggleMenu()" style="font-size: 1.4rem; color: var(--neon-blue); cursor: pointer;"><i class="fas fa-bars-staggered"></i></div>
+        <div class="header-controls">
+            <div class="theme-toggle" onclick="toggleTheme()" id="theme-btn">
+                <i class="fas fa-moon"></i>
+            </div>
+            <div onclick="toggleMenu()" style="font-size: 1.4rem; color: var(--neon-blue); cursor: pointer;"><i class="fas fa-bars-staggered"></i></div>
+        </div>
     </header>
 
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
@@ -175,26 +198,26 @@
         </div>
 
         <div id="admin-nav" style="display:none;">
-            <p class="nav-category">Staff Control</p>
+            <p class="nav-category" style="color:var(--neon-blue); font-size:0.75rem; font-weight:900; text-transform:uppercase; margin-bottom:15px; letter-spacing:1px;">Staff Control</p>
             <a href="/admin" class="sidebar-link" style="border: 1px solid var(--neon-blue);"><i class="fas fa-user-shield"></i> Panel Admin</a>
         </div>
 
-        <p class="nav-category">Navegación</p>
+        <p class="nav-category" style="color:var(--neon-blue); font-size:0.75rem; font-weight:900; text-transform:uppercase; margin-bottom:15px; margin-top:20px; letter-spacing:1px;">Navegación</p>
         <div class="sidebar-link" onclick="toggleMenu()"><i class="fas fa-home"></i> Dashboard</div>
         <a href="/profile" class="sidebar-link"><i class="fas fa-user-circle"></i> Mi Perfil</a>
 
-        <p class="nav-category">Servicios API</p>
+        <p class="nav-category" style="color:var(--neon-blue); font-size:0.75rem; font-weight:900; text-transform:uppercase; margin-bottom:15px; margin-top:20px; letter-spacing:1px;">Servicios API</p>
         <a href="/endpoints/search" class="sidebar-link"><i class="fas fa-search"></i> Search</a>
         <a href="/endpoints/tools" class="sidebar-link"><i class="fas fa-tools"></i> Tools</a>
         <a href="/endpoints/download" class="sidebar-link"><i class="fas fa-download"></i> Downloads</a>
         <a href="/endpoints/ai" class="sidebar-link"><i class="fas fa-robot"></i> AI Gemini</a>
 
-        <div class="sidebar-link logout-btn" onclick="logout()"><i class="fas fa-power-off"></i> Cerrar Sesión</div>
+        <div class="sidebar-link logout-btn" onclick="logout()" style="margin-top:40px; color:var(--neon-blue); border:1px solid var(--neon-blue);"><i class="fas fa-power-off"></i> Cerrar Sesión</div>
     </nav>
 
     <div class="container" id="content-area"></div>
 
-    <footer class="footer">
+    <footer class="footer" style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.7rem; font-weight: 700; opacity: 0.6;">
         <p>© 2026 KAZUMA API • DESARROLLADO POR FÉLIX</p>
     </footer>
 
@@ -207,6 +230,22 @@
             document.getElementById('overlay').classList.toggle('active'); 
         }
 
+        function toggleTheme() {
+            const body = document.body;
+            const themeBtn = document.getElementById('theme-btn');
+            const icon = themeBtn.querySelector('i');
+
+            body.classList.toggle('light-mode');
+
+            if (body.classList.contains('light-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('kazuma-theme', 'light');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('kazuma-theme', 'dark');
+            }
+        }
+
         function logout() { 
             localStorage.clear(); 
             window.location.href = '/login'; 
@@ -214,7 +253,7 @@
 
         function copyKey() { 
             navigator.clipboard.writeText(userData.key); 
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Copiado al Portapapeles', showConfirmButton: false, timer: 1500, background: '#11111d', color: '#fff' }); 
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Copiado al Portapapeles', showConfirmButton: false, timer: 1500, background: 'var(--card-bg)', color: 'var(--text-main)' }); 
         }
 
         function toggleEye() { 
@@ -234,6 +273,13 @@
         }
 
         async function loadDash() {
+            // Cargar tema guardado
+            const savedTheme = localStorage.getItem('kazuma-theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-btn').querySelector('i').classList.replace('fa-moon', 'fa-sun');
+            }
+
             const area = document.getElementById('content-area');
             const pre = document.getElementById('preloader');
 
@@ -254,16 +300,16 @@
                 }
 
                 area.innerHTML = `
-                <section class="hero">
+                <section style="text-align: center; padding: 25px 0;">
                     <img src="${me.data?.profile_img || 'https://files.catbox.moe/9ssbf9.jpg'}" class="hero-img">
-                    <h1>SISTEMA <span style="color:var(--neon-blue); text-shadow: 0 0 10px rgba(0,243,255,0.3)">ACTIVO</span></h1>
+                    <h1 style="font-size: 1.6rem; font-weight: 900; margin: 0; text-transform: uppercase;">SISTEMA <span style="color:var(--neon-blue); text-shadow: 0 0 10px rgba(0,243,255,0.3)">ACTIVO</span></h1>
                     <p style="color:var(--text-muted); font-size: 0.85rem; font-weight:800; margin-top:8px;">USUARIO: ${userData.username.toUpperCase()}</p>
                 </section>
 
                 <div class="api-card">
-                    <p class="nav-category"><i class="fas fa-key"></i> Mi API Key</p>
+                    <p style="color: var(--neon-blue); font-size: 0.75rem; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; letter-spacing: 1px;"><i class="fas fa-key"></i> Mi API Key</p>
                     <div class="key-box">
-                        <span id="key-display">••••••••••••••••</span>
+                        <span id="key-display" style="font-family: 'monospace'; font-size: 0.85rem;">••••••••••••••••</span>
                         <div style="display:flex; gap:15px">
                             <i class="fas fa-eye" onclick="toggleEye()" style="color:var(--text-muted); cursor:pointer;"></i>
                             <i class="fas fa-copy" onclick="copyKey()" style="color:var(--neon-blue); cursor:pointer;"></i>
@@ -272,37 +318,37 @@
                 </div>
 
                 <div class="api-card">
-                    <p class="nav-category"><i class="fas fa-microchip"></i> Estado del Protocolo</p>
-                    <div class="stats-grid">
+                    <p style="color: var(--neon-blue); font-size: 0.75rem; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; letter-spacing: 1px;"><i class="fas fa-microchip"></i> Estado del Protocolo</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         <div class="stat-box" style="grid-column: span 2;">
-                            <i class="fas fa-users"></i>
-                            <div class="stat-label">Usuarios en Red</div>
-                            <div class="stat-value">${data.totalUsers} Usuarios</div>
+                            <i class="fas fa-users" style="position: absolute; right: 10px; bottom: 10px; font-size: 1.8rem; opacity: 0.1; color: var(--neon-blue);"></i>
+                            <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block;">Usuarios en Red</div>
+                            <div style="font-size: 1.2rem; font-weight: 900;">${data.totalUsers} Usuarios</div>
                         </div>
                         <div class="stat-box">
-                            <i class="fas fa-clock"></i>
-                            <div class="stat-label">Server Uptime</div>
-                            <div class="stat-value" id="uptime-val" style="color:var(--neon-blue)">00:00:00</div>
+                            <i class="fas fa-clock" style="position: absolute; right: 10px; bottom: 10px; font-size: 1.8rem; opacity: 0.1; color: var(--neon-blue);"></i>
+                            <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block;">Server Uptime</div>
+                            <div id="uptime-val" style="font-size: 1.2rem; font-weight: 900; color:var(--neon-blue)">00:00:00</div>
                         </div>
-                        <div class="stat-box" style="border-left-color: var(--neon-blue);">
-                            <i class="fas fa-chart-bar"></i>
-                            <div class="stat-label">Límite Diario</div>
-                            <div class="stat-value">${me.data?.requests.today || 0} / ${me.data?.requests.limit || 0}</div>
+                        <div class="stat-box">
+                            <i class="fas fa-chart-bar" style="position: absolute; right: 10px; bottom: 10px; font-size: 1.8rem; opacity: 0.1; color: var(--neon-blue);"></i>
+                            <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block;">Límite Diario</div>
+                            <div style="font-size: 1.2rem; font-weight: 900;">${me.data?.requests.today || 0} / ${me.data?.requests.limit || 0}</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="api-card">
-                    <p class="nav-category"><i class="fas fa-ranking-star"></i> Top 5 usuarios con más requests</p>
+                    <p style="color: var(--neon-blue); font-size: 0.75rem; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; letter-spacing: 1px;"><i class="fas fa-ranking-star"></i> Top 5 usuarios</p>
                     ${data.top5.map((u, i) => `
                         <div class="user-card">
-                            <div class="user-info-flex">
-                                <div class="user-avatar-circle" style="background:${i==0?'#fbbf24':''}; box-shadow:${i==0?'0 0 15px #fbbf24':''}; color:${i==0?'#000':''}">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 32px; height: 32px; border-radius: 10px; background: var(--neon-blue); color: #000; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.85rem; box-shadow:${i==0?'0 0 15px #fbbf24':''}; background:${i==0?'#fbbf24':''}">
                                     ${u.username.charAt(0).toUpperCase()}
                                 </div>
                                 <span style="font-size:0.95rem; font-weight:800">#${i+1} ${u.username}</span>
                             </div>
-                            <span class="user-reqs" style="color:var(--neon-blue); font-weight:900; font-size:0.8rem;">${u.total} reqs</span>
+                            <span style="color:var(--neon-blue); font-weight:900; font-size:0.8rem;">${u.total} reqs</span>
                         </div>
                     `).join('')}
                 </div>`;
