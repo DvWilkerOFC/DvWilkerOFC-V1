@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tools | Kazuma API</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --neon-blue: #00f3ff; --dark-bg: #09090b; --card-bg: #11111d; --text-main: #ffffff; }
+        body { background-color: var(--dark-bg); color: var(--text-main); font-family: 'Inter', sans-serif; }
+        #safety-block { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; }
+        .glass { background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.1); border-radius: 24px; }
+        .input-test, select { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 12px; color: #fff; outline: none; margin-bottom: 10px; font-size: 0.8rem; }
+        .btn-test { background: var(--neon-blue); color: #000; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+        .img-result { width: 100%; border-radius: 15px; border: 2px solid var(--neon-blue); display: none; margin-top: 15px; }
+        h2 { border-left: 5px solid var(--neon-blue); padding-left: 15px; font-weight: 900; }
+    </style>
+</head>
+<body class="min-h-screen pb-10">
+    <div id="safety-block"></div>
+    <header class="p-4 flex justify-between items-center sticky top-0 z-50 bg-[#09090b]/80 backdrop-blur-md border-b border-white/5">
+        <div class="font-black text-xl tracking-tighter" onclick="location.href='/dash'">KAZUMA <span style="color: var(--neon-blue)">TOOLS</span></div>
+        <button onclick="location.href='/dash'" class="text-xs font-bold bg-white/5 px-4 py-2 rounded-xl border border-white/10"><i class="fas fa-home"></i></button>
+    </header>
+
+    <main class="container mx-auto p-4 max-w-2xl">
+        <h2 class="text-xl uppercase tracking-tighter my-6">Herramientas</h2>
+
+        <div class="glass p-6 mb-6">
+            <div class="font-bold text-sm uppercase mb-4"><i class="fas fa-camera text-cyan-400"></i> Screenshot Web (SSWeb)</div>
+            
+            <input id="url-ss" class="input-test" placeholder="https://google.com">
+            
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Dispositivo</label>
+                    <select id="device-ss">
+                        <option value="desktop">Computadora</option>
+                        <option value="tablet">Tablet</option>
+                        <option value="phone">Teléfono</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Tema</label>
+                    <select id="theme-ss">
+                        <option value="dark">Oscuro</option>
+                        <option value="light">Claro</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-test" onclick="testMedia('ssweb')">Generar Captura</button>
+            <img id="view-ssweb" class="img-result">
+        </div>
+
+        <div class="glass p-6 mb-6 text-center">
+            <div class="font-bold text-sm uppercase mb-4 text-left"><i class="fas fa-qrcode text-cyan-400"></i> Generador QR</div>
+            <input id="text-qr" class="input-test" placeholder="Texto o enlace para el QR">
+            <button class="btn-test" onclick="testMedia('qr')">Generar QR</button>
+            <img id="view-qr" class="img-result mx-auto !w-48">
+        </div>
+    </main>
+
+    <script>
+        const userData = JSON.parse(localStorage.getItem('kazuma_user'));
+        if (!userData) { window.location.href = '/login'; }
+        else { setTimeout(() => document.getElementById('safety-block').style.display='none', 300); }
+
+        async function testMedia(type) {
+            const imgEl = document.getElementById(`view-${type}`);
+            let url = "";
+
+            if(type === 'ssweb') {
+                const link = document.getElementById('url-ss').value;
+                const dev = document.getElementById('device-ss').value;
+                const thm = document.getElementById('theme-ss').value;
+                if(!link) return;
+                url = `/api/tools/ssweb?url=${encodeURIComponent(link)}&device=${dev}&theme=${thm}&apiKey=${userData.key}`;
+            } else {
+                const text = document.getElementById('text-qr').value;
+                if(!text) return;
+                url = `/api/tools/qr?text=${encodeURIComponent(text)}&apiKey=${userData.key}`;
+            }
+
+            Swal.fire({ title: 'Generando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            imgEl.src = url;
+            imgEl.onload = () => { imgEl.style.display = 'block'; Swal.close(); };
+            imgEl.onerror = () => { Swal.fire('Error', 'No se pudo generar la imagen', 'error'); };
+        }
+    </script>
+</body>
+</html>
