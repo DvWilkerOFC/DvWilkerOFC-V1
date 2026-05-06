@@ -7,19 +7,102 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
-        :root { --neon-blue: #00f3ff; --dark-bg: #0d0d0d; --card-bg: #161625; }
-        body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; margin: 0; }
-        #safety-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; }
-        .glass { background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .input-kazuma { background: #080810; border: 1px solid rgba(255,255,255,0.1); color: #ffffff !important; transition: 0.3s; }
+        :root { 
+            --neon-blue: #00f3ff; 
+            --dark-bg: #0d0d0d; 
+            --card-bg: #161625; 
+            --text-main: #ffffff;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Variables para Modo Claro */
+        body.light-mode {
+            --dark-bg: #f4f4f9;
+            --card-bg: #ffffff;
+            --text-main: #1a1a1a;
+        }
+
+        body { 
+            background: var(--dark-bg); 
+            color: var(--text-main); 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            transition: background var(--transition), color var(--transition);
+        }
+        
+        #safety-overlay { 
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; 
+            z-index: 9999; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .glass { 
+            background: var(--card-bg); 
+            border: 1px solid rgba(0, 243, 255, 0.1); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            transition: background var(--transition), border var(--transition);
+        }
+
+        body.light-mode .glass {
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .input-kazuma { 
+            background: #080810; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            color: #ffffff !important; 
+            transition: 0.3s; 
+        }
+
+        body.light-mode .input-kazuma {
+            background: #fdfdfd;
+            border: 1px solid rgba(0,0,0,0.1);
+            color: #1a1a1a !important;
+        }
+
         .input-kazuma:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
+        
         .btn-blue { background: var(--neon-blue); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; color: #000; }
         .btn-blue:hover { filter: brightness(1.2); transform: translateY(-1px); }
+        
+        .g-recaptcha { display: flex; justify-content: center; margin: 20px 0; }
+
+        /* Botón de Tema */
+        .theme-btn-fixed {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--neon-blue);
+            z-index: 1000;
+            transition: var(--transition);
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
-    <div id="safety-overlay"></div>
+
+    <div id="safety-overlay">
+        <div class="text-[10px] font-black tracking-widest text-slate-500 uppercase">Validando Acceso...</div>
+    </div>
+
+    <div class="theme-btn-fixed" onclick="toggleTheme()" id="theme-btn">
+        <i class="fas fa-moon"></i>
+    </div>
 
     <div class="glass p-8 rounded-3xl w-full max-w-md">
         <div class="text-center mb-6">
@@ -38,7 +121,9 @@
                 <i class="fas fa-eye absolute right-4 top-10 cursor-pointer text-slate-600" onclick="togglePassword('password', this)"></i>
             </div>
 
-            <button type="submit" id="btnSubmit" class="btn-blue w-full py-4 rounded-xl shadow-lg mt-4 font-black">
+            <div class="g-recaptcha" data-sitekey="6Lcz9dwsAAAAAMJ3mdr0wYqws6j7eys_hNdMDKcj" data-theme="dark" id="recaptcha-widget"></div>
+
+            <button type="submit" id="btnSubmit" class="btn-blue w-full py-4 rounded-xl shadow-lg font-black">
                 Entrar al Sistema
             </button>
         </form>
@@ -49,7 +134,46 @@
     </div>
 
     <script>
-        window.onload = () => { document.getElementById('safety-overlay').style.display = 'none'; };
+        // Función de cambio de tema
+        function toggleTheme() {
+            const body = document.body;
+            const themeBtn = document.getElementById('theme-btn');
+            const icon = themeBtn.querySelector('i');
+
+            body.classList.toggle('light-mode');
+
+            if (body.classList.contains('light-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('kazuma-theme', 'light');
+                // Opcional: Cambiar tema del captcha dinámicamente si es posible
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('kazuma-theme', 'dark');
+            }
+        }
+
+        // Control de autenticación y carga inicial
+        (function init() {
+            const user = localStorage.getItem('kazuma_user');
+            const savedTheme = localStorage.getItem('kazuma-theme');
+
+            // Cargar Tema
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-btn').querySelector('i').classList.replace('fa-moon', 'fa-sun');
+            }
+
+            // Validar Sesión
+            if (user) {
+                window.location.href = '/dash';
+            } else {
+                window.onload = () => { 
+                    setTimeout(() => {
+                        document.getElementById('safety-overlay').style.display = 'none'; 
+                    }, 500);
+                };
+            }
+        })();
 
         function togglePassword(id, el) {
             const input = document.getElementById(id);
@@ -60,6 +184,13 @@
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const captchaResponse = grecaptcha.getResponse();
+            if (!captchaResponse) {
+                Swal.fire({ title: 'Seguridad', text: 'Resuelve el CAPTCHA para continuar', icon: 'warning', background: 'var(--card-bg)', color: 'var(--text-main)' });
+                return;
+            }
+
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true;
             btn.innerText = 'AUTENTICANDO...';
@@ -70,21 +201,24 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         email: document.getElementById('email').value,
-                        password: document.getElementById('password').value
+                        password: document.getElementById('password').value,
+                        captcha: captchaResponse
                     })
                 });
 
                 const data = await res.json();
                 if (data.status) {
                     localStorage.setItem('kazuma_user', JSON.stringify(data.data));
+                    document.getElementById('safety-overlay').style.display = 'flex';
                     window.location.href = '/dash';
                 } else {
-                    throw new Error(data.message || "Credenciales incorrectas");
+                    throw new Error(data.message || "Error de autenticación");
                 }
             } catch (err) {
-                Swal.fire({ title: 'Error', text: err.message, icon: 'error', background: '#161625', color: '#fff' });
+                Swal.fire({ title: 'Error', text: err.message, icon: 'error', background: 'var(--card-bg)', color: 'var(--text-main)' });
                 btn.disabled = false;
                 btn.innerText = 'Entrar al Sistema';
+                grecaptcha.reset();
             }
         });
     </script>
