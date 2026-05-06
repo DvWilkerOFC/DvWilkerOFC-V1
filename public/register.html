@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kazuma | Registro</title>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <script>
-        // Redirigir si ya hay sesión (opcional según tu manejo de cookies/localstorage)
-        if (localStorage.getItem('kazuma_user')) { window.location.href = '/dash'; }
-    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -23,8 +19,6 @@
         .btn-pink:hover { filter: brightness(1.2); transform: translateY(-1px); }
         .btn-pink:disabled { opacity: 0.5; cursor: not-allowed; }
         .g-recaptcha { display: flex; justify-content: center; margin: 15px 0; transform: scale(0.85); }
-
-        /* Checkbox personalizado versión vieja */
         .checkbox-container { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
         .checkbox-container input { display: none; }
         .checkmark { height: 18px; width: 18px; background-color: #080810; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; position: relative; }
@@ -36,7 +30,7 @@
 <body class="flex items-center justify-center min-h-screen p-4">
     <div id="safety-overlay"></div>
 
-    <div class="glass p-8 rounded-3xl w-full max-w-md my-8">
+    <div class="glass p-8 rounded-3xl w-full max-w-md">
         <div class="text-center mb-6">
             <h2 class="text-3xl font-black tracking-tighter uppercase">KAZUMA <span style="color: var(--neon-pink);">REGISTRO</span></h2>
             <p class="text-slate-500 text-[10px] mt-1 uppercase font-bold tracking-widest">Crear Identidad de Acceso</p>
@@ -72,7 +66,7 @@
 
             <div class="g-recaptcha" data-sitekey="6LeYFNssAAAAAFQQJNfY4Og51qlF8zxSwLPmL1zr" data-theme="dark"></div>
 
-            <button type="submit" id="btnSubmit" class="btn-pink w-full py-4 rounded-xl shadow-lg mt-2 text-white font-black uppercase tracking-widest">
+            <button type="submit" id="btnSubmit" class="btn-pink w-full py-4 rounded-xl shadow-lg mt-2 text-white">
                 Crear Cuenta
             </button>
         </form>
@@ -83,10 +77,8 @@
     </div>
 
     <script>
-        // Quitar overlay al cargar
         window.onload = () => { document.getElementById('safety-overlay').style.display = 'none'; };
 
-        // Mostrar/Ocultar password
         function togglePassword(id, el) {
             const input = document.getElementById(id);
             input.type = input.type === "password" ? "text" : "password";
@@ -97,6 +89,8 @@
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
+            
+            // Volvemos a la forma exacta de capturar el token
             const captcha = grecaptcha.getResponse();
             const terms = document.getElementById('terms').checked;
 
@@ -105,7 +99,7 @@
             }
 
             if (!captcha) {
-                return Swal.fire({ title: 'Seguridad', text: 'Resuelve el reCAPTCHA.', icon: 'warning', background: '#161625', color: '#fff' });
+                return Swal.fire({ title: 'Error', text: 'Completa el CAPTCHA.', icon: 'warning', background: '#161625', color: '#fff' });
             }
 
             const pass = document.getElementById('password').value;
@@ -119,7 +113,7 @@
             btn.innerText = 'PROCESANDO...';
 
             try {
-                // LLAMADA AL BACKEND NUEVO
+                // Mantenemos la ruta de tu API Kazuma
                 const res = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -127,7 +121,7 @@
                         username: document.getElementById('username').value.trim(),
                         email: document.getElementById('email').value.trim(),
                         password: pass,
-                        captcha: captcha // Token para validación en backend
+                        captcha: captcha // Enviado tal cual espera el backend
                     })
                 });
 
@@ -135,13 +129,12 @@
 
                 if (data.status) {
                     Swal.fire({
-                        title: '¡REGISTRO EXITOSO!',
-                        html: `<p>Tu cuenta ha sido creada correctamente.</p><br><p style="color:var(--neon-pink); font-weight:bold; font-size:12px;">TU API KEY: ${data.key}</p>`,
+                        title: '¡ÉXITO!',
+                        text: 'Cuenta creada correctamente.',
                         icon: 'success',
                         background: '#161625',
                         color: '#fff',
-                        confirmButtonColor: '#ff2d55',
-                        confirmButtonText: 'IR AL LOGIN'
+                        confirmButtonColor: '#ff2d55'
                     }).then(() => {
                         window.location.href = '/login';
                     });
@@ -149,12 +142,12 @@
                     grecaptcha.reset();
                     btn.disabled = false;
                     btn.innerText = 'Crear Cuenta';
-                    Swal.fire({ title: 'Error', text: data.message || 'No se pudo completar el registro.', icon: 'error', background: '#161625', color: '#fff' });
+                    Swal.fire({ title: 'Error', text: data.message || 'No se pudo registrar.', icon: 'error', background: '#161625', color: '#fff' });
                 }
             } catch (err) {
                 btn.disabled = false;
                 btn.innerText = 'Crear Cuenta';
-                Swal.fire({ title: 'Error', text: 'Fallo de conexión con el servidor.', icon: 'error', background: '#161625', color: '#fff' });
+                Swal.fire({ title: 'Error', text: 'Fallo de conexión.', icon: 'error', background: '#161625', color: '#fff' });
             }
         });
     </script>
