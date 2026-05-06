@@ -12,44 +12,66 @@ let startTime = Date.now();
 const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
 const saveUsers = (data) => fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 
-router.post('/register', (req, res) => {
-    const { username, email, password } = req.body;
-    if (!username || !email || !password) return res.status(400).json({ status: false, message: "Faltan datos" });
-
-    let users = getUsers();
-    if (users.find(u => u.email === email)) return res.status(400).json({ status: false, message: "El correo ya existe" });
-
-    const newUser = {
-        username,
-        email,
-        password,
-        key: generateKey(),
-        role: "user",
-        plan: "free",
-        limit: 100,
-        requestToday: 0,
-        totalRequest: 0,
-        lastRequestDate: new Date().toISOString().split('T')[0]
-    };
-
-    users.push(newUser);
-    saveUsers(users);
-
-    res.json({ status: true, creator: "Félix Ofc", message: "Registro exitoso", key: newUser.key });
-});
-
-router.post('/login', async (req, res) => {
-    const { email, password, captcha } = req.body;
-    if (!captcha) return res.status(400).json({ status: false, message: "CAPTCHA requerido" });
+// REGISTRO: Ahora incluye la validación de CAPTCHA
+router.post('/register', async (req, res) => {
+    const { username, email, password, captcha } = req.body;
+    
+    // Validación de campos y CAPTCHA obligatorio para registro
+    if (!username || !email || !password || !captcha) {
+        return res.status(400).json({ status: false, message: "Faltan datos o CAPTCHA" });
+    }
 
     try {
+        // Validar CAPTCHA con Google
         const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET}&response=${captcha}`;
         const captchaRes = await axios.post(verifyUrl);
-        if (!captchaRes.data.success) return res.status(400).json({ status: false, message: "CAPTCHA inválido" });
+        
+        if (!captchaRes.data.success) {
+            return res.status(400).json({ status: false, message: "CAPTCHA inválido" });
+        }
 
         let users = getUsers();
+        if (users.find(u => u.email === email)) {
+            return res.status(400).json({ status: false, message: "El correo ya existe" });
+        }
+
+        const newUser = {
+            username,
+            email,
+            password,
+            key: generateKey(),
+            role: "user",
+            plan: "free",
+            limit: 100,
+            requestToday: 0,
+            totalRequest: 0,
+            lastRequestDate: new Date().toISOString().split('T')[0]
+        };
+
+        users.push(newUser);
+        saveUsers(users);
+
+        res.json({ status: true, creator: "Félix Ofc", message: "Registro exitoso", key: newUser.key });
+    } catch (err) {
+        res.status(500).json({ status: false, message: "Error en el servidor durante el registro" });
+    }
+});
+
+// LOGIN: Sin validación de CAPTCHA
+router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ status: false, message: "Email y contraseña requeridos" });
+    }
+
+    try {
+        let users = getUsers();
         const user = users.find(u => u.email === email && u.password === password);
-        if (!user) return res.status(401).json({ status: false, message: "Credenciales incorrectas" });
+        
+        if (!user) {
+            return res.status(401).json({ status: false, message: "Credenciales incorrectas" });
+        }
 
         res.json({
             status: true,
@@ -64,9 +86,11 @@ router.post('/login', async (req, res) => {
             }
         });
     } catch (err) {
-        res.status(500).json({ status: false, message: "Error en el servidor" });
+        res.status(500).json({ status: false, message: "Error interno en el servidor" });
     }
 });
+
+// --- EL RESTO DE TUS RUTAS (me, stats, dashboard, admin) QUEDAN IGUAL ---
 
 router.get('/me', (req, res) => {
     const { apiKey } = req.query;
