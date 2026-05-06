@@ -9,23 +9,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #0d0d0d; }
-        body { background-color: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; display: none; }
+        body { background-color: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; }
         .glass { background: #161625; border: 1px solid rgba(255,255,255,0.1); }
-        #view-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 2px solid var(--neon-pink); background: #1a1a2e; margin: 0 auto; box-shadow: 0 0 20px rgba(255, 45, 85, 0.3); }
+        #view-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 2px solid var(--neon-pink); background: #1a1a2e; margin: 0 auto; }
         .input-dark { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; transition: 0.3s; }
-        .input-dark:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
+        .input-dark:focus { border-color: var(--neon-blue); }
         .label-clear { color: #ffffff; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
         .btn-action { transition: 0.3s; text-transform: uppercase; font-weight: 900; font-size: 0.7rem; }
         .btn-action:hover { filter: brightness(1.2); transform: scale(1.02); }
-        
-        #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
-        .spinner { width: 40px; height: 40px; border: 3px solid rgba(0, 243, 255, 0.1); border-top: 3px solid var(--neon-blue); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
-    <div id="preloader"><div class="spinner"></div></div>
-
     <header class="p-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
         <div class="font-bold text-xl uppercase tracking-tighter" onclick="location.href='/dash'" style="cursor:pointer">KAZUMA <span>PROFILER</span></div>
         <button onclick="location.href='/dash'" class="text-sm bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition"><i class="fas fa-arrow-left mr-2"></i> INICIO</button>
@@ -35,7 +29,7 @@
         <div class="glass rounded-3xl p-8 mt-6 text-center">
             <img id="view-img" src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" alt="Foto">
             <h2 id="view-username" class="text-2xl font-black mt-4">...</h2>
-            <p id="view-email" class="text-slate-500 text-xs font-bold uppercase tracking-widest">---</p>
+            <p id="view-id" class="text-blue-400 font-mono text-sm">Cargando...</p>
         </div>
 
         <div class="glass p-6 rounded-2xl mt-6 border-l-4 border-[#00f3ff]">
@@ -53,35 +47,41 @@
             </div>
             <div class="glass p-5 rounded-2xl">
                 <p class="label-clear mb-1" style="font-size: 0.6rem;">Límite Diario</p>
-                <p id="view-limit" class="text-lg font-bold text-pink-500">0</p>
+                <p id="view-requests" class="text-lg font-bold text-pink-500">0</p>
             </div>
         </div>
 
         <div class="glass rounded-3xl p-8 mt-8 mb-10">
-            <h3 class="text-xl font-bold mb-6 uppercase tracking-tighter"><i class="fas fa-cog mr-3 text-pink-500"></i> Ajustes de Protocolo</h3>
+            <h3 class="text-xl font-bold mb-6 uppercase tracking-tighter"><i class="fas fa-cog mr-3 text-pink-500"></i> Ajustes</h3>
             <div class="space-y-6">
                 <div>
-                    <label class="block label-clear mb-2">Enlace de Imagen (URL)</label>
+                    <label class="block label-clear mb-2">URL Foto de Perfil</label>
                     <div class="flex gap-2">
-                        <input type="text" id="new-img" class="input-dark w-full p-3 rounded-xl outline-none text-xs font-mono" placeholder="https://tu-imagen.jpg">
-                        <button onclick="updateProfile('profileImg')" class="bg-cyan-600 px-5 rounded-xl btn-action">Update</button>
+                        <input type="text" id="new-img" class="input-dark w-full p-3 rounded-xl outline-none" placeholder="https://enlace-imagen.com/foto.jpg">
+                        <button onclick="updateData('profile_img')" class="bg-cyan-600 px-5 rounded-xl btn-action">Update</button>
                     </div>
                 </div>
                 <div>
-                    <label class="block label-clear mb-2">Nuevo Username</label>
+                    <label class="block label-clear mb-2">Usuario</label>
                     <div class="flex gap-2">
                         <input type="text" id="new-username" class="input-dark w-full p-3 rounded-xl outline-none" placeholder="Nuevo nombre...">
-                        <button onclick="updateProfile('username')" class="bg-pink-600 px-5 rounded-xl btn-action">Cambiar</button>
+                        <button onclick="updateData('username')" class="bg-pink-600 px-5 rounded-xl btn-action">Cambiar</button>
                     </div>
                 </div>
                 <div>
-                    <label class="block label-clear mb-2">Nueva Contraseña</label>
+                    <label class="block label-clear mb-2">Email</label>
                     <div class="flex gap-2">
-                        <input type="password" id="new-pass" class="input-dark w-full p-3 rounded-xl outline-none" placeholder="••••••••">
-                        <button onclick="updateProfile('password')" class="bg-slate-700 px-5 rounded-xl btn-action">Update</button>
+                        <input type="email" id="new-email" class="input-dark w-full p-3 rounded-xl outline-none" placeholder="nuevo@correo.com">
+                        <button onclick="updateData('email')" class="bg-blue-600 px-5 rounded-xl btn-action">Update</button>
                     </div>
                 </div>
-
+                <div>
+                    <label class="block label-clear mb-2">Password</label>
+                    <div class="flex gap-2">
+                        <input type="password" id="new-pass" class="input-dark w-full p-3 rounded-xl outline-none" placeholder="••••••••">
+                        <button onclick="updateData('password')" class="bg-slate-700 px-5 rounded-xl btn-action">Update</button>
+                    </div>
+                </div>
                 <div class="pt-6 border-t border-white/10 space-y-4">
                     <button onclick="logout()" class="w-full bg-white/5 hover:bg-white/10 p-4 rounded-2xl font-bold uppercase text-xs transition">Cerrar Sesión</button>
                 </div>
@@ -90,68 +90,57 @@
     </main>
 
     <script>
-        // Usamos 'kazuma_user' que es la clave que usas en el Dash
         const userData = JSON.parse(localStorage.getItem('kazuma_user'));
-        
-        if (!userData) {
-            window.location.href = '/login';
-        } else {
-            document.body.style.display = 'block';
-            loadInitialData();
+        if (!userData) window.location.href = '/login';
+
+        async function loadProfile() {
+            try {
+                // Obtenemos datos actualizados desde el backend usando tu ruta /me
+                const res = await fetch(`/api/auth/me?apiKey=${userData.key}`);
+                const result = await res.json();
+                if (result.status) {
+                    const u = result.data;
+                    document.getElementById('view-username').innerText = u.username.toUpperCase();
+                    document.getElementById('view-id').innerText = `EMAIL: ${u.email}`;
+                    document.getElementById('view-apikey').value = u.key;
+                    document.getElementById('view-requests').innerText = u.requests.limit;
+                    document.getElementById('view-plan').innerText = u.plan.toUpperCase();
+                    
+                    // Si el usuario tiene profile_img en el json, la mostramos
+                    // Nota: Debes asegurarte que el backend envíe 'profile_img' en /me si existe
+                    if (u.profile_img) document.getElementById('view-img').src = u.profile_img;
+                }
+            } catch (e) { console.error("Error al cargar perfil"); }
         }
 
-        function loadInitialData() {
-            document.getElementById('view-username').innerText = userData.username.toUpperCase();
-            document.getElementById('view-email').innerText = userData.email || "SIN CORREO";
-            document.getElementById('view-apikey').value = userData.key;
-            document.getElementById('view-plan').innerText = userData.plan ? userData.plan.toUpperCase() : 'FREE';
-            document.getElementById('view-limit').innerText = userData.limit || 100;
-            if (userData.profileImg) {
-                document.getElementById('view-img').src = userData.profileImg;
-                document.getElementById('new-img').value = userData.profileImg;
-            }
-            document.getElementById('preloader').style.display = 'none';
-        }
-
-        async function updateProfile(type) {
+        async function updateData(type) {
             const inputMap = {
                 'username': 'new-username',
-                'profileImg': 'new-img',
-                'password': 'new-pass'
+                'email': 'new-email',
+                'password': 'new-pass',
+                'profile_img': 'new-img'
             };
-            
             const val = document.getElementById(inputMap[type]).value.trim();
-            if (!val) return Swal.fire({ title: 'Error', text: 'El campo está vacío', icon: 'warning', background: '#161625', color: '#fff' });
-
-            Swal.fire({ title: 'Procesando...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#161625', color: '#fff' });
+            if (!val) return Swal.fire({ title: 'Atención', text: 'Completa el campo.', icon: 'warning', background: '#161625', color: '#fff' });
 
             try {
-                // Usamos la lógica de tu Admin Panel: enviar targetEmail y newData
-                const res = await fetch('/api/auth/update-profile', { // Asegúrate que esta sea tu ruta de usuario
+                const res = await fetch(`/api/auth/update-profile`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        email: userData.email, // Identificador
-                        type: type, 
-                        value: val 
-                    })
+                    body: JSON.stringify({ apiKey: userData.key, type, value: val })
                 });
-
                 const data = await res.json();
-                
                 if (data.status) {
-                    // Actualizar localStorage para que el Dash y el Perfil reflejen el cambio
-                    userData[type] = val;
-                    localStorage.setItem('kazuma_user', JSON.stringify(userData));
-                    
-                    Swal.fire({ title: 'Sincronizado', text: 'Protocolo actualizado correctamente', icon: 'success', background: '#161625', color: '#fff' })
-                    .then(() => location.reload());
+                    // Actualizamos el localStorage para que el Dash no use datos viejos
+                    if (type !== 'password') {
+                        userData[type === 'profile_img' ? 'profileImg' : type] = val;
+                        localStorage.setItem('kazuma_user', JSON.stringify(userData));
+                    }
+                    Swal.fire({ title: 'Éxito', text: 'Perfil actualizado.', icon: 'success', background: '#161625', color: '#fff' }).then(() => location.reload());
                 } else {
-                    Swal.fire({ title: 'Fallo', text: data.message || 'Error en servidor', icon: 'error', background: '#161625', color: '#fff' });
+                    Swal.fire({ title: 'Error', text: data.message || 'Error al actualizar.', icon: 'error', background: '#161625', color: '#fff' });
                 }
-            } catch (e) {
-                Swal.fire({ title: 'Error', text: 'No hay conexión con la API', icon: 'error', background: '#161625', color: '#fff' });
-            }
+            } catch (e) { Swal.fire({ title: 'Error', text: 'Sin conexión.', icon: 'error', background: '#161625', color: '#fff' }); }
         }
 
         function copyKey() {
@@ -161,6 +150,8 @@
         }
 
         function logout() { localStorage.clear(); window.location.href = '/login'; }
+
+        window.onload = loadProfile;
     </script>
 </body>
 </html>
