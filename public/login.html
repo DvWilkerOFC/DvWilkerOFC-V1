@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kazuma API | Login</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --neon-blue: #00f3ff; --dark-bg: #0d0d0d; --card-bg: #161625; }
+        body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; margin: 0; }
+        #safety-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; }
+        .glass { background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .input-kazuma { background: #080810; border: 1px solid rgba(255,255,255,0.1); color: #ffffff !important; transition: 0.3s; }
+        .input-kazuma:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
+        .btn-blue { background: var(--neon-blue); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; color: #000; }
+        .btn-blue:hover { filter: brightness(1.2); transform: translateY(-1px); }
+        .g-recaptcha { display: flex; justify-content: center; margin: 15px 0; transform: scale(0.85); }
+        .checkbox-container { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .checkbox-container input { display: none; }
+        .checkmark { height: 18px; width: 18px; background-color: #080810; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; position: relative; }
+        .checkbox-container input:checked ~ .checkmark { background-color: var(--neon-blue); border-color: var(--neon-blue); }
+        .checkmark:after { content: ""; position: absolute; display: none; left: 6px; top: 2px; width: 5px; height: 10px; border: solid black; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+        .checkbox-container input:checked ~ .checkmark:after { display: block; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div id="safety-overlay"></div>
+
+    <div class="glass p-8 rounded-3xl w-full max-w-md">
+        <div class="text-center mb-6">
+            <h2 class="text-3xl font-black tracking-tighter uppercase">KAZUMA <span style="color: var(--neon-blue);">API</span></h2>
+            <p class="text-slate-500 text-[10px] mt-1 uppercase font-bold tracking-widest">Protocolo de Acceso Kurayami</p>
+        </div>
+
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Email</label>
+                <input type="email" id="email" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="admin@kazuma.com" required>
+            </div>
+            <div class="relative">
+                <label class="block text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Password</label>
+                <input type="password" id="password" class="input-kazuma w-full rounded-xl p-3 outline-none" placeholder="••••••••" required>
+                <i class="fas fa-eye absolute right-4 top-9 cursor-pointer text-slate-600" onclick="togglePassword('password', this)"></i>
+            </div>
+
+            <div class="pt-2">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="tos" required>
+                    <span class="checkmark"></span>
+                    <span class="text-slate-400 text-[11px] uppercase font-bold tracking-tight">
+                        Acepto los <a href="/tos/terms" class="font-black" style="color: var(--neon-blue);">términos y condiciones</a>
+                    </span>
+                </label>
+            </div>
+
+            <div class="g-recaptcha" data-sitekey="6LeYFNssAAAAAFQQJNfY4Og51qlF8zxSwLPmL1zr" data-theme="dark"></div>
+
+            <button type="submit" id="btnSubmit" class="btn-blue w-full py-4 rounded-xl shadow-lg mt-2 font-black">
+                Entrar al Sistema
+            </button>
+        </form>
+
+        <div class="mt-6 text-center border-t border-white/5 pt-4">
+            <p class="text-slate-500 text-sm">¿Nuevo en el protocolo? <a href="/register" class="font-bold" style="color: var(--neon-blue);">Crea tu cuenta</a></p>
+        </div>
+    </div>
+
+    <script>
+        window.onload = () => { document.getElementById('safety-overlay').style.display = 'none'; };
+
+        function togglePassword(id, el) {
+            const input = document.getElementById(id);
+            input.type = input.type === "password" ? "text" : "password";
+            el.classList.toggle("fa-eye");
+            el.classList.toggle("fa-eye-slash");
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const captcha = grecaptcha.getResponse();
+            if (!captcha) return Swal.fire({ title: 'Error', text: 'Resuelve el CAPTCHA', icon: 'warning', background: '#161625', color: '#fff' });
+
+            const btn = document.getElementById('btnSubmit');
+            btn.disabled = true;
+            btn.innerText = 'AUTENTICANDO...';
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value,
+                        captcha: captcha
+                    })
+                });
+
+                const data = await res.json();
+                if (data.status) {
+                    localStorage.setItem('kazuma_user', JSON.stringify(data.data));
+                    window.location.href = '/dash';
+                } else {
+                    Swal.fire({ title: 'Error', text: data.message, icon: 'error', background: '#161625', color: '#fff' });
+                    grecaptcha.reset();
+                    btn.disabled = false;
+                    btn.innerText = 'Entrar al Sistema';
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerText = 'Entrar al Sistema';
+            }
+        });
+    </script>
+</body>
+</html>
