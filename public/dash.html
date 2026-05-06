@@ -286,14 +286,14 @@
                         </div>
                         <div class="stat-box" style="border-left-color: var(--neon-blue);">
                             <i class="fas fa-chart-bar"></i>
-                            <div class="stat-label">Consumo Diario</div>
+                            <div class="stat-label">Límite Diario</div>
                             <div class="stat-value">${me.data?.requests.today || 0} / ${me.data?.requests.limit || 0}</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="api-card">
-                    <p class="nav-category"><i class="fas fa-ranking-star"></i> Ranking de Operadores</p>
+                    <p class="nav-category"><i class="fas fa-ranking-star"></i> Top 5 usuarios con más requests</p>
                     ${data.top5.map((u, i) => `
                         <div class="user-card">
                             <div class="user-info-flex">
@@ -310,7 +310,7 @@
                 updateUptime(data.uptime);
             } catch (e) { 
                 console.error("Error al cargar Dashboard:", e);
-                area.innerHTML = "<p style='text-align:center; color:var(--neon-blue); font-weight:bold; margin-top:50px;'>FALLO EN EL PROTOCOLO DE CONEXIÓN</p>"; 
+                area.innerHTML = "<p style='text-align:center; color:var(--neon-blue); font-weight:bold; margin-top:50px;'>FALLO EN LA CONEXIÓN</p>"; 
             }
 
             setTimeout(() => { pre.style.display = 'none'; }, 800);
