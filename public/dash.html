@@ -6,26 +6,55 @@
     <title>Dashboard | Kazuma API</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --neon-blue: #00f3ff; --dark-bg: #0d0d0d; --card-bg: #161616; --sidebar-bg: #121212; --text-main: #ffffff; --text-muted: #a0a0a0; }
-        body { background: var(--dark-bg); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; display: none; }
+        :root { 
+            --neon-blue: #00f3ff; 
+            --neon-pink: #ff0055;
+            --dark-bg: #09090b; 
+            --card-bg: #11111d; 
+            --sidebar-bg: #0c0c14; 
+            --text-main: #ffffff; 
+            --text-muted: #8e8e93; 
+        }
+        body { background: var(--dark-bg); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; display: none; overflow-x: hidden; }
+        
+        /* Loader con más brillo */
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
-        .spinner { width: 50px; height: 50px; border: 3px solid rgba(0, 243, 255, 0.1); border-top: 3px solid var(--neon-blue); border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner { width: 60px; height: 60px; border: 4px solid rgba(0, 243, 255, 0.1); border-top: 4px solid var(--neon-blue); border-radius: 50%; animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        header { background: var(--sidebar-bg); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 1000; }
-        .hero-section { text-align: center; padding: 20px 0; }
-        .hero-img { width: 90px; height: 90px; border-radius: 50%; border: 2px solid var(--neon-blue); margin-bottom: 10px; }
-        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
-        .bash-box { background: var(--card-bg); border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); padding: 20px; margin-bottom: 25px; }
-        .bash-title { color: var(--neon-blue); font-size: 0.8rem; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; display: block; }
-        .stat-line { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; }
-        .stat-line span:last-child { color: var(--neon-blue); font-family: 'Courier New', monospace; }
-        .user-item { display: flex; align-items: center; gap: 15px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
-        .avatar { width: 35px; height: 35px; background: var(--neon-blue); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .sidebar { position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100%; background: var(--sidebar-bg); transition: 0.3s; z-index: 2000; padding: 30px 20px; }
+
+        header { background: rgba(12, 12, 20, 0.8); backdrop-filter: blur(10px); padding: 18px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 243, 255, 0.15); position: sticky; top: 0; z-index: 1000; }
+        .logo-text { font-weight: 900; font-size: 1.2rem; letter-spacing: -1px; }
+        .logo-text span { color: var(--neon-pink); }
+
+        /* Hero con efecto encendido */
+        .hero-section { text-align: center; padding: 30px 0; }
+        .hero-img-container { position: relative; width: 110px; height: 110px; margin: 0 auto 15px; }
+        .hero-img { width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--neon-pink); object-fit: cover; box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); }
+        .status-badge { background: rgba(255, 0, 85, 0.1); color: var(--neon-pink); font-size: 0.7rem; font-weight: 900; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; border: 1px solid rgba(255, 0, 85, 0.3); }
+
+        .container { padding: 0 20px 40px; max-width: 600px; margin: 0 auto; }
+
+        /* Tarjetas estilo "Dash" */
+        .bash-box { background: var(--card-bg); border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .bash-title { color: var(--neon-blue); font-size: 0.75rem; font-weight: 900; text-transform: uppercase; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        .bash-title i { font-size: 1rem; }
+
+        .stat-line { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .stat-line:last-child { border: none; }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .stat-value { color: #fff; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1.1rem; }
+
+        .user-item { display: flex; align-items: center; gap: 15px; padding: 12px 0; }
+        .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--neon-blue), #0066ff); color: #000; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; box-shadow: 0 5px 15px rgba(0, 243, 255, 0.2); }
+
+        /* Sidebar mejorado */
+        .sidebar { position: fixed; top: 0; right: -100%; width: 85%; max-width: 320px; height: 100%; background: var(--sidebar-bg); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2000; padding: 40px 25px; border-left: 1px solid rgba(0, 243, 255, 0.1); }
         .sidebar.active { right: 0; }
-        .sidebar-link { display: flex; align-items: center; gap: 15px; color: var(--text-main); text-decoration: none; padding: 12px; border-radius: 10px; margin-bottom: 5px; font-size: 0.9rem; background: rgba(255,255,255,0.03); }
-        .cat-name { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin: 15px 0 10px 5px; display: block; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 1500; }
+        .sidebar-link { display: flex; align-items: center; gap: 15px; color: var(--text-main); text-decoration: none; padding: 15px; border-radius: 15px; margin-bottom: 8px; font-size: 0.95rem; font-weight: 600; background: rgba(255,255,255,0.02); border: 1px solid transparent; transition: 0.2s; }
+        .sidebar-link:hover { border-color: var(--neon-blue); background: rgba(0, 243, 255, 0.05); }
+        .cat-name { font-size: 0.7rem; color: var(--neon-blue); text-transform: uppercase; font-weight: 900; margin: 25px 0 10px 5px; display: block; letter-spacing: 1px; }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); display: none; z-index: 1500; }
         .overlay.active { display: block; }
     </style>
 </head>
@@ -33,55 +62,69 @@
 
     <div id="loader">
         <div class="spinner"></div>
-        <p style="margin-top: 15px; color: var(--neon-blue); letter-spacing: 2px;">CARGANDO API...</p>
+        <p style="margin-top: 20px; color: var(--neon-blue); font-weight: 900; letter-spacing: 3px; font-size: 0.7rem;">KAZUMA PROTOCOL</p>
     </div>
 
     <header>
-        <div style="font-weight: 800; font-size: 1rem;">KAZUMA DASH</div>
-        <div onclick="toggleMenu()" style="cursor:pointer; font-size: 1.3rem;"><i class="fas fa-bars"></i></div>
+        <div class="logo-text">KAZUMA <span>DASH</span></div>
+        <div onclick="toggleMenu()" style="cursor:pointer; color: var(--neon-blue);"><i class="fas fa-bars-staggered"></i></div>
     </header>
 
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
     <nav class="sidebar" id="sidebar">
-        <div style="text-align: right; margin-bottom: 10px;" onclick="toggleMenu()"><i class="fas fa-times"></i></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <span style="font-weight: 900; font-size: 1.2rem;">MENU</span>
+            <i class="fas fa-xmark" onclick="toggleMenu()" style="font-size: 1.5rem; color: var(--neon-pink);"></i>
+        </div>
         
-        <span class="cat-name">Navegación</span>
-        <a href="/" class="sidebar-link"><i class="fas fa-home"></i> Inicio</a>
-        <a href="/profile" class="sidebar-link"><i class="fas fa-user-circle"></i> Perfil</a>
+        <span class="cat-name">Usuario</span>
+        <a href="/profile" class="sidebar-link"><i class="fas fa-circle-user"></i> Mi Perfil</a>
         <div id="admin-btn" style="display: none;">
-            <a href="/admin" class="sidebar-link" style="border: 1px solid var(--neon-blue);"><i class="fas fa-user-shield"></i> Panel Admin</a>
+            <a href="/admin" class="sidebar-link" style="color: var(--neon-blue); border: 1px solid rgba(0, 243, 255, 0.3);"><i class="fas fa-shield-halved"></i> Panel Admin</a>
         </div>
 
-        <span class="cat-name">Servicios API</span>
-        <a href="/endpoints/download" class="sidebar-link"><i class="fas fa-download"></i> Descargas</a>
-        <a href="/endpoints/search" class="sidebar-link"><i class="fas fa-search"></i> Búsquedas</a>
-        <a href="/endpoints/tools" class="sidebar-link"><i class="fas fa-tools"></i> Herramientas</a>
+        <span class="cat-name">Endpoints</span>
         <a href="/endpoints/ai" class="sidebar-link"><i class="fas fa-robot"></i> Inteligencia Artificial</a>
+        <a href="/endpoints/download" class="sidebar-link"><i class="fas fa-cloud-arrow-down"></i> Descargas</a>
+        <a href="/endpoints/tools" class="sidebar-link"><i class="fas fa-screwdriver-wrench"></i> Herramientas</a>
 
-        <a href="#" onclick="logout()" class="sidebar-link" style="margin-top: 20px; color: #ff4b4b;"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        <a href="#" onclick="logout()" class="sidebar-link" style="margin-top: 40px; color: var(--neon-pink); background: rgba(255, 0, 85, 0.05);"><i class="fas fa-power-off"></i> Cerrar Sesión</a>
     </nav>
 
     <div class="container">
         <div class="hero-section">
-            <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="hero-img">
-            <h2 id="welcome-user" style="margin: 0;">Bienvenido</h2>
+            <div class="hero-img-container">
+                <img src="https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg" class="hero-img">
+            </div>
+            <div class="status-badge">Sistema Activo</div>
+            <h2 id="welcome-user" style="margin: 10px 0 0; font-weight: 900; text-transform: uppercase; letter-spacing: -1px;">USUARIO: ---</h2>
         </div>
 
         <div class="bash-box">
-            <span class="bash-title">Información de la Plataforma</span>
-            <div class="stat-line"><span>Total Usuarios:</span> <span id="total-users">0</span></div>
-            <div class="stat-line"><span>Total Solicitudes:</span> <span id="total-reqs">0</span></div>
-            <div class="stat-line"><span>Server Uptime:</span> <span id="uptime">00:00:00</span></div>
+            <span class="bash-title"><i class="fas fa-microchip"></i> Información de Plataforma</span>
+            <div class="stat-line">
+                <span class="stat-label">Usuarios Registrados</span>
+                <span class="stat-value" id="total-users" style="color: var(--neon-blue);">0</span>
+            </div>
+            <div class="stat-line">
+                <span class="stat-label">Solicitudes Totales</span>
+                <span class="stat-value" id="total-reqs">0</span>
+            </div>
+            <div class="stat-line">
+                <span class="stat-label">Uptime Servidor</span>
+                <span class="stat-value" id="uptime" style="color: var(--neon-pink);">00:00:00</span>
+            </div>
         </div>
 
         <div class="bash-box">
-            <span class="bash-title">Top 5 Usuarios Globales</span>
+            <span class="bash-title"><i class="fas fa-trophy"></i> Top 5 Usuarios</span>
             <div id="top-users-list"></div>
         </div>
     </div>
 
     <script>
+        // Mantenemos toda tu lógica original intacta
         const userData = JSON.parse(localStorage.getItem('kazuma_user'));
         if (!userData) { window.location.href = '/login'; }
 
@@ -107,7 +150,7 @@
         }
 
         async function loadDash() {
-            document.getElementById('welcome-user').innerText = `Hola, ${userData.username}`;
+            document.getElementById('welcome-user').innerText = `USUARIO: ${userData.username.toUpperCase()}`;
             if (userData.role === 'admin') { document.getElementById('admin-btn').style.display = 'block'; }
 
             try {
@@ -115,16 +158,17 @@
                 const data = await res.json();
                 
                 document.getElementById('total-users').innerText = data.totalUsers;
-                document.getElementById('total-reqs').innerText = data.globalRequests;
+                document.getElementById('total-reqs').innerText = data.globalRequests.toLocaleString();
                 updateUptime(data.uptime);
 
                 const topList = document.getElementById('top-users-list');
+                topList.innerHTML = ''; 
                 data.top5.forEach(u => {
                     topList.innerHTML += `
                         <div class="user-item">
                             <div class="avatar">${u.initial}</div>
-                            <div style="flex-grow:1">${u.username}</div>
-                            <div style="color:var(--neon-blue)">${u.total}</div>
+                            <div style="flex-grow:1; font-weight: 700; font-size: 0.9rem;">${u.username}</div>
+                            <div style="color:var(--neon-blue); font-family: monospace; font-weight: 900;">${u.total}</div>
                         </div>`;
                 });
             } catch (e) { console.error("Error cargando datos"); }
@@ -132,7 +176,7 @@
             setTimeout(() => {
                 document.getElementById('loader').style.display = 'none';
                 document.body.style.display = 'block';
-            }, 2000);
+            }, 1500);
         }
 
         loadDash();
