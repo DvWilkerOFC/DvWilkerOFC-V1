@@ -34,17 +34,21 @@ app.use('/api/download/twitter', authHandler, dlTw);
 app.use('/api/download/pinterest', authHandler, dlPin);
 app.use('/api/download/tiktok', authHandler, dlTt);
 
-app.get('/:page', (req, res, next) => {
-    const page = req.params.page;
-    const filePath = path.join(__dirname, 'public', `${page}.html`);
-    res.sendFile(filePath, (err) => { if (err) next(); });
-});
-
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.get('/:page', (req, res, next) => {
+    const page = req.params.page;
+    const filePath = path.join(__dirname, 'public', `${page}.html`);
+    res.sendFile(filePath, (err) => {
+        if (err) return next();
+    });
+});
+
+app.use(express.static(path.join(__dirname, 'public'), {
+    extensions: ['html']
+}));
 
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
