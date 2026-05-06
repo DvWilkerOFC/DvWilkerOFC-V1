@@ -5,6 +5,8 @@ const path = require('path');
 const { generateKey } = require('../middlewares/auth');
 const dbPath = path.join(__dirname, '../database/users.json');
 
+let startTime = Date.now();
+
 const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
 const saveUsers = (data) => fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 
@@ -47,6 +49,7 @@ router.post('/login', (req, res) => {
         data: {
             username: user.username,
             key: user.key,
+            role: user.role,
             plan: user.plan,
             limit: user.limit
         }
@@ -69,6 +72,7 @@ router.get('/me', (req, res) => {
             username: user.username,
             email: user.email,
             key: user.key,
+            role: user.role,
             plan: user.plan,
             requests: {
                 today: user.requestToday,
@@ -99,6 +103,31 @@ router.get('/stats', (req, res) => {
         status: true,
         users: users.length,
         endpoints: endpointCount
+    });
+});
+
+router.get('/dashboard-global', (req, res) => {
+    const users = getUsers();
+    let globalRequests = 0;
+    
+    users.forEach(u => globalRequests += (u.totalRequest || 0));
+
+    const topUsers = users
+        .filter(u => u.totalRequest > 0)
+        .sort((a, b) => b.totalRequest - a.totalRequest)
+        .slice(0, 5)
+        .map(u => ({
+            username: u.username,
+            total: u.totalRequest,
+            initial: u.username.charAt(0).toUpperCase()
+        }));
+
+    res.json({
+        status: true,
+        totalUsers: users.length,
+        globalRequests,
+        uptime: startTime,
+        top5: topUsers
     });
 });
 
