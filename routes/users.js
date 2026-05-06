@@ -40,7 +40,6 @@ router.post('/register', (req, res) => {
 
 router.post('/login', async (req, res) => {
     const { email, password, captcha } = req.body;
-    
     if (!captcha) return res.status(400).json({ status: false, message: "CAPTCHA requerido" });
 
     try {
@@ -50,7 +49,6 @@ router.post('/login', async (req, res) => {
 
         let users = getUsers();
         const user = users.find(u => u.email === email && u.password === password);
-
         if (!user) return res.status(401).json({ status: false, message: "Credenciales incorrectas" });
 
         res.json({
@@ -58,6 +56,7 @@ router.post('/login', async (req, res) => {
             creator: "Félix Ofc",
             data: {
                 username: user.username,
+                email: user.email,
                 key: user.key,
                 role: user.role,
                 plan: user.plan,
@@ -65,7 +64,7 @@ router.post('/login', async (req, res) => {
             }
         });
     } catch (err) {
-        res.status(500).json({ status: false, message: "Error en la verificación de seguridad" });
+        res.status(500).json({ status: false, message: "Error en el servidor" });
     }
 });
 
@@ -75,7 +74,6 @@ router.get('/me', (req, res) => {
 
     let users = getUsers();
     const user = users.find(u => u.key === apiKey);
-
     if (!user) return res.status(404).json({ status: false, message: "Usuario no encontrado" });
 
     res.json({
@@ -100,10 +98,8 @@ router.get('/me', (req, res) => {
 router.get('/stats', (req, res) => {
     const users = getUsers();
     const routesPath = path.join(__dirname, '../routes');
-    
     let endpointCount = 0;
     const folders = fs.readdirSync(routesPath);
-    
     folders.forEach(folder => {
         const fullPath = path.join(routesPath, folder);
         if (fs.lstatSync(fullPath).isDirectory()) {
@@ -111,20 +107,13 @@ router.get('/stats', (req, res) => {
             endpointCount += files.length;
         }
     });
-
-    res.json({
-        status: true,
-        users: users.length,
-        endpoints: endpointCount
-    });
+    res.json({ status: true, users: users.length, endpoints: endpointCount });
 });
 
 router.get('/dashboard-global', (req, res) => {
     const users = getUsers();
     let globalRequests = 0;
-    
     users.forEach(u => globalRequests += (u.totalRequest || 0));
-
     const topUsers = users
         .filter(u => u.totalRequest > 0)
         .sort((a, b) => b.totalRequest - a.totalRequest)
@@ -134,14 +123,41 @@ router.get('/dashboard-global', (req, res) => {
             total: u.totalRequest,
             initial: u.username.charAt(0).toUpperCase()
         }));
+    res.json({ status: true, totalUsers: users.length, globalRequests, uptime: startTime, top5: topUsers });
+});
 
-    res.json({
-        status: true,
-        totalUsers: users.length,
-        globalRequests,
-        uptime: startTime,
-        top5: topUsers
-    });
+router.get('/admin/all', (req, res) => {
+    const { apiKey } = req.query;
+    const users = getUsers();
+    const admin = users.find(u => u.key === apiKey && u.role === 'admin');
+    if (!admin) return res.status(403).json({ status: false, message: "No autorizado" });
+    res.json({ status: true, users });
+});
+
+router.post('/admin/update', (req, res) => {
+    const { adminKey, targetEmail, newData } = req.body;
+    let users = getUsers();
+    const admin = users.find(u => u.key === adminKey && u.role === 'admin');
+    if (!admin || targetEmail === 'frasesbebor@gmail.com') return res.status(403).json({ status: false });
+
+    const idx = users.findIndex(u => u.email === targetEmail);
+    if (idx !== -1) {
+        users[idx] = { ...users[idx], ...newData };
+        saveUsers(users);
+        return res.json({ status: true });
+    }
+    res.status(404).json({ status: false });
+});
+
+router.post('/admin/delete', (req, res) => {
+    const { adminKey, targetEmail } = req.body;
+    let users = getUsers();
+    const admin = users.find(u => u.key === adminKey && u.role === 'admin');
+    if (!admin || targetEmail === 'frasesbebor@gmail.com') return res.status(403).json({ status: false });
+
+    users = users.filter(u => u.email !== targetEmail);
+    saveUsers(users);
+    res.json({ status: true });
 });
 
 module.exports = router;
