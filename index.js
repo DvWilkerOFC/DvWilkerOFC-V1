@@ -10,6 +10,7 @@ app.set('trust proxy', 1);
 app.use(express.json());
 
 const aiGemini = require('./routes/ai/gemini');
+const aiChatgpt = require('./routes/ai/chatgpt');
 const toolQr = require('./routes/tools/qrcode');
 const toolSsweb = require('./routes/tools/ssweb');
 const searchPin = require('./routes/search/pinterest');
@@ -24,6 +25,7 @@ const userAuth = require('./routes/users');
 app.use('/api/auth', userAuth);
 
 app.use('/api/ai/gemini', authHandler, aiGemini);
+app.use('/api/ai/chatgpt', authHandler, aiChatgpt);
 app.use('/api/tools/qr', authHandler, toolQr);
 app.use('/api/tools/ssweb', authHandler, toolSsweb);
 app.use('/api/search/pinterest', authHandler, searchPin);
