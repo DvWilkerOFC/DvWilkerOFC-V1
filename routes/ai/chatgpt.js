@@ -102,7 +102,7 @@ class ChatGPTAPI {
     }
 }
 
-router.get('/chatgpt', async (req, res) => {
+router.get('/', async (req, res) => {
     const { text, cookie, promptSystem } = req.query;
     if (!text || !cookie) return res.status(400).json({ status: false, error: "Text and Cookie are required" });
     
