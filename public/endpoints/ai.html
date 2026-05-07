@@ -31,7 +31,7 @@
         body { background-color: var(--dark-bg); color: var(--text-main); font-family: 'Inter', sans-serif; transition: background-color var(--transition); }
 
         .glass { background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.1); border-radius: 24px; position: relative; }
-        
+
         .code-box { 
             background: var(--code-bg); padding: 12px; border-radius: 12px; 
             font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; 
@@ -96,40 +96,60 @@
                 <div class="flex items-center gap-2 font-bold text-sm uppercase">
                     <i class="fas fa-robot text-cyan-400"></i> Google Gemini
                 </div>
-                <span class="text-[10px] bg-cyan-500/10 text-cyan-400 px-2 py-1 rounded font-black">AI MODEL</span>
+                <span class="text-[10px] bg-cyan-500/10 text-cyan-400 px-2 py-1 rounded font-black">DEFAULT</span>
             </div>
-
-            <div class="code-box" id="gemini-path">GET /api/ai/gemini?apiKey=</div>
-            
+            <div class="code-box api-path" data-route="/api/ai/gemini">GET /api/ai/gemini?apiKey=</div>
             <div class="space-y-3">
                 <div>
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Cookie de Sesión</label>
-                    <input id="cookie-gemini" class="input-test" value="cokie" placeholder="Tu session cookie...">
+                    <input id="cookie-gemini" class="input-test" value="" placeholder="Tu session cookie...">
                 </div>
-                
                 <div>
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Texto (Mensaje)</label>
                     <textarea id="text-gemini" class="input-test h-24 resize-none" placeholder="Escribe algo para Gemini..."></textarea>
                 </div>
-
                 <button class="btn-test mt-2" onclick="testAi('gemini', '/api/ai/gemini')">Ejecutar Gemini</button>
             </div>
-
             <div id="res-gemini" class="result-box"></div>
         </div>
-        <button id="copy-gemini" class="btn-copy-json mb-6" onclick="copyResult('gemini')"><i class="fas fa-copy mr-2"></i> COPIAR RESPUESTA</button>
+        <button id="copy-gemini" class="btn-copy-json mb-10" onclick="copyResult('gemini')"><i class="fas fa-copy mr-2"></i> COPIAR RESPUESTA</button>
+
+        <div class="glass p-6 mb-1 overflow-hidden border-purple-500/20">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-2 font-bold text-sm uppercase">
+                    <i class="fas fa-brain text-purple-400"></i> ChatGPT (OpenAI Role)
+                </div>
+                <span class="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-1 rounded font-black">GPT-4 STYLE</span>
+            </div>
+            <div class="code-box api-path" data-route="/api/ai/chatgpt" style="color: #a855f7; border-color: rgba(168, 85, 247, 0.1)">GET /api/ai/chatgpt?apiKey=</div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Cookie de Sesión</label>
+                    <input id="cookie-chatgpt" class="input-test" value="" placeholder="Tu session cookie...">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Texto (Mensaje)</label>
+                    <textarea id="text-chatgpt" class="input-test h-24 resize-none" placeholder="Escribe algo para ChatGPT..."></textarea>
+                </div>
+                <button class="btn-test mt-2" style="background: #a855f7" onclick="testAi('chatgpt', '/api/ai/chatgpt')">Ejecutar ChatGPT</button>
+            </div>
+            <div id="res-chatgpt" class="result-box" style="color: #d8b4fe"></div>
+        </div>
+        <button id="copy-chatgpt" class="btn-copy-json mb-6" onclick="copyResult('chatgpt')"><i class="fas fa-copy mr-2"></i> COPIAR RESPUESTA</button>
     </main>
 
     <script>
         const userData = JSON.parse(localStorage.getItem('kazuma_user'));
-        
+
         if (!userData) {
             window.location.href = '/login';
         } else {
             document.addEventListener("DOMContentLoaded", () => {
-                const pathEl = document.getElementById('gemini-path');
-                // Ajustado al orden de tu ejemplo: apiKey, text, cookie
-                if(pathEl) pathEl.innerText += `${userData.key}&text=...&cookie=...`;
+                const paths = document.querySelectorAll('.api-path');
+                paths.forEach(el => {
+                    const route = el.getAttribute('data-route');
+                    el.innerText = `${route}?apiKey=${userData.key}&text=...&cookie=...`;
+                });
                 setTimeout(() => { document.getElementById('safety-block').style.display = 'none'; }, 300);
             });
         }
@@ -142,27 +162,26 @@
         }
 
         async function testAi(id, route) {
-            const textVal = document.getElementById(`text-gemini`).value.trim();
-            const cookieVal = document.getElementById(`cookie-gemini`).value.trim();
+            const textVal = document.getElementById(`text-${id}`).value.trim();
+            const cookieVal = document.getElementById(`cookie-${id}`).value.trim();
             const resBox = document.getElementById(`res-${id}`);
             const copyBtn = document.getElementById(`copy-${id}`);
-            
-            if (!textVal) return Swal.fire({ icon: 'warning', title: 'Falta Texto', background: 'var(--card-bg)', color: 'var(--text-main)' });
+
+            if (!textVal || !cookieVal) return Swal.fire({ icon: 'warning', title: 'Faltan Datos', text: 'El texto y la cookie son obligatorios', background: 'var(--card-bg)', color: 'var(--text-main)' });
 
             resBox.style.display = 'block';
             resBox.innerText = "PROCESANDO SOLICITUD...";
             copyBtn.style.display = 'none';
 
             try {
-                // URL final siguiendo exactamente tu formato
                 const url = `${route}?apiKey=${userData.key}&text=${encodeURIComponent(textVal)}&cookie=${encodeURIComponent(cookieVal)}`;
                 const response = await fetch(url);
                 const data = await response.json();
-                
+
                 resBox.innerText = JSON.stringify(data, null, 2);
                 copyBtn.style.display = 'block';
             } catch (err) { 
-                resBox.innerText = "ERROR DE RESPUESTA"; 
+                resBox.innerText = "ERROR DE RESPUESTA: " + err.message; 
                 copyBtn.style.display = 'block';
             }
         }
