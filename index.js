@@ -15,11 +15,15 @@ const toolQr = require('./routes/tools/qrcode');
 const toolSsweb = require('./routes/tools/ssweb');
 const searchPin = require('./routes/search/pinterest');
 const searchTt = require('./routes/search/tiktok');
+const searchYt = require('./routes/search/ytsearch');
 const dlFb = require('./routes/download/facebookvid');
 const dlIg = require('./routes/download/instagramvid');
 const dlTw = require('./routes/download/twitter');
 const dlPin = require('./routes/download/pinterest');
 const dlTt = require('./routes/download/tiktok');
+const dlYta = require('./routes/download/ytaudio');
+const dlYtv = require('./routes/download/ytvideo');
+const dlSpotify = require('./routes/download/spotify');
 const userAuth = require('./routes/users');
 
 app.use('/api/auth', userAuth);
@@ -30,11 +34,15 @@ app.use('/api/tools/qr', authHandler, toolQr);
 app.use('/api/tools/ssweb', authHandler, toolSsweb);
 app.use('/api/search/pinterest', authHandler, searchPin);
 app.use('/api/search/tiktok', authHandler, searchTt);
+app.use('/api/search/youtube', authHandler, searchYt);
 app.use('/api/download/facebook', authHandler, dlFb);
 app.use('/api/download/instagram', authHandler, dlIg);
 app.use('/api/download/twitter', authHandler, dlTw);
 app.use('/api/download/pinterest', authHandler, dlPin);
 app.use('/api/download/tiktok', authHandler, dlTt);
+app.use('/api/download/ytaudio', authHandler, dlYta);
+app.use('/api/download/ytvideo', authHandler, dlYtv);
+app.use('/api/download/spotify', authHandler, dlSpotify);
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
