@@ -31,7 +31,7 @@
         body { background-color: var(--dark-bg); color: var(--text-main); font-family: 'Inter', sans-serif; transition: background-color var(--transition); }
 
         .glass { background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.1); border-radius: 24px; position: relative; }
-        
+
         .code-box { 
             background: var(--code-bg); padding: 12px; border-radius: 12px; 
             font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; 
@@ -127,16 +127,49 @@
             <div id="res-fb" class="result-box"></div>
         </div>
         <button id="copy-fb" class="btn-copy-json mb-6" onclick="copyResult('fb')"><i class="fas fa-copy mr-2"></i> COPIAR JSON</button>
+
+        <div class="glass p-6 mb-1 overflow-hidden">
+            <div class="flex items-center gap-2 font-bold text-sm uppercase">
+                <i class="fab fa-youtube text-cyan-400"></i> YouTube Audio
+            </div>
+            <div class="code-box" id="yta-path">GET /api/download/ytaudio?url=</div>
+            <input id="in-yta" class="input-test mb-3" placeholder="URL de video YouTube...">
+            <button class="btn-test" onclick="testApi('yta', '/api/download/ytaudio')">Probar Endpoint</button>
+            <div id="res-yta" class="result-box"></div>
+        </div>
+        <button id="copy-yta" class="btn-copy-json mb-6" onclick="copyResult('yta')"><i class="fas fa-copy mr-2"></i> COPIAR JSON</button>
+
+        <div class="glass p-6 mb-1 overflow-hidden">
+            <div class="flex items-center gap-2 font-bold text-sm uppercase">
+                <i class="fab fa-youtube text-cyan-400"></i> YouTube Video
+            </div>
+            <div class="code-box" id="ytv-path">GET /api/download/ytvideo?url=</div>
+            <input id="in-ytv" class="input-test mb-3" placeholder="URL de video YouTube...">
+            <button class="btn-test" onclick="testApi('ytv', '/api/download/ytvideo')">Probar Endpoint</button>
+            <div id="res-ytv" class="result-box"></div>
+        </div>
+        <button id="copy-ytv" class="btn-copy-json mb-6" onclick="copyResult('ytv')"><i class="fas fa-copy mr-2"></i> COPIAR JSON</button>
+
+        <div class="glass p-6 mb-1 overflow-hidden">
+            <div class="flex items-center gap-2 font-bold text-sm uppercase">
+                <i class="fab fa-spotify text-cyan-400"></i> Spotify
+            </div>
+            <div class="code-box" id="sp-path">GET /api/download/spotify?url=</div>
+            <input id="in-sp" class="input-test mb-3" placeholder="URL de canción Spotify...">
+            <button class="btn-test" onclick="testApi('sp', '/api/download/spotify')">Probar Endpoint</button>
+            <div id="res-sp" class="result-box"></div>
+        </div>
+        <button id="copy-sp" class="btn-copy-json mb-6" onclick="copyResult('sp')"><i class="fas fa-copy mr-2"></i> COPIAR JSON</button>
     </main>
 
     <script>
         const userData = JSON.parse(localStorage.getItem('kazuma_user'));
-        
+
         if (!userData) {
             window.location.href = '/login';
         } else {
             document.addEventListener("DOMContentLoaded", () => {
-                const ids = ['tt', 'ig', 'fb'];
+                const ids = ['tt', 'ig', 'fb', 'yta', 'ytv', 'sp'];
                 ids.forEach(id => {
                     const el = document.getElementById(`${id}-path`);
                     if(el) el.innerText += `&apiKey=${userData.key}`;
@@ -156,7 +189,7 @@
             const val = document.getElementById(`in-${id}`).value.trim();
             const resBox = document.getElementById(`res-${id}`);
             const copyBtn = document.getElementById(`copy-${id}`);
-            
+
             if (!val) return;
 
             resBox.style.display = 'block';
@@ -167,10 +200,10 @@
                 const response = await fetch(`${route}?url=${encodeURIComponent(val)}&apiKey=${userData.key}`);
                 const data = await response.json();
                 resBox.innerText = JSON.stringify(data, null, 2);
-                copyBtn.style.display = 'block'; // Mostrar botón al recibir respuesta
+                copyBtn.style.display = 'block';
             } catch (err) { 
                 resBox.innerText = "ERROR DE CONEXIÓN"; 
-                copyBtn.style.display = 'block'; // Mostrar incluso en error para copiar el log
+                copyBtn.style.display = 'block';
             }
         }
 
