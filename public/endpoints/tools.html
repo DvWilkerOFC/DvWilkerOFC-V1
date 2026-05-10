@@ -20,6 +20,10 @@
         .img-result { width: 100%; border-radius: 15px; border: 2px solid var(--neon-blue); display: none; margin-top: 15px; }
         h2 { border-left: 5px solid var(--neon-blue); padding-left: 15px; font-weight: 900; }
         .grecaptcha-badge { width: 70px !important; overflow: hidden !important; transition: 0.3s !important; right: 0px !important; bottom: 20px !important; z-index: 9999 !important; }
+        .res-box { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 15px; margin-top: 15px; display: none; font-size: 0.8rem; border: 1px solid rgba(0,243,255,0.2); }
+        .res-item { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2px; }
+        .res-label { color: #888; font-weight: bold; }
+        .res-value { color: var(--neon-blue); }
     </style>
 </head>
 <body class="min-h-screen pb-10">
@@ -35,7 +39,7 @@
         <div class="glass p-6 mb-6">
             <div class="font-bold text-sm uppercase mb-2"><i class="fas fa-camera text-cyan-400"></i> Screenshot Web</div>
             <div class="code-box" id="ss-path">GET /api/tools/ssweb?apiKey=</div>
-            
+
             <input id="url-ss" class="input-test" placeholder="URL del sitio...">
             <div class="grid grid-cols-2 gap-3">
                 <select id="device-ss"><option value="desktop">Escritorio</option><option value="tablet">Tablet</option><option value="phone">Móvil</option></select>
@@ -43,6 +47,21 @@
             </div>
             <button class="btn-test" onclick="testMedia('ssweb')">Capturar Pantalla</button>
             <img id="view-ssweb" class="img-result">
+        </div>
+
+        <div class="glass p-6 mb-6">
+            <div class="font-bold text-sm uppercase mb-2"><i class="fas fa-search-location text-cyan-400"></i> IP Lookup</div>
+            <div class="code-box" id="ip-path">GET /api/tools/ip?apiKey=</div>
+            <input id="ip-addr" class="input-test" placeholder="Dirección IP (ej: 8.8.8.8)">
+            <button class="btn-test" onclick="testIP()">Rastrear IP</button>
+            
+            <div id="res-ip" class="res-box">
+                <div class="res-item"><span class="res-label">IP:</span> <span id="r-ip" class="res-value"></span></div>
+                <div class="res-item"><span class="res-label">País:</span> <span id="r-pais" class="res-value"></span></div>
+                <div class="res-item"><span class="res-label">Ciudad:</span> <span id="r-ciudad" class="res-value"></span></div>
+                <div class="res-item"><span class="res-label">ISP:</span> <span id="r-isp" class="res-value"></span></div>
+                <div class="res-item"><span class="res-label">Hosting:</span> <span id="r-host" class="res-value"></span></div>
+            </div>
         </div>
 
         <div class="glass p-6 mb-6">
@@ -60,9 +79,37 @@
         else {
             document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById('ss-path').innerText += `${userData.key}&url=...&device=...&theme=...`;
+                document.getElementById('ip-path').innerText += `${userData.key}&ip=...`;
                 document.getElementById('qr-path').innerText += `${userData.key}&text=...`;
                 setTimeout(() => document.getElementById('safety-block').style.display='none', 300);
             });
+        }
+
+        async function testIP() {
+            const ip = document.getElementById('ip-addr').value;
+            const resBox = document.getElementById('res-ip');
+            if(!ip) return;
+
+            Swal.fire({ title: 'Rastreando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const response = await fetch(`/api/tools/ip?ip=${ip}&apiKey=${userData.key}`);
+                const data = await response.json();
+                
+                if(data.status) {
+                    document.getElementById('r-ip').innerText = data.result.ip;
+                    document.getElementById('r-pais').innerText = data.result.pais;
+                    document.getElementById('r-ciudad').innerText = data.result.ciudad;
+                    document.getElementById('r-isp').innerText = data.result.isp;
+                    document.getElementById('r-host').innerText = data.result.es_hosting ? "Sí" : "No";
+                    resBox.style.display = 'block';
+                    Swal.close();
+                } else {
+                    Swal.fire('Error', data.error, 'error');
+                }
+            } catch (e) {
+                Swal.fire('Error', 'No se pudo conectar con la API', 'error');
+            }
         }
 
         async function testMedia(type) {
