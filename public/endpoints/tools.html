@@ -24,6 +24,7 @@
         .res-item { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2px; }
         .res-label { color: #888; font-weight: bold; }
         .res-value { color: var(--neon-blue); }
+        pre { white-space: pre-wrap; word-wrap: break-word; color: #00ffaa; font-size: 0.7rem; }
     </style>
 </head>
 <body class="min-h-screen pb-10">
@@ -35,6 +36,16 @@
 
     <main class="container mx-auto p-4 max-w-2xl">
         <h2 class="text-xl uppercase tracking-tighter my-6">Herramientas</h2>
+
+        <div class="glass p-6 mb-6">
+            <div class="font-bold text-sm uppercase mb-2"><i class="fab fa-whatsapp text-green-400"></i> Inspect WhatsApp</div>
+            <div class="code-box" id="inspect-path">GET /api/tools/inspect?apiKey=</div>
+            <input id="url-inspect" class="input-test" placeholder="Enlace de Canal o Grupo...">
+            <button class="btn-test" onclick="testInspect()">Inspeccionar Enlace</button>
+            <div id="res-inspect" class="res-box">
+                <pre id="json-inspect"></pre>
+            </div>
+        </div>
 
         <div class="glass p-6 mb-6">
             <div class="font-bold text-sm uppercase mb-2"><i class="fas fa-camera text-cyan-400"></i> Screenshot Web</div>
@@ -82,11 +93,34 @@
         if (!userData) { window.location.href = '/login'; }
         else {
             document.addEventListener("DOMContentLoaded", () => {
-                document.getElementById('ss-path').innerText += `${userData.key}&url=...&device=...&theme=...`;
+                document.getElementById('ss-path').innerText += `${userData.key}&url=...`;
                 document.getElementById('ip-path').innerText += `${userData.key}&ip=...`;
                 document.getElementById('qr-path').innerText += `${userData.key}&text=...`;
+                document.getElementById('inspect-path').innerText += `${userData.key}&link=...`;
                 setTimeout(() => document.getElementById('safety-block').style.display='none', 300);
             });
+        }
+
+        async function testInspect() {
+            const link = document.getElementById('url-inspect').value;
+            if(!link) return Swal.fire('Error', 'Ingresa un enlace de WhatsApp', 'warning');
+            
+            Swal.fire({ title: 'Inspeccionando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            try {
+                const response = await fetch(`/api/tools/inspect?link=${encodeURIComponent(link)}&apiKey=${userData.key}`);
+                const data = await response.json();
+                
+                if(data.status) {
+                    document.getElementById('json-inspect').innerText = JSON.stringify(data, null, 2);
+                    document.getElementById('res-inspect').style.display = 'block';
+                    Swal.close();
+                } else {
+                    Swal.fire('Error', data.error, 'error');
+                }
+            } catch (e) {
+                Swal.fire('Error', 'No se pudo conectar con la API', 'error');
+            }
         }
 
         async function getMyIP() {
@@ -94,13 +128,7 @@
                 const response = await fetch('https://api.ipify.org?format=json');
                 const data = await response.json();
                 document.getElementById('ip-addr').value = data.ip;
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true
-                });
+                const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true });
                 Toast.fire({ icon: 'success', title: 'IP detectada correctamente' });
             } catch (e) {
                 Swal.fire('Error', 'No se pudo detectar tu IP pública', 'error');
@@ -110,14 +138,11 @@
         async function testIP() {
             const ip = document.getElementById('ip-addr').value;
             const resBox = document.getElementById('res-ip');
-            if(!ip) return Swal.fire('Atención', 'Ingresa una IP o usa la detección automática', 'warning');
-
+            if(!ip) return Swal.fire('Atención', 'Ingresa una IP', 'warning');
             Swal.fire({ title: 'Rastreando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
             try {
                 const response = await fetch(`/api/tools/ip?ip=${ip}&apiKey=${userData.key}`);
                 const data = await response.json();
-
                 if(data.status) {
                     document.getElementById('r-ip').innerText = data.result.ip;
                     document.getElementById('r-pais').innerText = data.result.pais;
@@ -137,7 +162,6 @@
         async function testMedia(type) {
             const imgEl = document.getElementById(`view-${type}`);
             let finalUrl = "";
-
             if(type === 'ssweb') {
                 const u = document.getElementById('url-ss').value;
                 const d = document.getElementById('device-ss').value;
@@ -149,7 +173,6 @@
                 if(!txt) return;
                 finalUrl = `/api/tools/qr?text=${encodeURIComponent(txt)}&apiKey=${userData.key}`;
             }
-
             Swal.fire({ title: 'Procesando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             imgEl.src = finalUrl;
             imgEl.onload = () => { imgEl.style.display = 'block'; Swal.close(); };
