@@ -39,7 +39,7 @@ router.get('/', async (req, res) => {
 
         res.json({
             status: true,
-            author: "Kazuma API",
+            author: "Félix Ofc",
             query: tags,
             count: results.length,
             results: results
