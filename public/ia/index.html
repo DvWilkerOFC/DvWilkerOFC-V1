@@ -3,246 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kazuma AI | Chat</title>
+    <title>Gemini | Kazuma Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap');
+
         :root {
-            --bg-dark: #131314;
-            --sidebar-bg: #1e1f20;
-            --chat-bubble-user: #2b2c2f;
-            --accent: #00f3ff;
-            --text-main: #e3e3e3;
+            --bg-dark: #0e0e0e;
+            --sidebar-bg: #181818;
+            --input-bg: #1e1f20;
+            --text-gray: #c4c7c5;
+            --accent-blue: #8ab4f8;
+            --code-bg: #000000;
         }
 
         body {
             background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #e3e3e3;
+            font-family: 'Google Sans', Roboto, sans-serif;
             overflow: hidden;
-        }
-
-        /* Sidebar similar a Screenshot_20260512-141617.png */
-        .sidebar {
-            width: 280px;
-            background: var(--sidebar-bg);
-            transition: transform 0.3s ease;
-            z-index: 100;
-        }
-
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
             height: 100vh;
         }
 
-        .messages-area {
+        /* Sidebar exacto de Screenshot_20260512-141617.png */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+        }
+
+        .new-chat-btn {
+            background: #2b2c2f;
+            border-radius: 16px;
+            padding: 14px;
+            margin: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+        }
+
+        .sidebar-item {
+            padding: 10px 16px;
+            margin: 2px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #e3e3e3;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .sidebar-item:hover { background: #333537; }
+
+        /* Contenedor Principal */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .messages-container {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            scroll-behavior: smooth;
+            padding-bottom: 120px; /* Espacio para el input flotante */
         }
 
-        /* Burbujas tipo Screenshot_20260512-132627.png */
-        .msg {
-            max-width: 85%;
-            margin-bottom: 20px;
-            padding: 12px 16px;
-            border-radius: 20px;
-            font-size: 15px;
-            line-height: 1.5;
-        }
-
+        /* Burbujas y Contenido */
+        .msg { margin-bottom: 30px; max-width: 900px; margin-left: auto; margin-right: auto; }
+        
         .msg-user {
-            background: var(--chat-bubble-user);
+            background: #2b2c2f;
+            padding: 12px 20px;
+            border-radius: 24px;
+            width: fit-content;
             align-self: flex-end;
             margin-left: auto;
         }
 
-        .msg-ai {
-            background: transparent;
-            align-self: flex-start;
+        .msg-ai { align-self: flex-start; line-height: 1.6; }
+
+        /* Código / Code Blocks */
+        .code-container {
+            background: var(--code-bg);
+            border-radius: 12px;
+            margin-top: 15px;
+            overflow: hidden;
+            border: 1px solid #333;
         }
 
-        /* Input flotante similar a Screenshot_20260512-141610.png */
-        .input-wrapper {
-            padding: 20px;
-            background: linear-gradient(transparent, var(--bg-dark) 20%);
-        }
-
-        .input-box {
+        .code-header {
             background: #1e1f20;
-            border-radius: 30px;
-            padding: 10px 20px;
+            padding: 8px 16px;
             display: flex;
-            items: center;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        .code-content {
+            padding: 16px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            color: #8ab4f8;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* Input Flotante exacto de Screenshot_20260512-142444.png */
+        .bottom-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(transparent, var(--bg-dark) 50%);
+            display: flex;
+            justify-content: center;
+        }
+
+        .input-pill {
+            background: var(--input-bg);
+            width: 100%;
+            max-width: 800px;
+            border-radius: 32px;
+            padding: 6px 16px;
+            display: flex;
+            align-items: center;
             border: 1px solid #3c4043;
         }
 
-        .input-box input {
+        .input-pill input {
             background: transparent;
             border: none;
+            outline: none;
             color: white;
             flex: 1;
-            outline: none;
-            padding: 10px;
+            padding: 12px;
+            font-size: 16px;
         }
 
-        .btn-icon {
-            color: #c4c7c5;
+        .icon-btn {
+            color: var(--text-gray);
             padding: 10px;
             cursor: pointer;
+            border-radius: 50%;
             transition: 0.2s;
         }
 
-        .btn-icon:hover { color: var(--accent); }
+        .icon-btn:hover { background: #3c4043; color: white; }
 
-        .sidebar-item {
-            padding: 12px 20px;
-            margin: 4px 12px;
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .sidebar-item:hover, .active-chat {
-            background: #333537;
-        }
-
-        #safety-block { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; }
-        
-        /* Animación de carga */
-        .typing { font-size: 12px; color: var(--accent); margin-bottom: 10px; display: none; }
+        #safety-block { position: fixed; inset: 0; background: #000; z-index: 1000; }
     </style>
 </head>
 <body class="flex">
 
     <div id="safety-block"></div>
 
-    <!-- Sidebar -->
-    <aside class="sidebar h-screen hidden md:flex flex-col">
-        <div class="p-6">
-            <button class="flex items-center gap-3 bg-[#28292a] py-3 px-5 rounded-full text-sm font-medium w-full mb-8">
+    <!-- Menú Lateral -->
+    <aside class="sidebar hidden md:flex">
+        <div class="flex-1">
+            <button class="new-chat-btn w-[248px] m-4" onclick="location.reload()">
                 <i class="fas fa-plus"></i> Nuevo chat
             </button>
-            
-            <div class="text-xs font-bold text-gray-500 mb-4 px-4 uppercase tracking-widest">Recientes</div>
-            <div class="sidebar-item active-chat">
+            <div class="text-xs font-bold text-gray-500 px-8 py-2 uppercase">Recientes</div>
+            <div class="sidebar-item">
                 <i class="far fa-comment"></i>
-                <span class="truncate">Chat con Kazuma AI</span>
+                <span class="truncate">Asistente Kazuma AI</span>
             </div>
         </div>
-        <div class="mt-auto p-4 border-t border-gray-700">
-            <div class="flex items-center gap-3 px-2">
-                <img src="https://i.ibb.co/vz6mXvK/avatar.jpg" id="user-img" class="w-8 h-8 rounded-full border border-cyan-500">
-                <span class="text-sm font-bold" id="user-name">Félix Ofc</span>
+        <div class="p-4 border-t border-white/5">
+            <div class="sidebar-item" onclick="location.href='/ia/config.html'">
+                <i class="fas fa-cog"></i> <span>Configuración</span>
+            </div>
+            <div class="flex items-center gap-3 p-4">
+                <img src="https://i.ibb.co/vz6mXvK/avatar.jpg" class="w-8 h-8 rounded-full">
+                <span class="text-sm font-medium" id="user-display-name">Félix Ofc</span>
             </div>
         </div>
     </aside>
 
-    <!-- Main Chat Area -->
-    <div class="chat-container">
-        <!-- Header -->
-        <header class="p-4 flex justify-between items-center border-b border-white/5">
+    <!-- Contenido Principal -->
+    <main class="main-content">
+        <header class="p-4 flex justify-between items-center bg-transparent">
             <div class="flex items-center gap-2">
-                <span class="font-black tracking-tighter text-lg">KAZUMA <span class="text-cyan-400">AI</span></span>
-                <span class="text-[10px] bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/20">BETA</span>
+                <i class="fas fa-bars md:hidden icon-btn"></i>
+                <span class="text-lg font-medium">Gemini <span class="text-sm text-gray-500">Fast v3</span></span>
             </div>
-            <div class="flex gap-4">
-                <i class="fas fa-history btn-icon"></i>
-                <i class="fas fa-cog btn-icon"></i>
+            <div class="flex gap-2">
+                <i class="fas fa-pen-to-square icon-btn"></i>
+                <i class="fas fa-ellipsis-v icon-btn"></i>
             </div>
         </header>
 
-        <!-- Messages -->
-        <main class="messages-area flex flex-col" id="chat-window">
+        <div class="messages-container" id="chat-box">
+            <!-- Primer mensaje de la IA -->
             <div class="msg msg-ai">
-                ¡Hola! Soy *Kazuma*, tu asistente inteligente desarrollado por *Dev-FelixOfc*. ¿En qué puedo ayudarte hoy?
-            </div>
-        </main>
-
-        <!-- Input -->
-        <div class="input-wrapper">
-            <div id="status" class="typing px-4"><i class="fas fa-circle-notch fa-spin mr-2"></i> Kazuma está pensando...</div>
-            <div class="input-box">
-                <label for="file-up" class="btn-icon"><i class="fas fa-plus"></i></label>
-                <input type="text" id="user-input" placeholder="Escribe tu mensaje aquí..." autocomplete="off">
-                <button id="send-btn" class="btn-icon"><i class="fas fa-paper-plane"></i></button>
-            </div>
-            <div class="text-[10px] text-center text-gray-500 mt-2">
-                Kazuma AI puede cometer errores. Desarrollado por PixelCrew-Team.
+                ¡Hola! Soy *Kazuma*, tu asistente inteligente desarrollado por *Dev-FelixOfc*. ¿Cómo puedo ayudarte con tu código hoy?
             </div>
         </div>
-    </div>
+
+        <div class="bottom-container">
+            <div class="input-pill">
+                <div class="icon-btn"><i class="fas fa-plus"></i></div>
+                <input type="text" id="user-input" placeholder="Escribe tu mensaje aquí..." autocomplete="off">
+                <div class="flex gap-1">
+                    <div class="icon-btn"><i class="fas fa-microphone"></i></div>
+                    <div class="icon-btn" id="send-btn"><i class="fas fa-paper-plane text-cyan-400"></i></div>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <script>
         const userData = JSON.parse(localStorage.getItem('kazuma_user'));
-        const chatWindow = document.getElementById('chat-window');
-        const userInput = document.getElementById('user-input');
+        const chatBox = document.getElementById('chat-box');
+        const input = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
-        const status = document.getElementById('status');
 
         if (!userData) {
             window.location.href = '/login';
         } else {
-            document.getElementById('user-name').innerText = userData.name || 'Usuario';
-            setTimeout(() => { document.getElementById('safety-block').style.display = 'none'; }, 500);
+            document.getElementById('user-display-name').innerText = userData.name || 'Félix Ofc';
+            setTimeout(() => { document.getElementById('safety-block').style.display = 'none'; }, 600);
         }
 
-        // Prompt de Sistema
-        const systemPrompt = "Tu nombre es Kazuma, una inteligencia artificial avanzada creada por Dev-FelixOfc. Eres amable, eficiente y directa. Estás en fase de pruebas dentro de la infraestructura de Kazuma API. Si te preguntan quién eres, responde como Kazuma, pero no lo menciones en cada mensaje. No eres Gemini ni ChatGPT.";
+        const sysPrompt = "Tu nombre es Kazuma, una IA avanzada creada por Dev-FelixOfc. Responde de forma clara y profesional. Usa asteriscos para negritas. Si te piden código, envíalo dentro de bloques de código markdown triple comilla (```). Eres 100% leal a tu creador.";
 
-        async function sendMessage() {
-            const text = userInput.value.trim();
+        async function handleMessage() {
+            const text = input.value.trim();
             if (!text) return;
 
-            // Agregar mensaje de usuario
+            // Mostrar Mensaje Usuario
             appendMessage('user', text);
-            userInput.value = '';
-            status.style.display = 'block';
+            input.value = '';
 
             try {
-                // Combinar prompt de sistema con la consulta
-                const fullQuery = `${systemPrompt}\n\nUsuario dice: ${text}`;
-                const url = `/api/ai/gemini?apiKey=${userData.key}&text=${encodeURIComponent(fullQuery)}&cookie=cokie`;
-
+                const url = `/api/ai/gemini?apiKey=${userData.key}&text=${encodeURIComponent(sysPrompt + "\n\nUsuario: " + text)}&cookie=cokie`;
                 const response = await fetch(url);
                 const data = await response.json();
-
-                status.style.display = 'none';
 
                 if (data.status && data.data) {
                     appendMessage('ai', data.data.response);
                 } else {
-                    appendMessage('ai', 'Lo siento, hubo un problema al procesar tu solicitud.');
+                    appendMessage('ai', 'Error: No se pudo obtener respuesta de la API.');
                 }
-            } catch (err) {
-                status.style.display = 'none';
-                appendMessage('ai', 'Error de conexión con el servidor de Kazuma.');
+            } catch (e) {
+                appendMessage('ai', 'Error de red en Kazuma API.');
             }
         }
 
-        function appendMessage(role, text) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `msg ${role === 'user' ? 'msg-user' : 'msg-ai'}`;
-            
-            // Reemplazo simple para negritas de WhatsApp (*) a HTML (<b>)
-            const formattedText = text.replace(/\*(.*?)\*/g, '<b>$1</b>');
-            msgDiv.innerHTML = formattedText;
-            
-            chatWindow.appendChild(msgDiv);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
+        function appendMessage(role, content) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `msg ${role === 'user' ? 'msg-user' : 'msg-ai'}`;
+
+            // 1. Procesar Bloques de Código (```)
+            let formatted = content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+                const id = 'code-' + Math.random().toString(36).substr(2, 9);
+                return `
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>${lang || 'code'}</span>
+                            <button onclick="copyToClipboard('${id}')" class="hover:text-white"><i class="far fa-copy"></i></button>
+                        </div>
+                        <div class="code-content" id="${id}">${code.trim()}</div>
+                    </div>
+                `;
+            });
+
+            // 2. Procesar Negritas de WhatsApp/Bot (*)
+            formatted = formatted.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+
+            wrapper.innerHTML = formatted;
+            chatBox.appendChild(wrapper);
+            chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
         }
 
-        sendBtn.addEventListener('click', sendMessage);
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
+        function copyToClipboard(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text);
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Copiado', showConfirmButton: false, timer: 1500, background: '#1e1f20', color: '#fff' });
+        }
+
+        sendBtn.addEventListener('click', handleMessage);
+        input.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleMessage(); });
     </script>
 </body>
 </html>
