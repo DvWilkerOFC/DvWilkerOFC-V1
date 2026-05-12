@@ -3,299 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kazuma Agent</title>
+    <title>Kazuma AI | Pure Black</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
         :root {
-            --bg-dark: #0e0e0e;
-            --sidebar-bg: #181818;
-            --input-bg: #1e1f20;
-            --text-gray: #c4c7c5;
-            --accent-blue: #8ab4f8;
-            --code-bg: #000000;
+            --bg-pure: #000000;
+            --sidebar-dark: #0a0a0a;
+            --accent: #00f3ff;
+            --card-gray: #111111;
+            --text-dim: #a0a0a0;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: #e3e3e3;
-            font-family: 'Google Sans', Roboto, sans-serif;
-            overflow: hidden;
+            background-color: var(--bg-pure);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
             height: 100vh;
+            overflow: hidden;
         }
 
-        /* Sidebar exacto de Screenshot_20260512-141617.png */
+        /* Sidebar con estilo neón sutil */
         .sidebar {
-            width: 280px;
-            background: var(--sidebar-bg);
+            width: 260px;
+            background: var(--sidebar-dark);
+            border-right: 1px solid #1a1a1a;
             display: flex;
             flex-direction: column;
-            z-index: 50;
         }
 
-        .new-chat-btn {
-            background: #2b2c2f;
-            border-radius: 16px;
-            padding: 14px;
-            margin: 16px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: 0.2s;
-        }
-
-        .sidebar-item {
-            padding: 10px 16px;
-            margin: 2px 12px;
-            border-radius: 20px;
+        .new-chat {
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            background: rgba(0, 243, 255, 0.05);
+            margin: 15px;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
             font-size: 14px;
-            color: #e3e3e3;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            font-weight: 600;
             cursor: pointer;
+            transition: 0.3s;
+        }
+        .new-chat:hover { background: var(--accent); color: #000; }
+
+        .chat-history {
+            padding: 10px;
+            font-size: 13px;
+            color: var(--text-dim);
+            flex: 1;
+            overflow-y: auto;
         }
 
-        .sidebar-item:hover { background: #333537; }
+        .history-item {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .history-item:hover { background: #111; color: #fff; }
 
-        /* Contenedor Principal */
-        .main-content {
+        /* Contenedor de Chat */
+        .main-view {
             flex: 1;
             display: flex;
             flex-direction: column;
             position: relative;
         }
 
-        .messages-container {
+        .chat-scroll {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            padding-bottom: 120px; /* Espacio para el input flotante */
+            padding-bottom: 100px;
         }
 
-        /* Burbujas y Contenido */
-        .msg { margin-bottom: 30px; max-width: 900px; margin-left: auto; margin-right: auto; }
-        
-        .msg-user {
-            background: #2b2c2f;
-            padding: 12px 20px;
-            border-radius: 24px;
-            width: fit-content;
-            align-self: flex-end;
+        /* Mensajes */
+        .msg { margin-bottom: 25px; line-height: 1.6; max-width: 850px; margin-left: auto; margin-right: auto; }
+        .msg-user { 
+            background: #161616; 
+            padding: 12px 18px; 
+            border-radius: 18px 18px 2px 18px; 
+            width: fit-content; 
             margin-left: auto;
+            border: 1px solid #222;
         }
 
-        .msg-ai { align-self: flex-start; line-height: 1.6; }
-
-        /* Código / Code Blocks */
-        .code-container {
-            background: var(--code-bg);
-            border-radius: 12px;
-            margin-top: 15px;
-            overflow: hidden;
-            border: 1px solid #333;
+        /* Bloques de Código */
+        .code-block {
+            background: #050505;
+            border: 1px solid #222;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'JetBrains Mono', monospace;
         }
-
-        .code-header {
-            background: #1e1f20;
-            padding: 8px 16px;
+        .code-head {
+            background: #111;
+            padding: 6px 15px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: var(--text-gray);
+            font-size: 11px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
+        .code-body { padding: 15px; overflow-x: auto; color: #d1d1d1; font-size: 13px; }
 
-        .code-content {
-            padding: 16px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 14px;
-            color: #8ab4f8;
-            white-space: pre-wrap;
-            overflow-x: auto;
-        }
-
-        /* Input Flotante exacto de Screenshot_20260512-142444.png */
-        .bottom-container {
+        /* Barra de entrada flotante */
+        .input-area {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 20px;
-            background: linear-gradient(transparent, var(--bg-dark) 50%);
-            display: flex;
-            justify-content: center;
-        }
-
-        .input-pill {
-            background: var(--input-bg);
-            width: 100%;
-            max-width: 800px;
-            border-radius: 32px;
-            padding: 6px 16px;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 750px;
+            background: #111;
+            border-radius: 16px;
+            border: 1px solid #222;
+            padding: 8px 15px;
             display: flex;
             align-items: center;
-            border: 1px solid #3c4043;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .input-pill input {
+        .input-area input {
             background: transparent;
             border: none;
             outline: none;
             color: white;
             flex: 1;
-            padding: 12px;
-            font-size: 16px;
-        }
-
-        .icon-btn {
-            color: var(--text-gray);
             padding: 10px;
-            cursor: pointer;
-            border-radius: 50%;
-            transition: 0.2s;
         }
 
-        .icon-btn:hover { background: #3c4043; color: white; }
+        .btn-neon { color: var(--accent); cursor: pointer; padding: 10px; transition: 0.2s; }
+        .btn-neon:hover { transform: scale(1.1); }
 
-        #safety-block { position: fixed; inset: 0; background: #000; z-index: 1000; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
     </style>
 </head>
 <body class="flex">
 
-    <div id="safety-block"></div>
-
-    <!-- Menú Lateral -->
     <aside class="sidebar hidden md:flex">
-        <div class="flex-1">
-            <button class="new-chat-btn w-[248px] m-4" onclick="location.reload()">
-                <i class="fas fa-plus"></i> Nuevo chat
-            </button>
-            <div class="text-xs font-bold text-gray-500 px-8 py-2 uppercase">Recientes</div>
-            <div class="sidebar-item">
-                <i class="far fa-comment"></i>
-                <span class="truncate">Asistente Kazuma AI</span>
-            </div>
+        <div class="new-chat" onclick="location.reload()">+ NUEVO CHAT</div>
+        <div class="chat-history" id="history-list">
+            <div class="history-item"><i class="far fa-comment-alt mr-2"></i> Sesión actual</div>
         </div>
         <div class="p-4 border-t border-white/5">
-            <div class="sidebar-item" onclick="location.href='/ia/config.html'">
-                <i class="fas fa-cog"></i> <span>Configuración</span>
-            </div>
-            <div class="flex items-center gap-3 p-4">
-                <img src="https://i.ibb.co/vz6mXvK/avatar.jpg" class="w-8 h-8 rounded-full">
-                <span class="text-sm font-medium" id="user-display-name">Félix Ofc</span>
+            <div class="flex items-center gap-3 cursor-pointer" onclick="location.href='/ia/config.html'">
+                <i class="fas fa-user-shield text-cyan-400"></i>
+                <span class="text-sm">Ajustes de Kazuma</span>
             </div>
         </div>
     </aside>
 
-    <!-- Contenido Principal -->
-    <main class="main-content">
-        <header class="p-4 flex justify-between items-center bg-transparent">
-            <div class="flex items-center gap-2">
-                <i class="fas fa-bars md:hidden icon-btn"></i>
-                <span class="text-lg font-medium">Gemini <span class="text-sm text-gray-500">Fast v3</span></span>
-            </div>
-            <div class="flex gap-2">
-                <i class="fas fa-pen-to-square icon-btn"></i>
-                <i class="fas fa-ellipsis-v icon-btn"></i>
-            </div>
+    <main class="main-view">
+        <header class="p-4 flex justify-between items-center">
+            <div class="font-black text-xl">KAZUMA <span style="color: var(--accent)">AI</span></div>
+            <i class="fas fa-layer-group text-gray-600"></i>
         </header>
 
-        <div class="messages-container" id="chat-box">
-            <!-- Primer mensaje de la IA -->
+        <div class="chat-scroll" id="screen">
             <div class="msg msg-ai">
-                ¡Hola! Soy *Kazuma*, tu asistente inteligente desarrollado por *Dev-FelixOfc*. ¿Cómo puedo ayudarte con tu código hoy?
+                Hola. Estoy listo para ayudarte. ¿Qué tenemos para hoy?
             </div>
         </div>
 
-        <div class="bottom-container">
-            <div class="input-pill">
-                <div class="icon-btn"><i class="fas fa-plus"></i></div>
-                <input type="text" id="user-input" placeholder="Escribe tu mensaje aquí..." autocomplete="off">
-                <div class="flex gap-1">
-                    <div class="icon-btn"><i class="fas fa-microphone"></i></div>
-                    <div class="icon-btn" id="send-btn"><i class="fas fa-paper-plane text-cyan-400"></i></div>
-                </div>
-            </div>
+        <div class="input-area">
+            <i class="fas fa-paperclip text-gray-500 mr-2"></i>
+            <input type="text" id="typer" placeholder="Escribe un mensaje..." autocomplete="off">
+            <button id="sender" class="btn-neon"><i class="fas fa-bolt"></i></button>
         </div>
     </main>
 
     <script>
         const userData = JSON.parse(localStorage.getItem('kazuma_user'));
-        const chatBox = document.getElementById('chat-box');
-        const input = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
+        const screen = document.getElementById('screen');
+        const typer = document.getElementById('typer');
+        const sender = document.getElementById('sender');
 
-        if (!userData) {
-            window.location.href = '/login';
-        } else {
-            document.getElementById('user-display-name').innerText = userData.name || 'Félix Ofc';
-            setTimeout(() => { document.getElementById('safety-block').style.display = 'none'; }, 600);
-        }
+        if (!userData) window.location.href = '/login';
 
-        const sysPrompt = "Tu nombre es Kazuma, una IA avanzada creada por Dev-FelixOfc. Responde de forma clara y profesional. Usa asteriscos para negritas. Si te piden código, envíalo dentro de bloques de código markdown triple comilla (```). Eres 100% leal a tu creador.";
+        // Prompt equilibrado
+        const system_logic = "Tu nombre es Kazuma. Eres una IA creada por Dev-FelixOfc. Actúa de forma eficiente. Solo menciona a tu creador si te preguntan quién te hizo o qué eres. Si te piden código, envíalo siempre en bloques de markdown con triple comilla. Usa negritas con un solo asterisco.";
 
-        async function handleMessage() {
-            const text = input.value.trim();
-            if (!text) return;
+        async function fire() {
+            const val = typer.value.trim();
+            if (!val) return;
 
-            // Mostrar Mensaje Usuario
-            appendMessage('user', text);
-            input.value = '';
+            addMsg('user', val);
+            typer.value = '';
 
             try {
-                const url = `/api/ai/gemini?apiKey=${userData.key}&text=${encodeURIComponent(sysPrompt + "\n\nUsuario: " + text)}&cookie=cokie`;
-                const response = await fetch(url);
-                const data = await response.json();
+                const api = `/api/ai/gemini?apiKey=${userData.key}&text=${encodeURIComponent(system_logic + "\n\n" + val)}&cookie=cokie`;
+                const res = await fetch(api);
+                const json = await res.json();
 
-                if (data.status && data.data) {
-                    appendMessage('ai', data.data.response);
+                if (json.status && json.data) {
+                    addMsg('ai', json.data.response);
                 } else {
-                    appendMessage('ai', 'Error: No se pudo obtener respuesta de la API.');
+                    addMsg('ai', "Error en el núcleo de respuesta.");
                 }
             } catch (e) {
-                appendMessage('ai', 'Error de red en Kazuma API.');
+                addMsg('ai', "Sin conexión con la API.");
             }
         }
 
-        function appendMessage(role, content) {
-            const wrapper = document.createElement('div');
-            wrapper.className = `msg ${role === 'user' ? 'msg-user' : 'msg-ai'}`;
+        function addMsg(role, text) {
+            const div = document.createElement('div');
+            div.className = `msg ${role === 'user' ? 'msg-user' : 'msg-ai'}`;
 
-            // 1. Procesar Bloques de Código (```)
-            let formatted = content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
-                const id = 'code-' + Math.random().toString(36).substr(2, 9);
+            // Render de bloques de código (Markdown)
+            let html = text.replace(/```(\w+)?\n([\s\S]*?)```/g, (m, lang, code) => {
+                const id = 'c-' + Math.random().toString(36).substr(2, 5);
                 return `
-                    <div class="code-container">
-                        <div class="code-header">
-                            <span>${lang || 'code'}</span>
-                            <button onclick="copyToClipboard('${id}')" class="hover:text-white"><i class="far fa-copy"></i></button>
+                    <div class="code-block">
+                        <div class="code-head">
+                            <span>${lang || 'source'}</span>
+                            <i class="far fa-copy cursor-pointer" onclick="copy('${id}')"></i>
                         </div>
-                        <div class="code-content" id="${id}">${code.trim()}</div>
+                        <div class="code-body" id="${id}">${code.trim()}</div>
                     </div>
                 `;
             });
 
-            // 2. Procesar Negritas de WhatsApp/Bot (*)
-            formatted = formatted.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+            // Negritas de un solo asterisco
+            html = html.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
 
-            wrapper.innerHTML = formatted;
-            chatBox.appendChild(wrapper);
-            chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+            div.innerHTML = html;
+            screen.appendChild(div);
+            screen.scrollTo({ top: screen.scrollHeight, behavior: 'smooth' });
         }
 
-        function copyToClipboard(id) {
-            const text = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(text);
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Copiado', showConfirmButton: false, timer: 1500, background: '#1e1f20', color: '#fff' });
+        function copy(id) {
+            const t = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(t);
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Código copiado', showConfirmButton: false, timer: 1000, background: '#111', color: '#fff' });
         }
 
-        sendBtn.addEventListener('click', handleMessage);
-        input.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleMessage(); });
+        sender.onclick = fire;
+        typer.onkeypress = (e) => { if(e.key === 'Enter') fire(); };
     </script>
 </body>
 </html>
