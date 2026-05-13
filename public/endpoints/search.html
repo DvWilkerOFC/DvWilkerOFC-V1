@@ -85,6 +85,15 @@
             <div id="res-yt" class="result-box"></div>
         </div>
         <button id="copy-yt" class="btn-copy-json mb-6" onclick="copyResult('yt')"><i class="fas fa-copy mr-2"></i> COPIAR JSON</button>
+
+        <div class="glass p-6 mb-1 overflow-hidden">
+            <div class="font-bold text-sm uppercase mb-2"><i class="fas fa-venus text-purple-500"></i> Rule34 Search</div>
+            <div class="code-box" id="r34-path">GET /api/search/rule34?apiKey=</div>
+            <input id="in-r34" class="input-test mb-3" placeholder="Buscar tags (ej: neko)...">
+            <button class="btn-test" onclick="testSearch('r34', '/api/search/rule34', 'tags')">Ejecutar Rule34</button>
+            <div id="res-r34" class="result-box"></div>
+        </div>
+        <button id="copy-r34" class="btn-copy-json mb-6" onclick="copyResult('r34')"><i class="fas fa-copy mr-2"></i> COPIAR JSON</button>
     </main>
 
     <script>
@@ -95,7 +104,8 @@
                 const configs = [
                     { id: 'pin', param: 'query' },
                     { id: 'tt', param: 'query' },
-                    { id: 'yt', param: 'q' }
+                    { id: 'yt', param: 'q' },
+                    { id: 'r34', param: 'tags' }
                 ];
                 configs.forEach(conf => {
                     const el = document.getElementById(`${conf.id}-path`);
