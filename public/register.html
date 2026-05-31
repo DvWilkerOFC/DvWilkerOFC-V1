@@ -31,7 +31,6 @@
             transition: background var(--transition), color var(--transition);
         }
 
-        /* Pantalla de seguridad absoluta (Negro puro) */
         #safety-overlay { 
             position: fixed; 
             top: 0; left: 0; width: 100%; height: 100%; 
@@ -67,6 +66,22 @@
         .input-kazuma:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
         .btn-blue { background: var(--neon-blue); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; color: #000; }
         .btn-blue:hover { filter: brightness(1.2); transform: translateY(-1px); }
+
+        .btn-kazuma-oauth {
+            background: transparent;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 900;
+        }
+        .btn-kazuma-oauth:hover {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+            transform: translateY(-1px);
+        }
 
         .checkbox-container { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .checkbox-container input { display: none; }
@@ -149,6 +164,19 @@
             </button>
         </form>
 
+        <div class="relative flex py-4 items-center">
+            <div class="flex-grow border-t border-white/5"></div>
+            <span class="flex-shrink mx-4 text-slate-500 text-[10px] font-black tracking-widest uppercase">O REGÍSTRATE CON</span>
+            <div class="flex-grow border-t border-white/5"></div>
+        </div>
+
+        <div class="w-full">
+            <a href="/api/auth/kazuma" class="btn-kazuma-oauth w-full py-4 rounded-xl flex items-center justify-center gap-3 font-black shadow-lg">
+                <i class="fas fa-server"></i>
+                Registrarse con Kazuma
+            </a>
+        </div>
+
         <div class="mt-6 flex flex-col gap-3 text-center border-t border-white/5 pt-4">
             <p class="text-slate-500 text-sm">¿Ya tienes cuenta? <a href="/login" class="font-bold" style="color: var(--neon-blue);">Inicia Sesión</a></p>
             <a href="mailto:pixelcrewteam@gmail.com" class="py-3 rounded-xl text-[10px] font-black flex items-center justify-center gap-2 transition bg-white/5 text-slate-400 hover:text-white border border-white/10 uppercase tracking-widest">
@@ -172,22 +200,18 @@
             }
         }
 
-        // Blindaje de Seguridad Instantáneo
-        (function initialCheck() {
-            const user = localStorage.getItem('kazuma_user');
+        (async function initialCheck() {
             const savedTheme = localStorage.getItem('kazuma-theme');
 
-            // Cargar Tema
             if (savedTheme === 'light') {
                 document.body.classList.add('light-mode');
                 document.getElementById('theme-btn').querySelector('i').classList.replace('fa-moon', 'fa-sun');
             }
 
-            // Si hay sesión, redirección directa a Dash (Overlay permanece negro)
+            const user = localStorage.getItem('kazuma_user');
             if (user) {
                 window.location.href = '/dash';
             } else {
-                // Solo si no hay sesión, mostramos el contenido tras cargar
                 window.onload = () => { 
                     document.getElementById('safety-overlay').style.display = 'none'; 
                 };
@@ -237,7 +261,6 @@
                         confirmButtonText: 'IR AL DASHBOARD',
                         confirmButtonColor: '#00f3ff'
                     }).then(() => {
-                        // Una vez registrado, activamos la pantalla negra y vamos a Dash
                         document.getElementById('safety-overlay').style.display = 'block';
                         window.location.href = '/dash';
                     });
