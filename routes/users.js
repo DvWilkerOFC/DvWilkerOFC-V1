@@ -70,7 +70,7 @@ router.get('/kazuma/callback', async (req, res) => {
             saveUsers(users);
         }
 
-        res.redirect(`https://api.kazumahosting.com/?apiKey=${user.key}&username=${encodeURIComponent(user.username)}`);
+        res.redirect(`https://rest.kazuma.giize.com/?apiKey=${user.key}&username=${encodeURIComponent(user.username)}`);
     } catch (err) {
         res.status(500).json({ status: false, message: "Error en la autenticación con Kazuma Hosting" });
     }
