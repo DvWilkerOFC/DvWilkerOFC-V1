@@ -184,7 +184,7 @@
             if (apiKeyParam && usernameParam) {
                 document.getElementById('safety-overlay').style.display = 'block';
                 try {
-                    const res = await fetch(`/api/auth/me?apiKey=${apiKeyParam}`);
+                    const res = await fetch(`/api/me?apiKey=${apiKeyParam}`);
                     const data = await res.json();
                     if (data.status) {
                         localStorage.setItem('kazuma_user', JSON.stringify(data.data));
@@ -200,9 +200,7 @@
             if (user) {
                 window.location.href = '/dash';
             } else {
-                window.onload = () => { 
-                    document.getElementById('safety-overlay').style.display = 'none'; 
-                };
+                document.getElementById('safety-overlay').style.display = 'none';
             }
         })();
 
