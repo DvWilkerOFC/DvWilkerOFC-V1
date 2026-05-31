@@ -67,7 +67,6 @@
         .btn-blue { background: var(--neon-blue); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; color: #000; }
         .btn-blue:hover { filter: brightness(1.2); transform: translateY(-1px); }
 
-        /* ESTILO ESPECÍFICO DE GITHUB OAUTH */
         .btn-github-oauth {
             background: #24292e;
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -170,6 +169,13 @@
             }
         }
 
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
         (async function initialCheck() {
             const savedTheme = localStorage.getItem('kazuma-theme');
 
@@ -178,17 +184,16 @@
                 document.getElementById('theme-btn').querySelector('i').classList.replace('fa-moon', 'fa-sun');
             }
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const apiKeyParam = urlParams.get('apiKey');
-            const usernameParam = urlParams.get('username');
+            const cookieApiKey = getCookie('apiKey');
 
-            if (apiKeyParam && usernameParam) {
+            if (cookieApiKey) {
                 document.getElementById('safety-overlay').style.display = 'block';
                 try {
-                    const res = await fetch(`/api/me?apiKey=${apiKeyParam}`);
+                    const res = await fetch(`/api/auth/me?apiKey=${cookieApiKey}`);
                     const data = await res.json();
                     if (data.status) {
                         localStorage.setItem('kazuma_user', JSON.stringify(data.data));
+                        document.cookie = "apiKey=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                         window.location.href = '/dash';
                         return;
                     }
