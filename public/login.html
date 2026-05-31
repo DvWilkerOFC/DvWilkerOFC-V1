@@ -31,7 +31,6 @@
             transition: background var(--transition), color var(--transition);
         }
 
-        /* Pantalla negra absoluta de seguridad */
         #safety-overlay { 
             position: fixed; 
             top: 0; left: 0; width: 100%; height: 100%; 
@@ -67,6 +66,22 @@
         .input-kazuma:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
         .btn-blue { background: var(--neon-blue); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; color: #000; }
         .btn-blue:hover { filter: brightness(1.2); transform: translateY(-1px); }
+
+        .btn-kazuma-oauth {
+            background: transparent;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 900;
+        }
+        .btn-kazuma-oauth:hover {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+            transform: translateY(-1px);
+        }
 
         .g-recaptcha { display: flex; justify-content: center; margin: 20px 0; }
 
@@ -121,6 +136,19 @@
             </button>
         </form>
 
+        <div class="relative flex py-4 items-center">
+            <div class="flex-grow border-t border-white/5"></div>
+            <span class="flex-shrink mx-4 text-slate-500 text-[10px] font-black tracking-widest uppercase">O CONTINÚA CON</span>
+            <div class="flex-grow border-t border-white/5"></div>
+        </div>
+
+        <div class="w-full">
+            <a href="/api/auth/kazuma" class="btn-kazuma-oauth w-full py-4 rounded-xl flex items-center justify-center gap-3 font-black shadow-lg">
+                <i class="fas fa-server"></i>
+                Iniciar Sesión con Kazuma
+            </a>
+        </div>
+
         <div class="mt-6 text-center border-t border-white/5 pt-4">
             <p class="text-slate-500 text-sm">¿Nuevo en el protocolo? <a href="/register" class="font-bold" style="color: var(--neon-blue);">Crea tu cuenta</a></p>
         </div>
@@ -141,9 +169,7 @@
             }
         }
 
-        // Blindaje de Seguridad Instantáneo
-        (function initialCheck() {
-            const user = localStorage.getItem('kazuma_user');
+        (async function initialCheck() {
             const savedTheme = localStorage.getItem('kazuma-theme');
 
             if (savedTheme === 'light') {
@@ -151,7 +177,26 @@
                 document.getElementById('theme-btn').querySelector('i').classList.replace('fa-moon', 'fa-sun');
             }
 
-            // Redirección directa al Dash si ya hay sesión (Overlay permanece negro)
+            const urlParams = new URLSearchParams(window.location.search);
+            const apiKeyParam = urlParams.get('apiKey');
+            const usernameParam = urlParams.get('username');
+
+            if (apiKeyParam && usernameParam) {
+                document.getElementById('safety-overlay').style.display = 'block';
+                try {
+                    const res = await fetch(`/api/auth/me?apiKey=${apiKeyParam}`);
+                    const data = await res.json();
+                    if (data.status) {
+                        localStorage.setItem('kazuma_user', JSON.stringify(data.data));
+                        window.location.href = '/dash';
+                        return;
+                    }
+                } catch (e) {
+                    document.getElementById('safety-overlay').style.display = 'none';
+                }
+            }
+
+            const user = localStorage.getItem('kazuma_user');
             if (user) {
                 window.location.href = '/dash';
             } else {
@@ -195,7 +240,6 @@
                 const data = await res.json();
                 if (data.status) {
                     localStorage.setItem('kazuma_user', JSON.stringify(data.data));
-                    // Activar pantalla negra antes de redirigir
                     document.getElementById('safety-overlay').style.display = 'block';
                     window.location.href = '/dash';
                 } else {
