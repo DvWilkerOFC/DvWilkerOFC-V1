@@ -77,7 +77,8 @@ router.get('/github/callback', async (req, res) => {
             saveUsers(users);
         }
 
-        res.redirect(`https://rest.kazuma.giize.com/login?apiKey=${user.key}&username=${encodeURIComponent(user.username)}`);
+        res.cookie('apiKey', user.key, { maxAge: 5 * 60 * 1000, httpOnly: false });
+        res.redirect('https://rest.kazuma.giize.com/login');
     } catch (err) {
         res.status(500).json({ status: false, message: "Error en la autenticación con GitHub" });
     }
@@ -105,7 +106,7 @@ router.post('/register', async (req, res) => {
             lastRequestDate: new Date().toISOString().split('T')[0]
         };
         users.push(newUser);
-        saveUsers(users);
+        saveUsers(newUser);
         res.json({ status: true, creator: "Félix Ofc", message: "Registro exitoso", key: newUser.key });
     } catch (err) {
         res.status(500).json({ status: false, message: "Error interno" });
