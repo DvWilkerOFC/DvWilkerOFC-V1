@@ -25,6 +25,7 @@ const dlTt = require('./routes/download/tiktok');
 const dlYta = require('./routes/download/ytaudio');
 const dlYtv = require('./routes/download/ytvideo');
 const dlSpotify = require('./routes/download/spotify');
+const userAuth = require('./routes/users');
 
 app.use('/api/auth', userAuth);
 
@@ -65,6 +66,6 @@ app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
     console.log(`Kazuma API escuchando en el puerto ${PORT}`);
 });
