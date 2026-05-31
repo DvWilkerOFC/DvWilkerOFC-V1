@@ -18,7 +18,7 @@
         tr:hover { background: rgba(255,255,255,0.02); }
         .badge-premium { background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); border: 1px solid rgba(0, 243, 255, 0.2); }
         .badge-user { background: rgba(255, 255, 255, 0.05); color: #888; border: 1px solid rgba(255, 255, 255, 0.1); }
-        
+
         /* Estilo idéntico al modal viejo */
         .swal2-popup { border-radius: 2.5rem !important; border: 1px solid rgba(255,255,255,0.1) !important; padding: 2rem !important; }
         .swal-label { text-align: left; text-transform: uppercase; font-weight: 900; font-size: 10px; color: #666; display: block; margin-bottom: 4px; margin-left: 4px; }
@@ -33,6 +33,7 @@
     </header>
 
     <main class="container mx-auto p-4 flex-grow max-w-5xl">
+        <!-- Bloques Superiores: Contador y Selector de Temas -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 mt-4">
             <div class="glass p-6 rounded-2xl border-l-4 border-[#ff2d55] flex justify-between items-center">
                 <div>
@@ -41,12 +42,34 @@
                 </div>
                 <div class="bg-pink-500/10 p-4 rounded-xl"><i class="fas fa-users text-[#ff2d55] text-xl"></i></div>
             </div>
+
+            <div class="glass p-6 rounded-2xl border-l-4 border-[#00f3ff] flex flex-col justify-between">
+                <div>
+                    <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-2">Motor de Temas Global</p>
+                    <select id="theme-selector" class="input-dark w-full p-2.5 rounded-xl outline-none font-bold text-xs uppercase tracking-wider">
+                        <!-- Cargados dinámicamente -->
+                    </select>
+                </div>
+                <button onclick="confirmThemeChange()" class="mt-3 text-[10px] font-black uppercase tracking-wider bg-[#00f3ff]/10 text-[#00f3ff] border border-[#00f3ff]/20 py-2 rounded-xl hover:bg-[#00f3ff]/20 transition-all w-full">
+                    <i class="fas fa-save mr-1"></i> Guardar Cambio
+                </button>
+            </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-2 mb-6">
-            <button onclick="filterUsers('all')" id="btn-all" class="btn-filter active">TODOS</button>
-            <button onclick="filterUsers('premium')" id="btn-premium" class="btn-filter">PREMIUMS</button>
-            <button onclick="filterUsers('admin')" id="btn-admin" class="btn-filter">ADMINS</button>
+        <!-- Filtros y Lupa de Búsqueda -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div class="grid grid-cols-3 gap-2 flex-grow md:max-w-md">
+                <button onclick="filterUsers('all')" id="btn-all" class="btn-filter active">TODOS</button>
+                <button onclick="filterUsers('premium')" id="btn-premium" class="btn-filter">PREMIUMS</button>
+                <button onclick="filterUsers('admin')" id="btn-admin" class="btn-filter">ADMINS</button>
+            </div>
+            
+            <div class="relative flex-grow md:max-w-xs">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                    <i class="fas fa-search text-gray-500 text-xs"></i>
+                </span>
+                <input type="text" id="search-input" oninput="handleSearch()" class="input-dark w-full pl-9 pr-4 py-2.5 rounded-xl outline-none" placeholder="Buscar por nombre o correo...">
+            </div>
         </div>
 
         <div class="glass rounded-3xl overflow-hidden shadow-2xl">
@@ -71,6 +94,7 @@
     <script>
         const userData = JSON.parse(localStorage.getItem('kazuma_user'));
         let allUsers = [];
+        let currentFilter = 'all';
         const SUPER_ADMIN = "frasesbebor@gmail.com";
 
         if (!userData || userData.role !== 'admin') {
@@ -78,6 +102,7 @@
         } else {
             document.body.style.display = 'block';
             loadUsers();
+            loadThemes();
         }
 
         async function loadUsers() {
@@ -85,15 +110,35 @@
                 const res = await fetch(`/api/auth/admin/all?apiKey=${userData.key}`);
                 const data = await res.json();
                 if (data.status) {
-                    allUsers = data.users;
+                    // Ordenamiento alfabético A-Z por nombre de usuario
+                    allUsers = data.users.sort((a, b) => {
+                        const nameA = (a.username || "").toLowerCase();
+                        const nameB = (b.username || "").toLowerCase();
+                        return nameA.localeCompare(nameB);
+                    });
                     document.getElementById('total-count').innerText = `${allUsers.length} Usuarios`;
-                    renderTable(allUsers);
+                    applyFilterAndSearch();
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadThemes() {
+            try {
+                const res = await fetch(`/api/auth/admin/themes?apiKey=${userData.key}`);
+                const data = await res.json();
+                if (data.status) {
+                    const selector = document.getElementById('theme-selector');
+                    selector.innerHTML = data.themes.map(t => `<option value="${t}">${t.toUpperCase()}</option>`).join('');
                 }
             } catch (e) { console.error(e); }
         }
 
         function renderTable(list) {
             const body = document.getElementById('user-table-body');
+            if (list.length === 0) {
+                body.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-gray-500 font-black uppercase">Sin coincidencias encontradas</td></tr>`;
+                return;
+            }
             body.innerHTML = list.map(u => {
                 const isMe = u.email === SUPER_ADMIN;
                 return `
@@ -119,10 +164,71 @@
         }
 
         function filterUsers(type) {
+            currentFilter = type;
             document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
             document.getElementById(`btn-${type}`).classList.add('active');
-            if (type === 'all') renderTable(allUsers);
-            else renderTable(allUsers.filter(u => u.role === type));
+            applyFilterAndSearch();
+        }
+
+        function handleSearch() {
+            applyFilterAndSearch();
+        }
+
+        function applyFilterAndSearch() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            
+            let filtered = allUsers;
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(u => u.role === currentFilter);
+            }
+
+            if (query !== '') {
+                filtered = filtered.filter(u => 
+                    (u.username && u.username.toLowerCase().includes(query)) || 
+                    (u.email && u.email.toLowerCase().includes(query))
+                );
+            }
+
+            renderTable(filtered);
+        }
+
+        async function confirmThemeChange() {
+            const selectedTheme = document.getElementById('theme-selector').value;
+            
+            const confirm = await Swal.fire({
+                title: '<span style="color:#00f3ff; font-weight:900; letter-spacing:-1px;">¿CONFIRMAR CAMBIO?</span>',
+                text: `¿Estás seguro de que deseas aplicar el tema "${selectedTheme.toUpperCase()}" a toda la API?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#00f3ff',
+                cancelButtonColor: '#333',
+                confirmButtonText: 'SÍ, CONFIRMAR',
+                cancelButtonText: 'CANCELAR',
+                background: '#161625',
+                color: '#fff',
+                customClass: {
+                    confirmButton: 'rounded-2xl font-black px-6 py-4 text-black',
+                    cancelButton: 'rounded-2xl font-black'
+                }
+            });
+
+            if (confirm.isConfirmed) {
+                try {
+                    const res = await fetch('/api/auth/admin/theme/set', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ apiKey: userData.key, themeName: selectedTheme })
+                    });
+                    const data = await res.json();
+                    if (data.status) {
+                        Swal.fire({ icon: 'success', title: 'Tema Aplicado Exitosamente', background: '#161625', color: '#fff', showConfirmButton: false, timer: 1500 });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#161625', color: '#fff' });
+                    }
+                } catch (e) {
+                    Swal.fire({ icon: 'error', title: 'Error interno', text: 'No se pudo procesar la solicitud.', background: '#161625', color: '#fff' });
+                }
+            }
         }
 
         async function openEdit(email) {
