@@ -6,6 +6,7 @@ const axios = require('axios');
 const { generateKey } = require('../middlewares/auth');
 
 const dbPath = path.join(__dirname, '../database/users.json');
+const settingsPath = path.join(__dirname, '../database/settings.json');
 let startTime = Date.now();
 
 const CLIENT_ID = "Ov23lieMMOdvhCjel8An";
@@ -106,7 +107,7 @@ router.post('/register', async (req, res) => {
             lastRequestDate: new Date().toISOString().split('T')[0]
         };
         users.push(newUser);
-        saveUsers(newUser);
+        saveUsers(users);
         res.json({ status: true, creator: "Félix Ofc", message: "Registro exitoso", key: newUser.key });
     } catch (err) {
         res.status(500).json({ status: false, message: "Error interno" });
@@ -236,6 +237,53 @@ router.post('/admin/delete', (req, res) => {
     users = users.filter(u => u.email !== targetEmail);
     saveUsers(users);
     res.json({ status: true });
+});
+
+router.get('/admin/themes', (req, res) => {
+    const { apiKey } = req.query;
+    const users = getUsers();
+    const admin = users.find(u => u.key === apiKey && u.role === 'admin');
+    if (!admin) return res.status(403).json({ status: false, message: "No autorizado" });
+
+    const themesDir = path.join(__dirname, '../themes');
+    let themeList = ['default'];
+
+    try {
+        if (fs.existsSync(themesDir)) {
+            const files = fs.readdirSync(themesDir);
+            files.forEach(file => {
+                const fullPath = path.join(themesDir, file);
+                if (fs.lstatSync(fullPath).isDirectory()) {
+                    themeList.push(file);
+                }
+            });
+        }
+    } catch (e) {}
+
+    res.json({ status: true, themes: themeList });
+});
+
+router.post('/admin/theme/set', (req, res) => {
+    const { apiKey, themeName } = req.body;
+    const users = getUsers();
+    const admin = users.find(u => u.key === apiKey && u.role === 'admin');
+    if (!admin) return res.status(403).json({ status: false, message: "No autorizado" });
+
+    if (!themeName) return res.status(400).json({ status: false, message: "Nombre de tema requerido" });
+
+    try {
+        if (themeName !== 'default') {
+            const targetDir = path.join(__dirname, '../themes', themeName);
+            if (!fs.existsSync(targetDir) || !fs.lstatSync(targetDir).isDirectory()) {
+                return res.status(400).json({ status: false, message: "El tema seleccionado no existe físicamente" });
+            }
+        }
+
+        fs.writeFileSync(settingsPath, JSON.stringify({ activeTheme: themeName }, null, 2));
+        res.json({ status: true, message: `Tema cambiado a: ${themeName}` });
+    } catch (e) {
+        res.status(500).json({ status: false, message: "Error al guardar la configuración" });
+    }
 });
 
 module.exports = router;
