@@ -10,8 +10,8 @@ let startTime = Date.now();
 
 const CLIENT_ID = "tu_client_id_aqui";
 const CLIENT_SECRET = "tu_client_secret_aqui";
-const REDIRECT_URI = "https://api.kazumahosting.com/api/auth/kazuma/callback";
-const KAZUMA_URL = "https://dash.kazumahosting.com";
+const REDIRECT_URI = "https://rest.kazuma.giize.com/api/auth/kazuma/callback";
+const KAZUMA_URL = "https://dash.kazuma.giize.com";
 
 const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
 const saveUsers = (data) => fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
