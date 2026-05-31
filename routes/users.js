@@ -8,8 +8,8 @@ const { generateKey } = require('../middlewares/auth');
 const dbPath = path.join(__dirname, '../database/users.json');
 let startTime = Date.now();
 
-const CLIENT_ID = "tu_client_id_aqui";
-const CLIENT_SECRET = "tu_client_secret_aqui";
+const CLIENT_ID = "019e7fb2-98fd-73c1-aa36-2062ae44607f";
+const CLIENT_SECRET = "9Z0lHmqyygXamEEQYyaX8swbl1lFr1fjbShxAwiw";
 const REDIRECT_URI = "https://rest.kazuma.giize.com/api/auth/kazuma/callback";
 const KAZUMA_URL = "https://dash.kazuma.giize.com";
 
