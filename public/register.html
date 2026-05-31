@@ -67,28 +67,28 @@
         .btn-blue { background: var(--neon-blue); transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; color: #000; }
         .btn-blue:hover { filter: brightness(1.2); transform: translateY(-1px); }
 
-        .btn-kazuma-oauth {
-            background: transparent;
-            border: 1px solid var(--neon-blue);
-            color: var(--neon-blue);
+        .btn-github-oauth {
+            background: #24292e;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
             transition: 0.3s;
             text-transform: uppercase;
             letter-spacing: 1px;
             font-weight: 900;
         }
-        .btn-kazuma-oauth:hover {
-            background: var(--neon-blue);
-            color: #000;
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        .btn-github-oauth:hover {
+            background: #2f363d;
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
             transform: translateY(-1px);
         }
 
         .checkbox-container { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .checkbox-container input { display: none; }
         .checkmark { height: 18px; width: 18px; background-color: #080810; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; position: relative; }
-        
+
         body.light-mode .checkmark { background-color: #e5e7eb; border-color: #d1d5db; }
-        
+
         .checkbox-container input:checked ~ .checkmark { background-color: var(--neon-blue); border-color: var(--neon-blue); }
         .checkmark:after { content: ""; position: absolute; display: none; left: 6px; top: 2px; width: 5px; height: 10px; border: solid black; border-width: 0 2px 2px 0; transform: rotate(45deg); }
         .checkbox-container input:checked ~ .checkmark:after { display: block; }
@@ -171,9 +171,9 @@
         </div>
 
         <div class="w-full">
-            <a href="/api/auth/kazuma" class="btn-kazuma-oauth w-full py-4 rounded-xl flex items-center justify-center gap-3 font-black shadow-lg">
-                <i class="fas fa-server"></i>
-                Kazuma Host
+            <a href="https://rest.kazuma.giize.com/api/auth/github" class="btn-github-oauth w-full py-4 rounded-xl flex items-center justify-center gap-3 font-black shadow-lg">
+                <i class="fab fa-github text-xl"></i>
+                GitHub
             </a>
         </div>
 
@@ -220,10 +220,10 @@
 
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const captchaResponse = grecaptcha.getResponse();
             if (!captchaResponse) {
-                return Swal.fire({ title: 'Seguridad', text: 'Resuelve el CAPTCHA', icon: 'warning', background: 'var(--card-bg)', color: 'var(--text-main)' });
+                return Swal.fire({ title: 'Security', text: 'Resuelve el CAPTCHA', icon: 'warning', background: 'var(--card-bg)', color: 'var(--text-main)' });
             }
 
             const pass = document.getElementById('password').value;
