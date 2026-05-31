@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
+// axios ya no es necesario si solo se usaba para el captcha
 const { generateKey } = require('../middlewares/auth');
 
 const dbPath = path.join(__dirname, '../database/users.json');
@@ -10,7 +11,9 @@ let startTime = Date.now();
 const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
 const saveUsers = (data) => fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 
+// REGISTRO (SIN CAPTCHA)
 router.post('/register', async (req, res) => {
+    // Ya no pedimos 'captcha' en el body
     const { username, email, password } = req.body;
 
     if (!username || !email || !password) {
@@ -46,6 +49,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
+// LOGIN
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -79,6 +83,7 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// OBTENER DATOS DEL USUARIO (ME)
 router.get('/me', (req, res) => {
     const { apiKey } = req.query;
     if (!apiKey) return res.status(400).json({ status: false, message: "ApiKey requerida" });
@@ -107,6 +112,7 @@ router.get('/me', (req, res) => {
     });
 });
 
+// ACTUALIZACIÓN DE PERFIL (USUARIO)
 router.post('/update-profile', (req, res) => {
     const { apiKey, type, value } = req.body;
 
@@ -140,6 +146,7 @@ router.post('/update-profile', (req, res) => {
     });
 });
 
+// ESTADÍSTICAS GENERALES
 router.get('/stats', (req, res) => {
     const users = getUsers();
     const routesPath = path.join(__dirname, '../routes');
@@ -159,6 +166,7 @@ router.get('/stats', (req, res) => {
     res.json({ status: true, users: users.length, endpoints: endpointCount });
 });
 
+// DASHBOARD GLOBAL
 router.get('/dashboard-global', (req, res) => {
     const users = getUsers();
     let globalRequests = 0;
@@ -175,6 +183,7 @@ router.get('/dashboard-global', (req, res) => {
     res.json({ status: true, totalUsers: users.length, globalRequests, uptime: startTime, top5: topUsers });
 });
 
+// ADMIN: VER TODOS
 router.get('/admin/all', (req, res) => {
     const { apiKey } = req.query;
     const users = getUsers();
@@ -183,6 +192,7 @@ router.get('/admin/all', (req, res) => {
     res.json({ status: true, users });
 });
 
+// ADMIN: ACTUALIZAR CUALQUIER USUARIO
 router.post('/admin/update', (req, res) => {
     const { adminKey, targetEmail, newData } = req.body;
     let users = getUsers();
@@ -198,6 +208,7 @@ router.post('/admin/update', (req, res) => {
     res.status(404).json({ status: false });
 });
 
+// ADMIN: ELIMINAR USUARIO
 router.post('/admin/delete', (req, res) => {
     const { adminKey, targetEmail } = req.body;
     let users = getUsers();
