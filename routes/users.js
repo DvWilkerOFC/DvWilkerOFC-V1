@@ -2,18 +2,81 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
-// axios ya no es necesario si solo se usaba para el captcha
+const axios = require('axios');
 const { generateKey } = require('../middlewares/auth');
 
 const dbPath = path.join(__dirname, '../database/users.json');
 let startTime = Date.now();
 
+const CLIENT_ID = "tu_client_id_aqui";
+const CLIENT_SECRET = "tu_client_secret_aqui";
+const REDIRECT_URI = "https://api.kazumahosting.com/api/auth/kazuma/callback";
+const KAZUMA_URL = "https://dash.kazumahosting.com";
+
 const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
 const saveUsers = (data) => fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 
-// REGISTRO (SIN CAPTCHA)
+router.get('/kazuma', (req, res) => {
+    const authUrl = `${KAZUMA_URL}/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=user`;
+    res.redirect(authUrl);
+});
+
+router.get('/kazuma/callback', async (req, res) => {
+    const { code } = req.query;
+
+    if (!code) {
+        return res.status(400).json({ status: false, message: "Código de autorización no proporcionado" });
+    }
+
+    try {
+        const tokenResponse = await axios.post(`${KAZUMA_URL}/oauth/token`, {
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            redirect_uri: REDIRECT_URI,
+            grant_type: "authorization_code",
+            code: code
+        });
+
+        const accessToken = tokenResponse.data.access_token;
+
+        const userResponse = await axios.get(`${KAZUMA_URL}/api/user`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        });
+
+        const kazumaUser = userResponse.data;
+        const email = kazumaUser.email;
+        const username = kazumaUser.username || kazumaUser.name || email.split('@')[0];
+
+        let users = getUsers();
+        let user = users.find(u => u.email === email);
+
+        if (!user) {
+            user = {
+                username,
+                email,
+                password: `oauth-kazuma-${generateKey()}`,
+                key: generateKey(),
+                role: "user",
+                plan: "free",
+                limit: 100,
+                requestToday: 0,
+                totalRequest: 0,
+                profile_img: kazumaUser.avatar || "https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg",
+                lastRequestDate: new Date().toISOString().split('T')[0]
+            };
+            users.push(user);
+            saveUsers(users);
+        }
+
+        res.redirect(`https://api.kazumahosting.com/?apiKey=${user.key}&username=${encodeURIComponent(user.username)}`);
+    } catch (err) {
+        res.status(500).json({ status: false, message: "Error en la autenticación con Kazuma Hosting" });
+    }
+});
+
 router.post('/register', async (req, res) => {
-    // Ya no pedimos 'captcha' en el body
     const { username, email, password } = req.body;
 
     if (!username || !email || !password) {
@@ -49,7 +112,6 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// LOGIN
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -83,7 +145,6 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// OBTENER DATOS DEL USUARIO (ME)
 router.get('/me', (req, res) => {
     const { apiKey } = req.query;
     if (!apiKey) return res.status(400).json({ status: false, message: "ApiKey requerida" });
@@ -112,7 +173,6 @@ router.get('/me', (req, res) => {
     });
 });
 
-// ACTUALIZACIÓN DE PERFIL (USUARIO)
 router.post('/update-profile', (req, res) => {
     const { apiKey, type, value } = req.body;
 
@@ -146,7 +206,6 @@ router.post('/update-profile', (req, res) => {
     });
 });
 
-// ESTADÍSTICAS GENERALES
 router.get('/stats', (req, res) => {
     const users = getUsers();
     const routesPath = path.join(__dirname, '../routes');
@@ -166,7 +225,6 @@ router.get('/stats', (req, res) => {
     res.json({ status: true, users: users.length, endpoints: endpointCount });
 });
 
-// DASHBOARD GLOBAL
 router.get('/dashboard-global', (req, res) => {
     const users = getUsers();
     let globalRequests = 0;
@@ -183,7 +241,6 @@ router.get('/dashboard-global', (req, res) => {
     res.json({ status: true, totalUsers: users.length, globalRequests, uptime: startTime, top5: topUsers });
 });
 
-// ADMIN: VER TODOS
 router.get('/admin/all', (req, res) => {
     const { apiKey } = req.query;
     const users = getUsers();
@@ -192,7 +249,6 @@ router.get('/admin/all', (req, res) => {
     res.json({ status: true, users });
 });
 
-// ADMIN: ACTUALIZAR CUALQUIER USUARIO
 router.post('/admin/update', (req, res) => {
     const { adminKey, targetEmail, newData } = req.body;
     let users = getUsers();
@@ -208,7 +264,6 @@ router.post('/admin/update', (req, res) => {
     res.status(404).json({ status: false });
 });
 
-// ADMIN: ELIMINAR USUARIO
 router.post('/admin/delete', (req, res) => {
     const { adminKey, targetEmail } = req.body;
     let users = getUsers();
