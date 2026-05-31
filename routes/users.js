@@ -17,7 +17,7 @@ const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
 const saveUsers = (data) => fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 
 router.get('/kazuma', (req, res) => {
-    const authUrl = `${KAZUMA_URL}/api/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=user`;
+    const authUrl = `${KAZUMA_URL}/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=user`;
     res.redirect(authUrl);
 });
 
