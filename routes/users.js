@@ -8,8 +8,8 @@ const { generateKey } = require('../middlewares/auth');
 const dbPath = path.join(__dirname, '../database/users.json');
 let startTime = Date.now();
 
-const CLIENT_ID = "TU_GITHUB_CLIENT_ID_AQUI";
-const CLIENT_SECRET = "TU_GITHUB_CLIENT_SECRET_AQUI";
+const CLIENT_ID = "Ov23lieMMOdvhCjel8An";
+const CLIENT_SECRET = "9e12dd5d35e49b9c5f1777aca9ced2e9b5de91b9";
 const REDIRECT_URI = "https://rest.kazuma.giize.com/api/auth/github/callback";
 
 const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
