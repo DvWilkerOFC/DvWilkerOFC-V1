@@ -8,55 +8,105 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --neon-pink: #ff2d55; --neon-blue: #00f3ff; --dark-bg: #0d0d0d; }
-        body { background-color: #000 !important; color: white; font-family: 'Inter', sans-serif; display: none; }
-        .glass { background: rgba(22, 22, 37, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
-        .input-dark { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 13px; }
-        .btn-filter { padding: 10px; border-radius: 12px; font-size: 10px; font-weight: 900; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-        .btn-filter.active { border-color: var(--neon-pink); color: var(--neon-pink); background: rgba(255, 45, 85, 0.05); }
-        tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-        tr:hover { background: rgba(255,255,255,0.02); }
-        .badge-premium { background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); border: 1px solid rgba(0, 243, 255, 0.2); }
-        .badge-user { background: rgba(255, 255, 255, 0.05); color: #888; border: 1px solid rgba(255, 255, 255, 0.1); }
-
-        /* Estilo idéntico al modal viejo */
-        .swal2-popup { border-radius: 2.5rem !important; border: 1px solid rgba(255,255,255,0.1) !important; padding: 2rem !important; }
-        .swal-label { text-align: left; text-transform: uppercase; font-weight: 900; font-size: 10px; color: #666; display: block; margin-bottom: 4px; margin-left: 4px; }
+        :root { 
+            --neon-pink: #ff2d55; 
+            --neon-blue: #00f3ff; 
+            --dark-bg: #0d0d0d; 
+        }
+        body { 
+            background-color: #000 !important; 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+            display: none; 
+        }
+        .glass { 
+            background: rgba(22, 22, 37, 0.8); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255,255,255,0.05); 
+        }
+        .input-dark { 
+            background: rgba(0,0,0,0.5); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            color: white; 
+            font-size: 13px; 
+        }
+        .btn-filter { 
+            padding: 10px; 
+            border-radius: 12px; 
+            font-size: 10px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            border: 1px solid rgba(255,255,255,0.05); 
+            transition: 0.3s; 
+        }
+        .btn-filter.active { 
+            border-color: var(--neon-pink); 
+            color: var(--neon-pink); 
+            background: rgba(255, 45, 85, 0.05); 
+        }
+        tr { 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+            transition: 0.3s; 
+        }
+        tr:hover { 
+            background: rgba(255,255,255,0.02); 
+        }
+        .badge-premium { 
+            background: rgba(0, 243, 255, 0.1); 
+            color: var(--neon-blue); 
+            border: 1px solid rgba(0, 243, 255, 0.2); 
+        }
+        .badge-user { 
+            background: rgba(255, 255, 255, 0.05); 
+            color: #888; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+        .swal2-popup { 
+            border-radius: 2.5rem !important; 
+            border: 1px solid rgba(255,255,255,0.1) !important; 
+            padding: 2rem !important; 
+        }
+        .swal-label { 
+            text-align: left; 
+            text-transform: uppercase; 
+            font-weight: 900; 
+            font-size: 10px; 
+            color: #666; 
+            display: block; 
+            margin-bottom: 4px; 
+            margin-left: 4px; 
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
     <header class="p-4 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
-        <div class="font-bold text-xl uppercase tracking-tighter">KAZUMA <span class="text-[#ff2d55]">STAFF</span></div>
+        <div class="font-bold text-xl uppercase tracking-tighter">KAZUMA <span style="color: var(--neon-pink);">STAFF</span></div>
         <button onclick="location.href='/dash'" class="text-sm bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition">
             <i class="fas fa-arrow-left mr-2"></i> Volver
         </button>
     </header>
 
     <main class="container mx-auto p-4 flex-grow max-w-5xl">
-        <!-- Bloques Superiores: Contador y Selector de Temas -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 mt-4">
-            <div class="glass p-6 rounded-2xl border-l-4 border-[#ff2d55] flex justify-between items-center">
+            <div class="glass p-6 rounded-2xl flex justify-between items-center" style="border-left: 4px solid var(--neon-pink);">
                 <div>
                     <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Base de Datos</p>
                     <h3 id="total-count" class="text-3xl font-black text-white mt-1">0 Usuarios</h3>
                 </div>
-                <div class="bg-pink-500/10 p-4 rounded-xl"><i class="fas fa-users text-[#ff2d55] text-xl"></i></div>
+                <div class="p-4 rounded-xl" style="background: var(--neon-pink); opacity: 0.2;"><i class="fas fa-users text-white text-xl"></i></div>
             </div>
 
-            <div class="glass p-6 rounded-2xl border-l-4 border-[#00f3ff] flex flex-col justify-between">
+            <div class="glass p-6 rounded-2xl flex flex-col justify-between" style="border-left: 4px solid var(--neon-blue);">
                 <div>
                     <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-2">Motor de Temas Global</p>
-                    <select id="theme-selector" class="input-dark w-full p-2.5 rounded-xl outline-none font-bold text-xs uppercase tracking-wider">
-                        <!-- Cargados dinámicamente -->
-                    </select>
+                    <select id="theme-selector" class="input-dark w-full p-2.5 rounded-xl outline-none font-bold text-xs uppercase tracking-wider"></select>
                 </div>
-                <button onclick="confirmThemeChange()" class="mt-3 text-[10px] font-black uppercase tracking-wider bg-[#00f3ff]/10 text-[#00f3ff] border border-[#00f3ff]/20 py-2 rounded-xl hover:bg-[#00f3ff]/20 transition-all w-full">
+                <button onclick="confirmThemeChange()" class="mt-3 text-[10px] font-black uppercase tracking-wider py-2 rounded-xl transition-all w-full" style="background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); border: 1px solid rgba(0, 243, 255, 0.2);">
                     <i class="fas fa-save mr-1"></i> Guardar Cambio
                 </button>
             </div>
         </div>
 
-        <!-- Filtros y Lupa de Búsqueda -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div class="grid grid-cols-3 gap-2 flex-grow md:max-w-md">
                 <button onclick="filterUsers('all')" id="btn-all" class="btn-filter active">TODOS</button>
@@ -110,7 +160,6 @@
                 const res = await fetch(`/api/auth/admin/all?apiKey=${userData.key}`);
                 const data = await res.json();
                 if (data.status) {
-                    // Ordenamiento alfabético A-Z por nombre de usuario
                     allUsers = data.users.sort((a, b) => {
                         const nameA = (a.username || "").toLowerCase();
                         const nameB = (b.username || "").toLowerCase();
@@ -128,7 +177,11 @@
                 const data = await res.json();
                 if (data.status) {
                     const selector = document.getElementById('theme-selector');
-                    selector.innerHTML = data.themes.map(t => `<option value="${t}">${t.toUpperCase()}</option>`).join('');
+                    
+                    selector.innerHTML = data.themes.map(t => {
+                        const isCurrent = t.toLowerCase() === (data.active || 'default').toLowerCase();
+                        return `<option value="${t}" ${isCurrent ? 'selected' : ''}>${t.toUpperCase()}</option>`;
+                    }).join('');
                 }
             } catch (e) { console.error(e); }
         }
@@ -157,7 +210,7 @@
                     </td>
                     <td class="p-5 text-center">
                         ${isMe ? '<i class="fas fa-lock text-gray-800"></i>' : 
-                        `<button onclick="openEdit('${u.email}')" class="bg-white/5 hover:bg-pink-500/20 hover:text-pink-500 w-10 h-10 rounded-xl transition-all border border-white/5"><i class="fas fa-user-cog text-xs"></i></button>`}
+                        `<button onclick="openEdit('${u.email}')" class="bg-white/5 hover:text-pink-500 w-10 h-10 rounded-xl transition-all border border-white/5"><i class="fas fa-user-cog text-xs"></i></button>`}
                     </td>
                 </tr>`;
             }).join('');
@@ -196,11 +249,11 @@
             const selectedTheme = document.getElementById('theme-selector').value;
             
             const confirm = await Swal.fire({
-                title: '<span style="color:#00f3ff; font-weight:900; letter-spacing:-1px;">¿CONFIRMAR CAMBIO?</span>',
+                title: '<span style="color: var(--neon-blue); font-weight:900; letter-spacing:-1px;">¿CONFIRMAR CAMBIO?</span>',
                 text: `¿Estás seguro de que deseas aplicar el tema "${selectedTheme.toUpperCase()}" a toda la API?`,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#00f3ff',
+                confirmButtonColor: 'var(--neon-blue)',
                 cancelButtonColor: '#333',
                 confirmButtonText: 'SÍ, CONFIRMAR',
                 cancelButtonText: 'CANCELAR',
@@ -222,6 +275,7 @@
                     const data = await res.json();
                     if (data.status) {
                         Swal.fire({ icon: 'success', title: 'Tema Aplicado Exitosamente', background: '#161625', color: '#fff', showConfirmButton: false, timer: 1500 });
+                        loadThemes();
                     } else {
                         Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#161625', color: '#fff' });
                     }
@@ -234,7 +288,7 @@
         async function openEdit(email) {
             const u = allUsers.find(user => user.email === email);
             const { value: formValues, isDenied } = await Swal.fire({
-                title: '<span style="color:#ff2d55; font-weight:900; letter-spacing:-1px;">GESTIÓN STAFF</span>',
+                title: '<span style="color: var(--neon-pink); font-weight:900; letter-spacing:-1px;">GESTIÓN STAFF</span>',
                 background: '#161625',
                 color: '#fff',
                 width: '450px',
@@ -272,7 +326,7 @@
                 showDenyButton: true,
                 confirmButtonText: 'GUARDAR CAMBIOS',
                 denyButtonText: 'ELIMINAR CUENTA',
-                confirmButtonColor: '#ff2d55',
+                confirmButtonColor: 'var(--neon-pink)',
                 denyButtonColor: '#333',
                 customClass: {
                     confirmButton: 'rounded-2xl font-black px-6 py-4',
@@ -314,7 +368,7 @@
                 text: "Esta acción es irreversible.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#ff2d55',
+                confirmButtonColor: 'var(--neon-pink)',
                 background: '#161625',
                 color: '#fff'
             });
