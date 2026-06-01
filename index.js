@@ -26,7 +26,7 @@ const getActiveThemePath = () => {
         const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
         const theme = settings.activeTheme || 'default';
         if (theme === 'default') return path.join(__dirname, 'public');
-        
+
         const customPath = path.join(__dirname, 'themes', theme);
         if (fs.existsSync(customPath)) return customPath;
     } catch (e) {}
@@ -70,14 +70,7 @@ app.use('/api/download/ytaudio', authHandler, dlYta);
 app.use('/api/download/ytvideo', authHandler, dlYtv);
 app.use('/api/download/spotify', authHandler, dlSpotify);
 
-app.use((req, res, next) => {
-    const themeStatic = getActiveThemePath();
-    express.static(themeStatic, { extensions: ['html'] })(req, res, next);
-});
-
-app.use(express.static(path.join(__dirname, 'public'), {
-    extensions: ['html']
-}));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
     const themePath = getActiveThemePath();
@@ -91,7 +84,7 @@ app.get('/', (req, res) => {
 app.get('/:page', (req, res, next) => {
     const page = req.params.page;
     const themePath = getActiveThemePath();
-    
+
     const customFile = path.join(themePath, `${page}.html`);
     if (fs.existsSync(customFile)) {
         return res.render(customFile, (err, html) => {
