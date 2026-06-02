@@ -113,7 +113,7 @@
                 <button onclick="filterUsers('premium')" id="btn-premium" class="btn-filter">PREMIUMS</button>
                 <button onclick="filterUsers('admin')" id="btn-admin" class="btn-filter">ADMINS</button>
             </div>
-            
+
             <div class="relative flex-grow md:max-w-xs">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
                     <i class="fas fa-search text-gray-500 text-xs"></i>
@@ -171,6 +171,7 @@
             } catch (e) { console.error(e); }
         }
 
+        /* CORRECCIÓN SENSITIVA DE MAYÚSCULAS/MINÚSCULAS */
         async function loadThemes() {
             try {
                 const res = await fetch(`/api/auth/admin/themes?apiKey=${userData.key}`);
@@ -178,11 +179,13 @@
                 if (data.status) {
                     const selector = document.getElementById('theme-selector');
                     
+                    // Respetamos de forma nativa el formato del backend (Kurayami con K mayúscula)
                     let activeTheme = data.active || localStorage.getItem('kazuma_active_theme') || 'default';
-                    
+
                     selector.innerHTML = data.themes.map(t => {
-                        const isCurrent = t.toLowerCase() === activeTheme.toLowerCase();
-                        return `<option value="${t}" ${isCurrent ? 'selected' : ''}>${t.toUpperCase()}</option>`;
+                        // Comparación estricta para el selector sin forzar minúsculas destructivas
+                        const isCurrent = t === activeTheme;
+                        return `<option value="${t}" ${isCurrent ? 'selected' : ''}>${t}</option>`;
                     }).join('');
 
                     if (activeTheme !== 'default') {
@@ -246,7 +249,7 @@
 
         function applyFilterAndSearch() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
-            
+
             let filtered = allUsers;
             if (currentFilter !== 'all') {
                 filtered = filtered.filter(u => u.role === currentFilter);
@@ -264,10 +267,10 @@
 
         async function confirmThemeChange() {
             const selectedTheme = document.getElementById('theme-selector').value;
-            
+
             const confirm = await Swal.fire({
                 title: '<span style="color: var(--neon-blue); font-weight:900; letter-spacing:-1px;">¿CONFIRMAR CAMBIO?</span>',
-                text: `¿Estás seguro de que deseas aplicar el tema "${selectedTheme.toUpperCase()}" a toda la API?`,
+                text: `¿Estás seguro de que deseas aplicar el tema "${selectedTheme}" a toda la API?`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: 'var(--neon-blue)',
