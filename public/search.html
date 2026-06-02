@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Búsquedas | Kazuma API</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=6Lfw-dwsAAAAACc6y5K4sfFnplSqbskYPia1ADh5"></script>
+
+    <style>
+        :root { --neon-blue: #00f3ff; --dark-bg: #09090b; --card-bg: #11111d; --text-main: #ffffff; --code-bg: #05050a; }
+        body { background-color: var(--dark-bg); color: var(--text-main); font-family: 'Inter', sans-serif; }
+        #safety-block { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; }
+
+        .glass { background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.1); border-radius: 24px; }
+
+        .code-box { background: var(--code-bg); padding: 12px; border-radius: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--neon-blue); border: 1px solid rgba(0,243,255,0.1); word-break: break-all; margin: 15px 0; }
+
+        .input-test { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 12px; color: #fff; outline: none; font-size: 0.85rem; }
+
+        .btn-test { background: var(--neon-blue); color: #000; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer; font-size: 0.75rem; transition: 0.3s; }
+        .btn-test:hover { filter: brightness(1.2); transform: scale(1.01); }
+
+        .result-box { 
+            background: #05050a; 
+            color: #00ffcc; 
+            padding: 15px; 
+            border-radius: 12px; 
+            margin-top: 15px; 
+            font-size: 0.7rem; 
+            font-family: 'JetBrains Mono', monospace; 
+            border: 1px solid rgba(0, 255, 204, 0.1); 
+            white-space: pre-wrap; 
+            word-break: break-all; 
+            height: 350px; 
+            overflow-y: auto; 
+            overflow-x: hidden;
+            display: none; 
+        }
+
+        .result-box::-webkit-scrollbar { width: 4px; }
+        .result-box::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 10px; }
+
+        .btn-copy-json { background: rgba(255, 255, 255, 0.05); color: #fff; width: 100%; padding: 10px; border-radius: 0 0 15px 15px; font-size: 10px; font-weight: 800; display: none; border-top: 1px solid rgba(255,255,255,0.05); }
+
+        h2 { border-left: 5px solid var(--neon-blue); padding-left: 15px; font-weight: 900; }
+        .grecaptcha-badge { z-index: 9999 !important; }
+    </style>
+</head>
+<body class="min-h-screen pb-10">
+    <div id="safety-block"></div>
+    <header class="p-4 flex justify-between items-center sticky top-0 z-50 bg-[#09090b]/80 backdrop-blur-md border-b border-white/5">
+        <div class="font-black text-xl tracking-tighter cursor-pointer" onclick="location.href='/dash'">KAZUMA <span style="color: var(--neon-blue)">DASH</span></div>
+        <button onclick="location.href='/dash'" class="text-xs font-bold bg-white/5 px-4 py-2 rounded-xl border border-white/10"><i class="fas fa-home"></i></button>
+    </header>
+
+    <main class="container mx-auto p-4 max-w-2xl">
+        <h2 class="text-xl uppercase tracking-tighter my-6">Búsquedas</h2>
+
+        <div class="glass p-6 mb-1 overflow-hidden">
+            <div class="font-bold text-sm uppercase mb-2"><i class="fab fa-pinterest text-red-500"></i> Pinterest Search</div>
+            <div class="code-box" id="pin-path">GET /api/search/pinterest?apiKey=</div>
+            <input id="in-pin" class="input-test mb-3" placeholder="Buscar imágenes...">
+            <button class="btn-test" onclick="testSearch('pin', '/api/search/pinterest', 'query')">Ejecutar Pinterest</button>
+            <div id="res-pin" class="result-box"></div>
+        </div>
+        <button id="copy-pin" class="btn-copy-json mb-6" onclick="copyResult('pin')"><i class="fas fa-copy mr-2"></i> COPIAR JSON</button>
+
+        <div class="glass p-6 mb-1 overflow-hidden">
+            <div class="font-bold text-sm uppercase mb-2"><i class="fab fa-tiktok"></i> TikTok Search</div>
+            <div class="code-box" id="tt-path">GET /api/search/tiktok?apiKey=</div>
+            <input id="in-tt" class="input-test mb-3" placeholder="Buscar videos...">
+            <button class="btn-test" onclick="testSearch('tt', '/api/search/tiktok', 'query')">Ejecutar TikTok</button>
+            <div id="res-tt" class="result-box"></div>
+        </div>
+        <button id="copy-tt" class="btn-copy-json mb-6" onclick="copyResult('tt')"><i class="fas fa-copy mr-2"></i> COPIAR JSON</button>
+
+        <div class="glass p-6 mb-1 overflow-hidden">
+            <div class="font-bold text-sm uppercase mb-2"><i class="fab fa-youtube text-red-600"></i> YouTube Search</div>
+            <div class="code-box" id="yt-path">GET /api/search/youtube?apiKey=</div>
+            <input id="in-yt" class="input-test mb-3" placeholder="Buscar en YouTube...">
+            <button class="btn-test" onclick="testSearch('yt', '/api/search/youtube', 'q')">Ejecutar YouTube</button>
+            <div id="res-yt" class="result-box"></div>
+        </div>
+        <button id="copy-yt" class="btn-copy-json mb-6" onclick="copyResult('yt')"><i class="fas fa-copy mr-2"></i> COPIAR JSON</button>
+
+        <div class="glass p-6 mb-1 overflow-hidden">
+            <div class="font-bold text-sm uppercase mb-2"><i class="fas fa-film text-purple-500"></i> Picta Movies Search</div>
+            <div class="code-box" id="movies-path">GET /api/search/movies?apiKey=</div>
+            <input id="in-movies" class="input-test mb-3" placeholder="Buscar películas o videos en Picta...">
+            <button class="btn-test" onclick="testSearch('movies', '/api/search/movies', 'query')">Ejecutar Picta</button>
+            <div id="res-movies" class="result-box"></div>
+        </div>
+        <button id="copy-movies" class="btn-copy-json mb-6" onclick="copyResult('movies')"><i class="fas fa-copy mr-2"></i> COPIAR JSON</button>
+    </main>
+
+    <script>
+        const userData = JSON.parse(localStorage.getItem('kazuma_user'));
+        if (!userData) { window.location.href = '/login'; }
+        else {
+            document.addEventListener("DOMContentLoaded", () => {
+                const configs = [
+                    { id: 'pin', param: 'query' },
+                    { id: 'tt', param: 'query' },
+                    { id: 'yt', param: 'q' },
+                    { id: 'movies', param: 'query' }
+                ];
+                configs.forEach(conf => {
+                    const el = document.getElementById(`${conf.id}-path`);
+                    if(el) el.innerText += `${userData.key}&${conf.param}=...`;
+                });
+                setTimeout(() => document.getElementById('safety-block').style.display='none', 300);
+            });
+        }
+
+        async function testSearch(id, route, queryParam) {
+            const query = document.getElementById(`in-${id}`).value.trim();
+            const resBox = document.getElementById(`res-${id}`);
+            const copyBtn = document.getElementById(`copy-${id}`);
+            if (!query) return Swal.fire({ icon: 'warning', title: 'Escribe algo', background: '#11111d', color: '#fff' });
+
+            resBox.style.display = 'block'; 
+            resBox.innerText = "ESPERANDO RESPUESTA..."; 
+            copyBtn.style.display = 'none';
+
+            try {
+                const response = await fetch(`${route}?${queryParam}=${encodeURIComponent(query)}&apiKey=${userData.key}`);
+                const data = await response.json();
+                resBox.innerText = JSON.stringify(data, null, 2);
+                copyBtn.style.display = 'block';
+            } catch (e) { 
+                resBox.innerText = "ERROR EN EL SERVIDOR"; 
+            }
+        }
+
+        function copyResult(id) {
+            const text = document.getElementById(`res-${id}`).innerText;
+            navigator.clipboard.writeText(text);
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Copiado', showConfirmButton: false, timer: 1000, background: '#11111d', color: '#fff' });
+        }
+
+        window.onload = () => {
+            grecaptcha.ready(() => { 
+                grecaptcha.execute('6Lfw-dwsAAAAACc6y5K4sfFnplSqbskYPia1ADh5', {action: 'search_test'}); 
+            });
+        };
+    </script>
+</body>
+</html>
