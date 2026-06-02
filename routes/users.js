@@ -245,19 +245,20 @@ router.get('/admin/themes', (req, res) => {
     const admin = users.find(u => u.key === apiKey && u.role === 'admin');
     if (!admin) return res.status(403).json({ status: false, message: "No autorizado" });
 
-    const themesDir = path.join(__dirname, '../themes');
+    const themesDir = path.resolve(__dirname, '../themes');
     let themeList = ['default'];
 
     try {
-        if (fs.existsSync(themesDir)) {
-            const files = fs.readdirSync(themesDir);
-            files.forEach(file => {
-                const fullPath = path.join(themesDir, file);
-                if (fs.lstatSync(fullPath).isDirectory()) {
-                    themeList.push(file);
-                }
-            });
+        if (!fs.existsSync(themesDir)) {
+            fs.mkdirSync(themesDir, { recursive: true });
         }
+        const files = fs.readdirSync(themesDir);
+        files.forEach(file => {
+            const fullPath = path.join(themesDir, file);
+            if (fs.lstatSync(fullPath).isDirectory()) {
+                themeList.push(file);
+            }
+        });
     } catch (e) {}
 
     let activeTheme = 'default';
@@ -281,13 +282,19 @@ router.post('/admin/theme/set', (req, res) => {
 
     try {
         if (themeName !== 'default') {
-            const targetDir = path.join(__dirname, '../themes', themeName);
+            const targetDir = path.resolve(__dirname, '../themes', themeName);
             if (!fs.existsSync(targetDir) || !fs.lstatSync(targetDir).isDirectory()) {
                 return res.status(400).json({ status: false, message: "El tema seleccionado no existe físicamente en el servidor" });
             }
         }
 
-        fs.writeFileSync(settingsPath, JSON.stringify({ activeTheme: themeName }, null, 2));
+        let currentSettings = {};
+        if (fs.existsSync(settingsPath)) {
+            currentSettings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+        }
+        currentSettings.activeTheme = themeName;
+
+        fs.writeFileSync(settingsPath, JSON.stringify(currentSettings, null, 2));
         res.json({ status: true, message: `Tema cambiado a: ${themeName}` });
     } catch (e) {
         res.status(500).json({ status: false, message: "Error al guardar la configuración" });
