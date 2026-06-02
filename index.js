@@ -17,9 +17,13 @@ app.set('view engine', 'html');
 
 const settingsPath = path.join(__dirname, 'database', 'settings.json');
 const usersPath = path.join(__dirname, 'database', 'users.json');
+const globalThemesPath = path.join(__dirname, 'themes');
 
 if (!fs.existsSync(path.dirname(settingsPath))) {
     fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
+}
+if (!fs.existsSync(globalThemesPath)) {
+    fs.mkdirSync(globalThemesPath, { recursive: true });
 }
 if (!fs.existsSync(settingsPath)) {
     fs.writeFileSync(settingsPath, JSON.stringify({ activeTheme: "default", maintenance: "active" }, null, 2));
@@ -116,7 +120,7 @@ app.get('*', (req, res, next) => {
 
     const themePath = getActiveThemePath();
     let sanitizedPath = req.path.endsWith('/') ? req.path.slice(0, -1) : req.path;
-    
+
     let targetFile = sanitizedPath + '.html';
     if (sanitizedPath === '') targetFile = '/index.html';
 
@@ -171,7 +175,7 @@ const showMenu = () => {
     console.log(`> p:menu                   - Muestra esta lista de comandos.`);
     console.log(`> mode:active              - Activa el acceso normal a toda la API.`);
     console.log(`> mode:mant                - Pone la interfaz web en mantenimiento.`);
-    console.log(`> p:user/admin/create      - Inicia asistente para crear un Administrador.`);
+    console.log(`> p:user/admin/create      - Inicia asistente para crear un Administrator.`);
     console.log(`> p:user/user/create       - Inicia asistente para crear un Usuario común.`);
     console.log(`=====================================\n`);
 };
