@@ -331,5 +331,5 @@ rl.on('line', (line) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Kazuma API escuchando en el puerto ${PORT}`);
+    console.log(`Kazuma Rest escuchando en el puerto ${PORT}`);
 });
