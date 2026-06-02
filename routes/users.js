@@ -260,7 +260,15 @@ router.get('/admin/themes', (req, res) => {
         }
     } catch (e) {}
 
-    res.json({ status: true, themes: themeList });
+    let activeTheme = 'default';
+    try {
+        if (fs.existsSync(settingsPath)) {
+            const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+            if (settings.activeTheme) activeTheme = settings.activeTheme;
+        }
+    } catch (e) {}
+
+    res.json({ status: true, themes: themeList, active: activeTheme });
 });
 
 router.post('/admin/theme/set', (req, res) => {
@@ -275,7 +283,7 @@ router.post('/admin/theme/set', (req, res) => {
         if (themeName !== 'default') {
             const targetDir = path.join(__dirname, '../themes', themeName);
             if (!fs.existsSync(targetDir) || !fs.lstatSync(targetDir).isDirectory()) {
-                return res.status(400).json({ status: false, message: "El tema seleccionado no existe físicamente" });
+                return res.status(400).json({ status: false, message: "El tema seleccionado no existe físicamente en el servidor" });
             }
         }
 
