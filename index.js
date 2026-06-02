@@ -121,21 +121,28 @@ app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api/')) return next();
 
     const themePath = getActiveThemePath();
-    let sanitizedPath = req.path;
-    if (sanitizedPath.endsWith('/')) {
-        sanitizedPath = sanitizedPath.slice(0, -1);
-    }
+    const urlSegments = req.path.split('/').filter(p => p);
+    
+    const pathsToSearch = [themePath, path.join(__dirname, 'public')];
 
-    const filesToTry = [
-        path.join(themePath, sanitizedPath + '.html'),
-        path.join(__dirname, 'public', sanitizedPath + '.html'),
-        path.join(themePath, sanitizedPath, 'index.html'),
-        path.join(__dirname, 'public', sanitizedPath, 'index.html')
-    ];
+    for (const basePath of pathsToSearch) {
+        let currentPath = path.join(basePath, ...urlSegments);
 
-    for (const file of filesToTry) {
-        if (fs.existsSync(file) && fs.lstatSync(file).isFile()) {
-            return res.render(file);
+        if (fs.existsSync(currentPath)) {
+            const stat = fs.lstatSync(currentPath);
+            if (stat.isFile()) {
+                return res.render(currentPath);
+            } else if (stat.isDirectory()) {
+                const indexPath = path.join(currentPath, 'index.html');
+                if (fs.existsSync(indexPath) && fs.lstatSync(indexPath).isFile()) {
+                    return res.render(indexPath);
+                }
+            }
+        }
+
+        let htmlPath = currentPath + '.html';
+        if (fs.existsSync(htmlPath) && fs.lstatSync(htmlPath).isFile()) {
+            return res.render(htmlPath);
         }
     }
 
