@@ -108,6 +108,19 @@ app.use((req, res, next) => {
     });
 });
 
+const webRoutes = {
+    '/admin': 'admin.html',
+    '/dash': 'dash.html',
+    '/login': 'login.html',
+    '/register': 'register.html',
+    '/profile': 'profile.html',
+    '/tos/terms': 'tos/terms.html',
+    '/endpoints/ai': 'endpoints/ai.html',
+    '/endpoints/download': 'endpoints/download.html',
+    '/endpoints/search': 'endpoints/search.html',
+    '/endpoints/tools': 'endpoints/tools.html'
+};
+
 app.get('/', (req, res) => {
     const themePath = getActiveThemePath();
     const customIndex = path.join(themePath, 'index.html');
@@ -120,29 +133,24 @@ app.get('/', (req, res) => {
 app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api/')) return next();
 
-    const themePath = getActiveThemePath();
-    const urlSegments = req.path.split('/').filter(p => p);
-    
-    const pathsToSearch = [themePath, path.join(__dirname, 'public')];
+    let cleanPath = req.path;
+    if (cleanPath.endsWith('/') && cleanPath.length > 1) {
+        cleanPath = cleanPath.slice(0, -1);
+    }
 
-    for (const basePath of pathsToSearch) {
-        let currentPath = path.join(basePath, ...urlSegments);
+    const targetFile = webRoutes[cleanPath];
 
-        if (fs.existsSync(currentPath)) {
-            const stat = fs.lstatSync(currentPath);
-            if (stat.isFile()) {
-                return res.render(currentPath);
-            } else if (stat.isDirectory()) {
-                const indexPath = path.join(currentPath, 'index.html');
-                if (fs.existsSync(indexPath) && fs.lstatSync(indexPath).isFile()) {
-                    return res.render(indexPath);
-                }
-            }
+    if (targetFile) {
+        const themePath = getActiveThemePath();
+        const customFile = path.join(themePath, targetFile);
+        
+        if (fs.existsSync(customFile)) {
+            return res.render(customFile);
         }
-
-        let htmlPath = currentPath + '.html';
-        if (fs.existsSync(htmlPath) && fs.lstatSync(htmlPath).isFile()) {
-            return res.render(htmlPath);
+        
+        const defaultFile = path.join(__dirname, 'public', targetFile);
+        if (fs.existsSync(defaultFile)) {
+            return res.render(defaultFile);
         }
     }
 
