@@ -44,11 +44,11 @@ server {
 }
 EOF
 
-sudo ln -s /etc/nginx/sites-available/kazuma-api /etc/nginx/sites-enabled/
-sudo rm /etc/nginx/sites-enabled/default
+sudo ln -sf /etc/nginx/sites-available/kazuma-api /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl restart nginx
 
-sudo certbot --nginx -d $DOMAIN --non-interactive --agree-tos --m frasesbebor@gmail.com
+sudo certbot --nginx -d $DOMAIN --non-interactive --agree-tos -m frasesbebor@gmail.com
 
 pm2 start index.js --name "kazuma-api"
 pm2 save
