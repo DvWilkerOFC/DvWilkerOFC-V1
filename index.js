@@ -25,16 +25,31 @@ if (!fs.existsSync(path.dirname(settingsPath))) {
 if (!fs.existsSync(globalThemesPath)) {
     fs.mkdirSync(globalThemesPath, { recursive: true });
 }
-if (!fs.existsSync(settingsPath)) {
-    fs.writeFileSync(settingsPath, JSON.stringify({ activeTheme: "default", maintenance: "active" }, null, 2));
-}
-if (!fs.existsSync(usersPath)) {
-    fs.writeFileSync(usersPath, JSON.stringify([], null, 2));
-}
+
+const checkAndRepairJSON = (filePath, defaultContent) => {
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, JSON.stringify(defaultContent, null, 2));
+    } else {
+        try {
+            const content = fs.readFileSync(filePath, 'utf-8').trim();
+            if (!content) {
+                fs.writeFileSync(filePath, JSON.stringify(defaultContent, null, 2));
+            } else {
+                JSON.parse(content);
+            }
+        } catch (e) {
+            fs.writeFileSync(filePath, JSON.stringify(defaultContent, null, 2));
+        }
+    }
+};
+
+checkAndRepairJSON(settingsPath, { activeTheme: "default", maintenance: "active" });
+checkAndRepairJSON(usersPath, []);
 
 const getSettings = () => {
     try {
-        return JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+        const content = fs.readFileSync(settingsPath, 'utf-8').trim();
+        return content ? JSON.parse(content) : { activeTheme: "default", maintenance: "active" };
     } catch (e) {
         return { activeTheme: "default", maintenance: "active" };
     }
@@ -85,7 +100,7 @@ app.use('/api/auth', userAuth);
 app.use('/api/ai/gemini', authHandler, aiGemini);
 app.use('/api/ai/chatgpt', authHandler, aiChatgpt);
 app.use('/api/tools/qr', authHandler, toolQr);
-app.use('/api/tools/ssweb', authHandler, toolIp);
+app.use('/api/tools/ssweb', authHandler, toolSsweb);
 app.use('/api/tools/ip', authHandler, toolIp);
 app.use('/api/search/pinterest', authHandler, searchPin);
 app.use('/api/search/tiktok', authHandler, searchTt);
