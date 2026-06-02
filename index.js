@@ -121,29 +121,22 @@ app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api/')) return next();
 
     const themePath = getActiveThemePath();
-    let sanitizedPath = req.path.endsWith('/') ? req.path.slice(0, -1) : req.path;
-
-    let targetFile = sanitizedPath + '.html';
-    if (sanitizedPath === '') targetFile = '/index.html';
-
-    const customFile = path.join(themePath, targetFile);
-    if (fs.existsSync(customFile) && fs.lstatSync(customFile).isFile()) {
-        return res.render(customFile);
+    let sanitizedPath = req.path;
+    if (sanitizedPath.endsWith('/')) {
+        sanitizedPath = sanitizedPath.slice(0, -1);
     }
 
-    const defaultFile = path.join(__dirname, 'public', targetFile);
-    if (fs.existsSync(defaultFile) && fs.lstatSync(defaultFile).isFile()) {
-        return res.render(defaultFile);
-    }
+    const filesToTry = [
+        path.join(themePath, sanitizedPath + '.html'),
+        path.join(__dirname, 'public', sanitizedPath + '.html'),
+        path.join(themePath, sanitizedPath, 'index.html'),
+        path.join(__dirname, 'public', sanitizedPath, 'index.html')
+    ];
 
-    const customIndexSub = path.join(themePath, sanitizedPath, 'index.html');
-    if (fs.existsSync(customIndexSub) && fs.lstatSync(customIndexSub).isFile()) {
-        return res.render(customIndexSub);
-    }
-
-    const defaultIndexSub = path.join(__dirname, 'public', sanitizedPath, 'index.html');
-    if (fs.existsSync(defaultIndexSub) && fs.lstatSync(defaultIndexSub).isFile()) {
-        return res.render(defaultIndexSub);
+    for (const file of filesToTry) {
+        if (fs.existsSync(file) && fs.lstatSync(file).isFile()) {
+            return res.render(file);
+        }
     }
 
     next();
