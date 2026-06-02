@@ -76,6 +76,19 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use('/assets', express.static(path.join(__dirname, 'public')));
+app.use('/themes', express.static(path.join(__dirname, 'themes')));
+
+app.use((req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+        return next();
+    }
+    const themePath = getActiveThemePath();
+    express.static(themePath)(req, res, () => {
+        express.static(path.join(__dirname, 'public'))(req, res, next);
+    });
+});
+
 const aiGemini = require('./routes/ai/gemini');
 const aiChatgpt = require('./routes/ai/chatgpt');
 const toolQr = require('./routes/tools/qrcode');
@@ -115,14 +128,6 @@ app.use('/api/download/ytaudio', authHandler, dlYta);
 app.use('/api/download/ytvideo', authHandler, dlYtv);
 app.use('/api/download/spotify', authHandler, dlSpotify);
 
-app.use((req, res, next) => {
-    const themePath = getActiveThemePath();
-    express.static(themePath)(req, res, (err) => {
-        if (err) return next(err);
-        express.static(path.join(__dirname, 'public'))(req, res, next);
-    });
-});
-
 const webRoutes = {
     '/admin': 'admin.html',
     '/dash': 'dash.html',
@@ -158,11 +163,11 @@ app.get('*', (req, res, next) => {
     if (targetFile) {
         const themePath = getActiveThemePath();
         const customFile = path.join(themePath, targetFile);
-        
+
         if (fs.existsSync(customFile)) {
             return res.render(customFile);
         }
-        
+
         const defaultFile = path.join(__dirname, 'public', targetFile);
         if (fs.existsSync(defaultFile)) {
             return res.render(defaultFile);
@@ -173,6 +178,13 @@ app.get('*', (req, res, next) => {
 });
 
 app.use((req, res) => {
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({
+            status: false,
+            message: "Endpoint no encontrado o ruta incorrecta."
+        });
+    }
+
     const themePath = getActiveThemePath();
     const custom404 = path.join(themePath, '404.html');
     if (fs.existsSync(custom404)) {
