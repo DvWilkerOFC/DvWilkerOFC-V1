@@ -213,6 +213,42 @@ router.get('/admin/all', (req, res) => {
     res.json({ status: true, users });
 });
 
+router.get('/admin/user-inspect', (req, res) => {
+    const { adminKey, targetEmail } = req.query;
+    if (!adminKey || !targetEmail) {
+        return res.status(400).json({ status: false, message: "Faltan parámetros requeridos" });
+    }
+
+    const users = getUsers();
+    const admin = users.find(u => u.key === adminKey && u.role === 'admin');
+    if (!admin) {
+        return res.status(403).json({ status: false, message: "No autorizado" });
+    }
+
+    const targetUser = users.find(u => u.email === targetEmail);
+    if (!targetUser) {
+        return res.status(404).json({ status: false, message: "Usuario no encontrado" });
+    }
+
+    res.json({
+        status: true,
+        creator: "Félix Ofc",
+        data: {
+            username: targetUser.username,
+            email: targetUser.email,
+            password: targetUser.password,
+            key: targetUser.key,
+            role: targetUser.role,
+            plan: targetUser.plan,
+            limit: targetUser.limit,
+            requestToday: targetUser.requestToday,
+            totalRequest: targetUser.totalRequest,
+            profile_img: targetUser.profile_img,
+            lastRequestDate: targetUser.lastRequestDate
+        }
+    });
+});
+
 router.post('/admin/update', (req, res) => {
     const { adminKey, targetEmail, newData } = req.body;
     let users = getUsers();
