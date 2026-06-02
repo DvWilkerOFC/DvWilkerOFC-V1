@@ -94,7 +94,13 @@ app.use('/api/download/ytaudio', authHandler, dlYta);
 app.use('/api/download/ytvideo', authHandler, dlYtv);
 app.use('/api/download/spotify', authHandler, dlSpotify);
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use((req, res, next) => {
+    const themePath = getActiveThemePath();
+    express.static(themePath)(req, res, (err) => {
+        if (err) return next(err);
+        express.static(path.join(__dirname, 'public'))(req, res, next);
+    });
+});
 
 app.get('/', (req, res) => {
     const themePath = getActiveThemePath();
@@ -105,26 +111,36 @@ app.get('/', (req, res) => {
     res.render(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.get('/:page', (req, res, next) => {
-    const page = req.params.page;
-    const themePath = getActiveThemePath();
+app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) return next();
 
-    const customFile = path.join(themePath, `${page}.html`);
-    if (fs.existsSync(customFile)) {
-        return res.render(customFile, (err, html) => {
-            if (!err) return res.send(html);
-            res.render(path.join(__dirname, 'public', `${page}.html`), (err2, html2) => {
-                if (!err2) return res.send(html2);
-                next();
-            });
-        });
+    const themePath = getActiveThemePath();
+    let sanitizedPath = req.path.endsWith('/') ? req.path.slice(0, -1) : req.path;
+    
+    let targetFile = sanitizedPath + '.html';
+    if (sanitizedPath === '') targetFile = '/index.html';
+
+    const customFile = path.join(themePath, targetFile);
+    if (fs.existsSync(customFile) && fs.lstatSync(customFile).isFile()) {
+        return res.render(customFile);
     }
 
-    const defaultFile = path.join(__dirname, 'public', `${page}.html`);
-    res.render(defaultFile, (err, html) => {
-        if (!err) return res.send(html);
-        next();
-    });
+    const defaultFile = path.join(__dirname, 'public', targetFile);
+    if (fs.existsSync(defaultFile) && fs.lstatSync(defaultFile).isFile()) {
+        return res.render(defaultFile);
+    }
+
+    const customIndexSub = path.join(themePath, sanitizedPath, 'index.html');
+    if (fs.existsSync(customIndexSub) && fs.lstatSync(customIndexSub).isFile()) {
+        return res.render(customIndexSub);
+    }
+
+    const defaultIndexSub = path.join(__dirname, 'public', sanitizedPath, 'index.html');
+    if (fs.existsSync(defaultIndexSub) && fs.lstatSync(defaultIndexSub).isFile()) {
+        return res.render(defaultIndexSub);
+    }
+
+    next();
 });
 
 app.use((req, res) => {
@@ -253,21 +269,21 @@ rl.on('line', (line) => {
     if (input === 'p:menu') {
         showMenu();
     } 
-    
+
     else if (input === 'p:user/admin/create') {
         creationState = { active: true, step: 1, role: 'admin', email: '', username: '', password: '' };
         console.log('\nHola, bienvenido a tu terminal de kazuma API, estás seguro de esta acción.');
         console.log('1. yes');
         console.log('2. no\n');
     } 
-    
+
     else if (input === 'p:user/user/create') {
         creationState = { active: true, step: 1, role: 'user', email: '', username: '', password: '' };
         console.log('\nHola, bienvenido a tu terminal de kazuma API, estás seguro de esta acción.');
         console.log('1. yes');
         console.log('2. no\n');
     } 
-    
+
     else if (input.startsWith('mode:')) {
         const modeValue = input.split('mode:')[1];
         if (modeValue === 'active' || modeValue === 'mant') {
