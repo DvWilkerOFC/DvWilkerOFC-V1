@@ -134,6 +134,7 @@ const webRoutes = {
     '/admin': 'admin.html',
     '/dash': 'dash.html',
     '/shop': 'shop.html',
+    '/game/clicker': '/game/clicker.html',
     '/login': 'login.html',
     '/register': 'register.html',
     '/profile': 'profile.html',
