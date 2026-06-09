@@ -131,7 +131,7 @@ app.use('/api/download/spotify', authHandler, dlSpotify);
 const webRoutes = {
     '/admin': 'admin.html',
     '/dash': 'dash.html',
-    '/shop': 'store.html',
+    '/shop': 'shop.html',
     '/login': 'login.html',
     '/register': 'register.html',
     '/profile': 'profile.html',
