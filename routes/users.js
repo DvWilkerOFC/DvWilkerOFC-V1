@@ -13,8 +13,100 @@ const CLIENT_ID = "Ov23lieMMOdvhCjel8An";
 const CLIENT_SECRET = "9e12dd5d35e49b9c5f1777aca9ced2e9b5de91b9";
 const REDIRECT_URI = "https://rest.kazuma.giize.com/api/auth/github/callback";
 
+const COBRADOR_UID_TARJETA = "224-981";
+const PLANES_TIENDA = {
+    'basico': { precio: 15, limit: 2500, planName: 'basico' },
+    'pro': { precio: 20, limit: 5000, planName: 'pro' },
+    'empresarial': { precio: 30, limit: 70000, planName: 'empresarial' }
+};
+
 const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
 const saveUsers = (data) => fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+
+router.get('/store/saved-card', (req, res) => {
+    const { apiKey } = req.query;
+    if (!apiKey) return res.status(400).json({ status: false, message: "ApiKey requerida" });
+
+    const users = getUsers();
+    const user = users.find(u => u.key === apiKey);
+    if (!user) return res.status(404).json({ status: false, message: "Usuario no encontrado" });
+
+    if (user.saved_card) {
+        const last4 = user.saved_card.numTarjetaEmisor.slice(-4);
+        return res.json({
+            status: true,
+            hasCard: true,
+            card: {
+                uidEmisor: user.saved_card.uidEmisor,
+                numTarjetaEmisor: `•••• •••• •••• ${last4}`
+            }
+        });
+    }
+
+    return res.json({ status: true, hasCard: false });
+});
+
+router.post('/store/checkout', async (req, res) => {
+    const { apiKey, planId, recordarTarjeta, tokenEmisor, uidEmisor, numTarjetaEmisor } = req.body;
+    
+    if (!apiKey || !planId) return res.status(400).json({ status: false, message: "Parámetros incompletos" });
+
+    let users = getUsers();
+    const userIdx = users.findIndex(u => u.key === apiKey);
+    if (userIdx === -1) return res.status(404).json({ status: false, message: "Usuario no encontrado" });
+
+    const planSeleccionado = PLANES_TIENDA[planId];
+    if (!planSeleccionado) return res.status(400).json({ status: false, message: "Plan de pago inválido" });
+
+    let finalToken = tokenEmisor;
+    let finalUid = uidEmisor;
+    let finalCardNum = numTarjetaEmisor;
+
+    if (users[userIdx].saved_card && !tokenEmisor) {
+        finalToken = users[userIdx].saved_card.tokenEmisor;
+        finalUid = users[userIdx].saved_card.uidEmisor;
+        finalCardNum = users[userIdx].saved_card.numTarjetaEmisor;
+    }
+
+    if (!finalToken || !finalUid || !finalCardNum) {
+        return res.status(400).json({ status: false, message: "Faltan credenciales financieras de Bank Kazuma" });
+    }
+
+    try {
+        const respuestaBanco = await axios.post('https://bank.kazuma.giize.com/api/users/transfer', {
+            tokenEmisor: finalToken,
+            uidEmisor: finalUid,
+            numTarjetaEmisor: finalCardNum,
+            uidReceptor: COBRADOR_UID_TARJETA,
+            cantidad: planSeleccionado.precio
+        });
+
+        if (respuestaBanco.status === 200) {
+            users[userIdx].plan = planSeleccionado.planName;
+            users[userIdx].limit = planSeleccionado.limit;
+
+            if (recordarTarjeta) {
+                users[userIdx].saved_card = {
+                    tokenEmisor: finalToken,
+                    uidEmisor: finalUid,
+                    numTarjetaEmisor: finalCardNum
+                };
+            }
+
+            saveUsers(users);
+            return res.json({ 
+                status: true, 
+                message: `¡Transacción exitosa! Tu plan ha sido actualizado a ${planSeleccionado.planName.toUpperCase()}.` 
+            });
+        } else {
+            return res.status(400).json({ status: false, message: "El banco rechazó la transacción" });
+        }
+
+    } catch (err) {
+        const errMsg = err.response && err.response.data ? err.response.data.error || err.response.data.message : err.message;
+        return res.status(500).json({ status: false, message: "Error al procesar el pago: " + errMsg });
+    }
+});
 
 router.get('/github', (req, res) => {
     const authUrl = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=user:email`;
@@ -23,10 +115,7 @@ router.get('/github', (req, res) => {
 
 router.get('/github/callback', async (req, res) => {
     const { code } = req.query;
-
-    if (!code) {
-        return res.status(400).json({ status: false, message: "Código de autorización no proporcionado" });
-    }
+    if (!code) return res.status(400).json({ status: false, message: "Código de autorización no proporcionado" });
 
     try {
         const tokenResponse = await axios.post('https://github.com/login/oauth/access_token', {
@@ -34,23 +123,13 @@ router.get('/github/callback', async (req, res) => {
             client_secret: CLIENT_SECRET,
             code: code,
             redirect_uri: REDIRECT_URI
-        }, {
-            headers: { Accept: 'application/json' }
-        });
+        }, { headers: { Accept: 'application/json' } });
 
         const accessToken = tokenResponse.data.access_token;
+        if (!accessToken) return res.status(400).json({ status: false, message: "Error al obtener el token de acceso" });
 
-        if (!accessToken) {
-            return res.status(400).json({ status: false, message: "Error al obtener el token de acceso" });
-        }
-
-        const userResponse = await axios.get('https://api.github.com/user', {
-            headers: { Authorization: `Bearer ${accessToken}` }
-        });
-
-        const emailsResponse = await axios.get('https://api.github.com/user/emails', {
-            headers: { Authorization: `Bearer ${accessToken}` }
-        });
+        const userResponse = await axios.get('https://api.github.com/user', { headers: { Authorization: `Bearer ${accessToken}` } });
+        const emailsResponse = await axios.get('https://api.github.com/user/emails', { headers: { Authorization: `Bearer ${accessToken}` } });
 
         const githubUser = userResponse.data;
         const primaryEmailObj = emailsResponse.data.find(e => e.primary) || emailsResponse.data[0];
@@ -215,20 +294,14 @@ router.get('/admin/all', (req, res) => {
 
 router.get('/admin/user-inspect', (req, res) => {
     const { adminKey, targetEmail } = req.query;
-    if (!adminKey || !targetEmail) {
-        return res.status(400).json({ status: false, message: "Faltan parámetros requeridos" });
-    }
+    if (!adminKey || !targetEmail) return res.status(400).json({ status: false, message: "Faltan parámetros requeridos" });
 
     const users = getUsers();
     const admin = users.find(u => u.key === adminKey && u.role === 'admin');
-    if (!admin) {
-        return res.status(403).json({ status: false, message: "No autorizado" });
-    }
+    if (!admin) return res.status(403).json({ status: false, message: "No autorizado" });
 
     const targetUser = users.find(u => u.email === targetEmail);
-    if (!targetUser) {
-        return res.status(404).json({ status: false, message: "Usuario no encontrado" });
-    }
+    if (!targetUser) return res.status(404).json({ status: false, message: "Usuario no encontrado" });
 
     res.json({
         status: true,
@@ -285,15 +358,11 @@ router.get('/admin/themes', (req, res) => {
     let themeList = ['default'];
 
     try {
-        if (!fs.existsSync(themesDir)) {
-            fs.mkdirSync(themesDir, { recursive: true });
-        }
+        if (!fs.existsSync(themesDir)) fs.mkdirSync(themesDir, { recursive: true });
         const files = fs.readdirSync(themesDir);
         files.forEach(file => {
             const fullPath = path.join(themesDir, file);
-            if (fs.lstatSync(fullPath).isDirectory()) {
-                themeList.push(file);
-            }
+            if (fs.lstatSync(fullPath).isDirectory()) themeList.push(file);
         });
     } catch (e) {}
 
@@ -313,7 +382,6 @@ router.post('/admin/theme/set', (req, res) => {
     const users = getUsers();
     const admin = users.find(u => u.key === apiKey && u.role === 'admin');
     if (!admin) return res.status(403).json({ status: false, message: "No autorizado" });
-
     if (!themeName) return res.status(400).json({ status: false, message: "Nombre de tema requerido" });
 
     try {
@@ -325,9 +393,7 @@ router.post('/admin/theme/set', (req, res) => {
         }
 
         let currentSettings = {};
-        if (fs.existsSync(settingsPath)) {
-            currentSettings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
-        }
+        if (fs.existsSync(settingsPath)) currentSettings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
         currentSettings.activeTheme = themeName;
 
         fs.writeFileSync(settingsPath, JSON.stringify(currentSettings, null, 2));
