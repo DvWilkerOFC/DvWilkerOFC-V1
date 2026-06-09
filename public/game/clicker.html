@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kazuma | Clicker Click</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root { 
+            --neon-blue: #3b82f6; 
+            --dark-bg: #0d0e12; 
+            --card-bg: #16171f; 
+            --sidebar-bg: #101118; 
+            --text-main: #f3f4f6; 
+            --text-muted: #9ca3af; 
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body { 
+            background-color: var(--dark-bg); 
+            color: var(--text-main); 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; 
+            padding: 0;
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            overflow-x: hidden; 
+        }
+
+        header { 
+            background: rgba(22, 23, 31, 0.7); 
+            backdrop-filter: blur(12px);
+            padding: 15px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+        }
+
+        .brand { font-weight: 800; font-size: 1.15rem; letter-spacing: -0.5px; }
+        .brand span { color: var(--neon-blue); }
+
+        .nav-tabs { display: flex; gap: 10px; }
+        .tab-btn { background: transparent; border: none; color: var(--text-muted); font-family: inherit; font-weight: 700; font-size: 0.85rem; padding: 8px 16px; border-radius: 10px; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 6px; }
+        .tab-btn:hover, .tab-btn.active { color: var(--text-main); background: rgba(255, 255, 255, 0.04); }
+        .tab-btn.active { color: var(--neon-blue); }
+
+        .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 40px 16px; box-sizing: border-box; flex-grow: 1; }
+        
+        .game-view { display: none; animation: fadeIn 0.3s ease; }
+        .game-view.active { display: block; }
+
+        .score-board { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        .score-box { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        .score-val { font-size: 2rem; font-weight: 800; color: var(--text-main); margin-top: 5px; }
+        .score-box.highlight .score-val { color: #eab308; }
+
+        .btn-click { width: 180px; height: 180px; background: radial-gradient(circle, #3b82f6 0%, #1d4ed8 100%); border: 6px solid rgba(255,255,255,0.08); border-radius: 50%; color: white; font-size: 1.1rem; font-weight: 800; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 8px; margin: 40px auto; box-shadow: 0 0 30px rgba(59, 130, 246, 0.4); transition: transform 0.1s ease, box-shadow 0.3s ease; -webkit-tap-highlight-color: transparent; }
+        .btn-click:active { transform: scale(0.92); box-shadow: 0 0 15px rgba(59, 130, 246, 0.6); }
+
+        .progress-container { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); height: 12px; border-radius: 10px; overflow: hidden; margin-top: 10px; }
+        .progress-bar { height: 100%; width: 0%; background: var(--neon-blue); transition: width 0.1s ease; }
+
+        .input-group { margin-bottom: 20px; }
+        .input-label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.5px; }
+        .input-kazuma { width: 100%; background: rgba(13, 14, 18, 0.5); border: 1px solid rgba(255, 255, 255, 0.06); color: var(--text-main); border-radius: 14px; font-family: inherit; font-size: 0.9rem; padding: 14px; box-sizing: border-box; transition: var(--transition); }
+        .input-kazuma:focus { border-color: var(--neon-blue); outline: none; box-shadow: 0 0 10px rgba(59, 130, 246, 0.15); }
+
+        .btn-submit { width: 100%; background: var(--neon-blue); border: none; color: white; font-weight: 700; font-size: 0.9rem; padding: 14px; border-radius: 14px; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-submit:hover { background: #2563eb; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+
+        .swal2-cyber-popup { background: #16171f !important; color: #f3f4f6 !important; border-radius: 20px !important; font-family: 'Plus Jakarta Sans', sans-serif !important; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">KAZUMA <span>CLICK</span></div>
+        <nav class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('inicio')"><i class="fas fa-gamepad"></i> Inicio</button>
+            <button class="tab-btn" onclick="switchTab('retirar')"><i class="fas fa-wallet"></i> Retirar</button>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div id="view-inicio" class="game-view active">
+            <div class="score-board">
+                <div class="score-box">
+                    <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Clics Realizados</div>
+                    <div id="display-clicks" class="score-val">0</div>
+                    <div class="progress-container">
+                        <div id="click-progress" class="progress-bar"></div>
+                    </div>
+                </div>
+                <div class="score-box highlight">
+                    <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Balance Ahorrado</div>
+                    <div id="display-ahorrado" class="score-val">0 <span style="font-size: 0.9rem; color: #eab308;">KZM</span></div>
+                </div>
+            </div>
+
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">¡Presiona el botón! Cada 50 clics generas 1 KZM directo a tu saldo.</p>
+
+            <button class="btn-click" onclick="registrarClick()">
+                <i class="fas fa-pointer" style="font-size: 2rem;"></i>
+                CLICK
+            </button>
+        </div>
+
+        <div id="view-retirar" class="game-view">
+            <div class="score-box highlight" style="margin-bottom: 30px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Disponible para Enviar</div>
+                <div id="withdraw-total" style="font-size: 2.2rem; font-weight: 800; color: #eab308; margin-top: 5px;">0 KZM</div>
+            </div>
+
+            <div class="score-box" style="text-align: left; padding: 25px;">
+                <div class="input-group">
+                    <label class="input-label">UID de Cuenta (Bank Kazuma)</label>
+                    <input type="text" id="input-uid" class="input-kazuma" placeholder="Ej: 224-•••">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Número de Tarjeta de Destino</label>
+                    <input type="text" id="input-card" class="input-kazuma" placeholder="Ej: KZM-••••••••172">
+                </div>
+
+                <button class="btn-submit" onclick="solicitarRetiro()">
+                    <i class="fas fa-vault"></i> Transferir Fondos a mi Tarjeta
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const userData = JSON.parse(localStorage.getItem('kazuma_user'));
+        if (!userData) window.location.href = '/login';
+
+        let clicksLocales = 0;
+        let ahorradoLocal = 0;
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.game-view').forEach(view => view.classList.remove('active'));
+
+            if (tabId === 'inicio') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('view-inicio').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('view-retirar').classList.add('active');
+                document.getElementById('withdraw-total').innerText = `${ahorradoLocal} KZM`;
+            }
+        }
+
+        async function sincronizarDatosIniciales() {
+            try {
+                const res = await fetch(`/api/auth/me?apiKey=${userData.key}`);
+                const result = await res.json();
+                if (result.status) {
+                    clicksLocales = result.data.clicks || 0;
+                    ahorradoLocal = result.data.ahorrado || 0;
+                    actualizarUI();
+                }
+            } catch (e) {
+                console.error("Error cargando perfil:", e);
+            }
+        }
+
+        function actualizarUI() {
+            document.getElementById('display-clicks').innerText = clicksLocales;
+            document.getElementById('display-ahorrado').innerText = `${ahorradoLocal} KZM`;
+            document.getElementById('withdraw-total').innerText = `${ahorradoLocal} KZM`;
+            
+            const porcentaje = (clicksLocales / 50) * 100;
+            document.getElementById('click-progress').style.width = `${porcentaje}%`;
+        }
+
+        async function registrarClick() {
+            try {
+                const res = await fetch('/api/juego/click', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ apiKey: userData.key })
+                });
+                const data = await res.json();
+
+                if (data.status) {
+                    clicksLocales = data.clicks;
+                    ahorradoLocal = data.ahorrado;
+                    actualizarUI();
+
+                    if (data.subioNivel) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: '+1 KZM Generado',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            background: '#16171f',
+                            color: '#f3f4f6'
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function solicitarRetiro() {
+            const uid = document.getElementById('input-uid').value.trim();
+            const tarjeta = document.getElementById('input-card').value.trim();
+
+            if (!uid || !tarjeta) {
+                Swal.fire({ icon: 'error', title: 'Campos Vacíos', text: 'Por favor rellena los datos de tu cuenta bancaria.', customClass: { popup: 'swal2-cyber-popup' }, confirmButtonColor: '#3b82f6' });
+                return;
+            }
+
+            if (ahorradoLocal <= 0) {
+                Swal.fire({ icon: 'warning', title: 'Sin Fondos', text: 'Sigue haciendo clic para acumular saldo antes de retirar.', customClass: { popup: 'swal2-cyber-popup' }, confirmButtonColor: '#3b82f6' });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Conectando con Bank Kazuma',
+                text: 'Despachando fondos desde la cuenta central...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            try {
+                const res = await fetch('/api/juego/retirar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        apiKey: userData.key,
+                        uidReceptor: uid,
+                        numTarjetaReceptor: tarjeta
+                    })
+                });
+                const data = await res.json();
+
+                if (data.status) {
+                    Swal.fire({ icon: 'success', title: '¡RETIRO PROCESADO!', text: data.message, confirmButtonColor: '#3b82f6', customClass: { popup: 'swal2-cyber-popup' } });
+                    clicksLocales = 0;
+                    ahorradoLocal = 0;
+                    actualizarUI();
+                    switchTab('inicio');
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Retiro Rechazado', text: data.message, confirmButtonColor: '#3b82f6', customClass: { popup: 'swal2-cyber-popup' } });
+                }
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Error del Servidor', text: 'No se pudo comunicar con el sistema de transacciones.', confirmButtonColor: '#3b82f6', customClass: { popup: 'swal2-cyber-popup' } });
+            }
+        }
+
+        window.onload = sincronizarDatosIniciales;
+    </script>
+</body>
+</html>
