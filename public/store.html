@@ -112,7 +112,7 @@
         .btn-buy:hover { background: var(--neon-blue); color: #ffffff; border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
         .api-card.premium-card .btn-buy { background: var(--neon-blue); color: #ffffff; border-color: var(--neon-blue); }
         .api-card.premium-card .btn-buy:hover { background: #2563eb; border-color: #2563eb; }
-        .btn-buy:disabled { opacity: 0.5; cursor: not-allowed; background: rgba(0,0,0,0.1) !important; color: var(--text-muted) !important; border-color: transparent !important; box-shadow: none !important; }
+        .btn-buy:disabled { opacity: 0.6; cursor: not-allowed; background: rgba(0,0,0,0.15) !important; color: var(--text-muted) !important; border-color: transparent !important; box-shadow: none !important; }
 
         .swal2-cyber-input { background: rgba(13, 14, 18, 0.7) !important; border: 1px solid rgba(255, 255, 255, 0.06) !important; color: #f3f4f6 !important; border-radius: 12px !important; font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 0.9rem !important; margin: 10px auto !important; width: 85% !important; box-sizing: border-box; }
         .swal2-cyber-input:focus { border-color: #3b82f6 !important; box-shadow: 0 0 10px rgba(59, 130, 246, 0.2) !important; }
@@ -189,7 +189,7 @@
             </div>
 
             <p class="nav-category">General</p>
-            <a href="/dashboard" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/dash" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a>
             <div class="sidebar-link active" onclick="closeAllPanels()"><i class="fas fa-basket-shopping"></i> Store</div>
 
             <p class="nav-category">Servicios API</p>
@@ -217,7 +217,7 @@
                         <li><i class="fas fa-circle-dot"></i> 100 requests al día</li>
                         <li><i class="fas fa-circle-dot"></i> Soporte cuando se pueda</li>
                     </ul>
-                    <button class="btn-buy" id="btn-free" disabled>Plan Actual</button>
+                    <button class="btn-buy" id="btn-free">Adquirir Plan</button>
                 </div>
 
                 <div class="api-card">
@@ -229,7 +229,7 @@
                         <li><i class="fas fa-check"></i> Soporte prioritario diario</li>
                         <li><i class="fas fa-check"></i> Acceso a herramientas núcleo</li>
                     </ul>
-                    <button class="btn-buy" onclick="abrirPasarela('basico', 15)">Adquirir Plan</button>
+                    <button class="btn-buy" id="btn-basico" onclick="abrirPasarela('basico', 15)">Adquirir Plan</button>
                 </div>
 
                 <div class="api-card premium-card">
@@ -242,7 +242,7 @@
                         <li><i class="fas fa-check"></i> Soporte 24/7 permanente</li>
                         <li><i class="fas fa-check"></i> 50% menos en tu segunda compra</li>
                     </ul>
-                    <button class="btn-buy" onclick="abrirPasarela('pro', 20)">Adquirir Plan</button>
+                    <button class="btn-buy" id="btn-pro" onclick="abrirPasarela('pro', 20)">Adquirir Plan</button>
                 </div>
 
                 <div class="api-card">
@@ -255,7 +255,7 @@
                         <li><i class="fas fa-check"></i> Soporte 24/7 canal privado</li>
                         <li><i class="fas fa-check"></i> Máxima velocidad de respuesta</li>
                     </ul>
-                    <button class="btn-buy" onclick="abrirPasarela('empresarial', 30)">Adquirir Plan</button>
+                    <button class="btn-buy" id="btn-empresarial" onclick="abrirPasarela('empresarial', 30)">Adquirir Plan</button>
                 </div>
             </div>
         </div>
@@ -320,7 +320,48 @@
             }
         }
 
+        function actualizarVisualizacionPlanes(planActual) {
+            const planNormalizado = (planActual || 'free').toLowerCase();
+            
+            // IDs de los botones en el DOM
+            const botones = {
+                'free': document.getElementById('btn-free'),
+                'basico': document.getElementById('btn-basico'),
+                'pro': document.getElementById('btn-pro'),
+                'empresarial': document.getElementById('btn-empresarial')
+            };
+
+            // Resetear todos los estados primero
+            Object.keys(botones).forEach(key => {
+                const btn = botones[key];
+                if (btn) {
+                    btn.removeAttribute('disabled');
+                    if (key === 'free') {
+                        btn.innerText = 'Bajar a Plan Free';
+                        // Cambiamos el comportamiento si quiere regresar al plan libre
+                        btn.setAttribute('onclick', "abrirPasarela('free', 0)");
+                    } else {
+                        btn.innerText = 'Adquirir Plan';
+                    }
+                }
+            });
+
+            // Aplicar estado bloqueado al plan actual del usuario
+            const botonActivo = botones[planNormalizado];
+            if (botonActivo) {
+                botonActivo.setAttribute('disabled', 'true');
+                botonActivo.innerText = 'Plan Actual';
+                botonActivo.removeAttribute('onclick');
+            }
+        }
+
         function abrirPasarela(planId, precio) {
+            if (precio === 0) {
+                // Flujo directo si regresa al plan free libre de costo
+                procesarPagoFinal({ apiKey: userData.key, planId: planId, recordarTarjeta: false });
+                return;
+            }
+
             if (tarjetaGuardadaLocal) {
                 Swal.fire({
                     title: 'PAGO EN 1 CLIC',
@@ -426,12 +467,12 @@
                         color: '#f3f4f6',
                         confirmButtonColor: '#3b82f6'
                     }).then(() => {
-                        window.location.href = '/dashboard';
+                        window.location.href = '/dash';
                     });
                 } else {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Transacción Rechazada',
+                        title: 'Transacción Fue Rechazada',
                         text: data.message || 'Fondos insuficientes o credenciales incorrectas.',
                         background: '#16171f',
                         color: '#f3f4f6',
@@ -459,6 +500,9 @@
 
             if (userData.role === 'admin') document.getElementById('admin-nav').style.display = 'block';
 
+            // Por defecto, inicializa con los datos del localStorage local
+            actualizarVisualizacionPlanes(userData.plan);
+
             try {
                 const resMe = await fetch(`/api/auth/me?apiKey=${userData.key}`);
                 const me = await resMe.json();
@@ -467,14 +511,8 @@
                     const updatedUser = { ...userData, ...me.data };
                     localStorage.setItem('kazuma_user', JSON.stringify(updatedUser));
                     
-                    const btnFree = document.getElementById('btn-free');
-                    if (me.data.plan && me.data.plan !== 'free') {
-                        if(btnFree) {
-                            btnFree.removeAttribute('disabled');
-                            btnFree.innerText = 'Bajar a Plan Free';
-                            btnFree.style.cursor = 'pointer';
-                        }
-                    }
+                    // Actualiza la UI con la respuesta en tiempo real del servidor
+                    actualizarVisualizacionPlanes(me.data.plan);
 
                     const finalAvatar = me.data.profile_img || "https://upload.yotsuba.giize.com/u/WYAn7fjU.jpg";
                     document.getElementById('avatar-trigger-img').src = finalAvatar;
