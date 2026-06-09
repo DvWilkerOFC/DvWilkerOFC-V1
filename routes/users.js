@@ -73,7 +73,7 @@ router.post('/store/checkout', async (req, res) => {
     }
 
     try {
-        const respuestaBanco = await axios.post('https://bank.kazuma.giize.com/api/users/transfer', {
+        const respuestaBanco = await axios.post('https://bank.kazuma.uk/api/users/transfer', {
             tokenEmisor: finalToken,
             uidEmisor: finalUid,
             numTarjetaEmisor: finalCardNum,
