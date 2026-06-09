@@ -6,9 +6,9 @@ const axios = require('axios');
 
 const dbPath = path.join(__dirname, '../database/users.json');
 
-const MI_TARJETA_ADMIN_UID = "224-981";
-const MI_TARJETA_ADMIN_TOKEN = "tu_token_secreto_aquí";
-const MI_TARJETA_ADMIN_NUMERO = "KZM-XXXXXXXXXXXX";
+const MI_TARJETA_ADMIN_UID = "224-345";
+const MI_TARJETA_ADMIN_TOKEN = "1f0cf29b1e8fd77432d74cee58392c6763300ccaa52928b9f6587e133124b7ed";
+const MI_TARJETA_ADMIN_NUMERO = "KZM-7D0F8839CDD12D83";
 
 const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
 const saveUsers = (data) => fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
