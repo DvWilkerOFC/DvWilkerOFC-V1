@@ -12,7 +12,6 @@ let startTime = Date.now();
 const CLIENT_ID = "Ov23lieMMOdvhCjel8An";
 const CLIENT_SECRET = "9e12dd5d35e49b9c5f1777aca9ced2e9b5de91b9";
 const REDIRECT_URI = "https://rest.kazuma.giize.com/api/auth/github/callback";
-const REDIRECT_URI = "https://rest.kazuma.giize.com/api/auth/github/callback";
 
 const COBRADOR_UID_TARJETA = "224-981";
 const PLANES_TIENDA = {
