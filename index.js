@@ -107,8 +107,10 @@ const dlYta = require('./routes/download/ytaudio');
 const dlYtv = require('./routes/download/ytvideo');
 const dlSpotify = require('./routes/download/spotify');
 const userAuth = require('./routes/users');
+const juegoClicker = require('./routes/juego');
 
 app.use('/api/auth', userAuth);
+app.use('/api/juego', authHandler, juegoClicker);
 
 app.use('/api/ai/gemini', authHandler, aiGemini);
 app.use('/api/ai/chatgpt', authHandler, aiChatgpt);
@@ -135,6 +137,7 @@ const webRoutes = {
     '/login': 'login.html',
     '/register': 'register.html',
     '/profile': 'profile.html',
+    '/clicker': 'clicker.html',
     '/tos/terms': 'tos/terms.html',
     '/endpoints/ai': 'endpoints/ai.html',
     '/endpoints/download': 'endpoints/download.html',
