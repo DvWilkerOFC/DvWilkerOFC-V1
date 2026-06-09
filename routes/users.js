@@ -12,6 +12,7 @@ let startTime = Date.now();
 const CLIENT_ID = "Ov23lieMMOdvhCjel8An";
 const CLIENT_SECRET = "9e12dd5d35e49b9c5f1777aca9ced2e9b5de91b9";
 const REDIRECT_URI = "https://rest.kazuma.giize.com/api/auth/github/callback";
+const REDIRECT_URI = "https://rest.kazuma.giize.com/api/auth/github/callback";
 
 const COBRADOR_UID_TARJETA = "224-981";
 const PLANES_TIENDA = {
@@ -20,8 +21,44 @@ const PLANES_TIENDA = {
     'empresarial': { precio: 30, limit: 70000, planName: 'empresarial' }
 };
 
+const LIMITE_CAMBIOS_KEY = {
+    'free': 0,
+    'basico': 2,
+    'pro': 4,
+    'empresarial': Infinity
+};
+
 const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
 const saveUsers = (data) => fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+
+router.post('/custom-key', (req, res) => {
+    const { apiKey, newKey } = req.body;
+    if (!apiKey || !newKey) return res.status(400).json({ status: false, message: "Parámetros incompletos" });
+
+    let users = getUsers();
+    const userIdx = users.findIndex(u => u.key === apiKey);
+    if (userIdx === -1) return res.status(404).json({ status: false, message: "Usuario no encontrado" });
+
+    if (users.some(u => u.key === newKey)) {
+        return res.status(400).json({ status: false, message: "Esa API Key personalizada ya está en uso por otro usuario" });
+    }
+
+    const planUsuario = (users[userIdx].plan || 'free').toLowerCase();
+    const cambiosRealizados = users[userIdx].keyChangesRealizados || 0;
+    const limitePermitido = LIMITE_CAMBIOS_KEY[planUsuario] !== undefined ? LIMITE_CAMBIOS_KEY[planUsuario] : 0;
+
+    if (cambiosRealizados >= limitePermitido) {
+        return res.status(403).json({ status: false, message: "Has agotado o no posees cupos de cambio de credenciales para tu plan" });
+    }
+
+    users[userIdx].key = newKey;
+    if (limitePermitido !== Infinity) {
+        users[userIdx].keyChangesRealizados = cambiosRealizados + 1;
+    }
+
+    saveUsers(users);
+    return res.json({ status: true, message: "API Key personalizada asignada correctamente" });
+});
 
 router.get('/store/saved-card', (req, res) => {
     const { apiKey } = req.query;
@@ -150,6 +187,7 @@ router.get('/github/callback', async (req, res) => {
                 limit: 100,
                 requestToday: 0,
                 totalRequest: 0,
+                keyChangesRealizados: 0,
                 profile_img: githubUser.avatar_url || "https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg",
                 lastRequestDate: new Date().toISOString().split('T')[0]
             };
@@ -182,6 +220,7 @@ router.post('/register', async (req, res) => {
             limit: 100,
             requestToday: 0,
             totalRequest: 0,
+            keyChangesRealizados: 0,
             profile_img: "https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg", 
             lastRequestDate: new Date().toISOString().split('T')[0]
         };
@@ -205,7 +244,7 @@ router.post('/login', async (req, res) => {
         res.json({
             status: true,
             creator: "Félix Ofc",
-            data: { username: user.username, email: user.email, key: user.key, role: user.role, plan: user.plan, limit: user.limit, profileImg: user.profile_img }
+            data: { username: user.username, email: user.email, key: user.key, role: user.role, plan: user.plan, limit: user.limit, profileImg: user.profile_img, keyChangesRealizados: user.keyChangesRealizados || 0 }
         });
     } catch (err) {
         res.status(500).json({ status: false, message: "Error interno" });
@@ -230,6 +269,7 @@ router.get('/me', (req, res) => {
             role: user.role,
             plan: user.plan,
             profile_img: user.profile_img,
+            keyChangesRealizados: user.keyChangesRealizados || 0,
             requests: { today: user.requestToday, total: user.totalRequest, limit: user.limit, remaining: user.limit - user.requestToday }
         }
     });
