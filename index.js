@@ -139,6 +139,7 @@ const webRoutes = {
     '/dash': 'dash.html',
     '/shop': 'shop.html',
     '/game/clicker': '/game/clicker.html',
+    '/game/ads': '/game/ads.html',
     '/login': 'login.html',
     '/register': 'register.html',
     '/profile': 'profile.html',
