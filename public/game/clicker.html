@@ -143,6 +143,9 @@
         const userData = JSON.parse(localStorage.getItem('kazuma_user'));
         if (!userData) window.location.href = '/login';
 
+        const userApiKey = userData.key || (userData.data && userData.data.key);
+        if (!userApiKey) window.location.href = '/login';
+
         let clicksLocales = 0;
         let ahorradoLocal = 0;
 
@@ -162,7 +165,7 @@
 
         async function sincronizarDatosIniciales() {
             try {
-                const res = await fetch(`/api/auth/me?apiKey=${userData.key}`);
+                const res = await fetch(`/api/auth/me?apiKey=${userApiKey}`);
                 const result = await res.json();
                 if (result.status) {
                     clicksLocales = result.data.clicks || 0;
@@ -188,7 +191,7 @@
                 const res = await fetch('/api/juego/click', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ apiKey: userData.key })
+                    body: JSON.stringify({ apiKey: userApiKey })
                 });
                 const data = await res.json();
 
@@ -241,7 +244,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        apiKey: userData.key,
+                        apiKey: userApiKey,
                         uidReceptor: uid,
                         numTarjetaReceptor: tarjeta
                     })
@@ -255,7 +258,7 @@
                     actualizarUI();
                     switchTab('inicio');
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Retiro Rechazado', text: data.message, confirmButtonColor: '#3b82f6', customClass: { popup: 'swal2-cyber-popup' } });
+                    Swal.fire({ icon: 'error', title: 'Retiro Fue Rechazado', text: data.message, confirmButtonColor: '#3b82f6', customClass: { popup: 'swal2-cyber-popup' } });
                 }
             } catch (e) {
                 Swal.fire({ icon: 'error', title: 'Error del Servidor', text: 'No se pudo comunicar con el sistema de transacciones.', confirmButtonColor: '#3b82f6', customClass: { popup: 'swal2-cyber-popup' } });
