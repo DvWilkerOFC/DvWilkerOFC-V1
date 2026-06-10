@@ -3,16 +3,59 @@
 <head>
     <script src="https://quge5.com/88/tag.min.js" data-zone="248457" async data-cfasync="false"></script>
     <meta charset="UTF-8">
-    <title>Gana con Anuncios | Kazuma</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gana KZM | Kazuma Ads</title>
     <style>
-        body { background: #0d0e12; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; }
-        .btn-back { background: #3b82f6; border: none; padding: 15px 30px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        body { 
+            background: #0d0e12; color: #f3f4f6; font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; height: 100vh; text-align: center; overflow: hidden;
+            touch-action: manipulation;
+        }
+        .stats { margin-bottom: 20px; }
+        .val { font-size: 2.5rem; font-weight: 800; color: #eab308; }
+        .instruccion { color: #9ca3af; font-size: 0.9rem; padding: 0 20px; }
+        .btn-back { 
+            background: #3b82f6; border: none; padding: 12px 25px; 
+            border-radius: 12px; color: white; font-weight: bold; 
+            cursor: pointer; margin-top: 30px; 
+        }
     </style>
 </head>
 <body>
-    <h1>¡Mira el anuncio para ganar!</h1>
-    <p>El anuncio aparecerá arriba. Al terminar, presiona el botón para volver.</p>
-    
-    <button class="btn-back" onclick="window.location.href='/clicker'">Volver al juego</button>
+
+    <div class="stats">
+        <div style="font-size: 0.8rem; text-transform: uppercase;">KZM Ganados aquí</div>
+        <div id="ads-kzm" class="val">0 KZM</div>
+    </div>
+
+    <p class="instruccion">Toca cualquier parte de la pantalla para sumar 1 KZM por clic mientras ves los anuncios.</p>
+
+    <button class="btn-back" onclick="window.location.href='/clicker'">Terminar y volver al juego</button>
+
+    <script>
+        const userData = JSON.parse(localStorage.getItem('kazuma_user'));
+        if (!userData) window.location.href = '/login';
+        
+        const userEmail = userData.email || (userData.data && userData.data.email);
+        let kzmAds = 0;
+
+        // Cada vez que tocan la pantalla
+        document.body.addEventListener('click', async () => {
+            kzmAds++;
+            document.getElementById('ads-kzm').innerText = `${kzmAds} KZM`;
+
+            // Enviamos el progreso al servidor automáticamente
+            try {
+                await fetch('/api/juego/click', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: userEmail })
+                });
+            } catch (e) {
+                console.error("Error sumando KZM:", e);
+            }
+        });
+    </script>
 </body>
 </html>
