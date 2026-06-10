@@ -13,12 +13,27 @@ const MI_TARJETA_ADMIN_NUMERO = "KZM-7D0F8839CDD12D83";
 const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
 const saveUsers = (data) => fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 
-router.post('/click', (req, res) => {
-    const { apiKey } = req.body;
-    if (!apiKey) return res.status(400).json({ status: false, message: "ApiKey requerida" });
+router.get('/stats', (req, res) => {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ status: false, message: "Email requerido" });
 
     let users = getUsers();
-    const userIdx = users.findIndex(u => u.key === apiKey);
+    const user = users.find(u => u.email === email);
+    if (!user) return res.status(404).json({ status: false, message: "Usuario no encontrado" });
+
+    return res.json({
+        status: true,
+        clicks: user.clicks !== undefined ? user.clicks : 0,
+        ahorrado: user.ahorrado !== undefined ? user.ahorrado : 0
+    });
+});
+
+router.post('/click', (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ status: false, message: "Email requerido" });
+
+    let users = getUsers();
+    const userIdx = users.findIndex(u => u.email === email);
     if (userIdx === -1) return res.status(404).json({ status: false, message: "Usuario no encontrado" });
 
     if (users[userIdx].clicks === undefined) users[userIdx].clicks = 0;
@@ -43,13 +58,13 @@ router.post('/click', (req, res) => {
 });
 
 router.post('/retirar', async (req, res) => {
-    const { apiKey, uidReceptor, numTarjetaReceptor } = req.body;
-    if (!apiKey || !uidReceptor || !numTarjetaReceptor) {
+    const { email, uidReceptor, numTarjetaReceptor } = req.body;
+    if (!email || !uidReceptor || !numTarjetaReceptor) {
         return res.status(400).json({ status: false, message: "Faltan datos para procesar el retiro" });
     }
 
     let users = getUsers();
-    const userIdx = users.findIndex(u => u.key === apiKey);
+    const userIdx = users.findIndex(u => u.email === email);
     if (userIdx === -1) return res.status(404).json({ status: false, message: "Usuario no encontrado" });
 
     const cantidadRetiro = users[userIdx].ahorrado || 0;
