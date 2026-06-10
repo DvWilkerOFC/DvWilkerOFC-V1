@@ -187,6 +187,8 @@ router.get('/github/callback', async (req, res) => {
                 requestToday: 0,
                 totalRequest: 0,
                 keyChangesRealizados: 0,
+                clicks: 0,
+                ahorrado: 0,
                 profile_img: githubUser.avatar_url || "https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg",
                 lastRequestDate: new Date().toISOString().split('T')[0]
             };
@@ -220,6 +222,8 @@ router.post('/register', async (req, res) => {
             requestToday: 0,
             totalRequest: 0,
             keyChangesRealizados: 0,
+            clicks: 0,
+            ahorrado: 0,
             profile_img: "https://upload.yotsuba.giize.com/u/oco-1ZRU.jpg", 
             lastRequestDate: new Date().toISOString().split('T')[0]
         };
@@ -267,6 +271,8 @@ router.get('/me', (req, res) => {
             key: user.key,
             role: user.role,
             plan: user.plan,
+            clicks: user.clicks || 0,
+            ahorrado: user.ahorrado || 0,
             profile_img: user.profile_img,
             keyChangesRealizados: user.keyChangesRealizados || 0,
             requests: { today: user.requestToday, total: user.totalRequest, limit: user.limit, remaining: user.limit - user.requestToday }
