@@ -12,6 +12,10 @@ const PORT = process.env.PORT || 3032;
 app.set('trust proxy', 1);
 app.use(express.json());
 
+app.get('/sw.js', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'sw.js'));
+});
+
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
