@@ -140,14 +140,12 @@
     </div>
 
     <script>
-        // Obtenemos los datos guardados del usuario al iniciar sesión
         const userData = JSON.parse(localStorage.getItem('kazuma_user'));
         if (!userData) {
             window.location.href = '/login';
         }
 
-        // Buscamos el ID único del usuario dentro del objeto guardado
-        const userId = userData.id || (userData.data && userData.data.id) || (userData.data && userData.data._id);
+        const userEmail = userData.email || (userData.data && userData.data.email);
 
         let clicksLocales = 0;
         let ahorradoLocal = 0;
@@ -166,11 +164,9 @@
             }
         }
 
-        // Sincroniza los clics que ya tiene guardados en la BD usando una ruta interna (no consume límite)
         async function sincronizarDatosIniciales() {
             try {
-                // Modificamos esta llamada para usar una ruta que pida por ID o email en lugar de API Key si la tienes
-                const res = await fetch(`/api/juego/stats?userId=${userId}`);
+                const res = await fetch(`/api/juego/stats?email=${userEmail}`);
                 const result = await res.json();
                 if (result.status) {
                     clicksLocales = result.clicks || 0;
@@ -191,13 +187,12 @@
             document.getElementById('click-progress').style.width = `${porcentaje}%`;
         }
 
-        // REGISTRAR CLICK TOTALMENTE GRATIS (SIN API KEY)
         async function registrarClick() {
             try {
                 const res = await fetch('/api/juego/click', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: userId }) // Enviamos el ID, NO la Key
+                    body: JSON.stringify({ email: userEmail })
                 });
 
                 if (!res.ok) {
@@ -256,7 +251,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        userId: userId,
+                        email: userEmail,
                         uidReceptor: uid,
                         numTarjetaReceptor: tarjeta
                     })
