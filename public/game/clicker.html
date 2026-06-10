@@ -140,13 +140,14 @@
     </div>
 
     <script>
+        // Obtenemos los datos guardados del usuario al iniciar sesión
         const userData = JSON.parse(localStorage.getItem('kazuma_user'));
         if (!userData) {
-            Swal.fire({ icon: 'error', title: 'Sin Sesión', text: 'No se encontró el objeto kazuma_user en localStorage. Redirigiendo...' });
-            setTimeout(() => { window.location.href = '/login'; }, 3000);
+            window.location.href = '/login';
         }
 
-        const userApiKey = userData ? (userData.key || (userData.data && userData.data.key)) : null;
+        // Buscamos el ID único del usuario dentro del objeto guardado
+        const userId = userData.id || (userData.data && userData.data.id) || (userData.data && userData.data._id);
 
         let clicksLocales = 0;
         let ahorradoLocal = 0;
@@ -165,30 +166,19 @@
             }
         }
 
+        // Sincroniza los clics que ya tiene guardados en la BD usando una ruta interna (no consume límite)
         async function sincronizarDatosIniciales() {
-            if (!userApiKey) {
-                Swal.fire({ icon: 'warning', title: 'Falta API Key', text: 'El objeto kazuma_user existe pero no contiene ninguna clave (key).' });
-                return;
-            }
-
             try {
-                const res = await fetch(`/api/auth/me?apiKey=${userApiKey}`);
-                
-                if (!res.ok) {
-                    Swal.fire({ icon: 'error', title: `Error ${res.status} en /me`, text: 'El servidor rechazó la API Key al cargar la página.' });
-                    return;
-                }
-
+                // Modificamos esta llamada para usar una ruta que pida por ID o email en lugar de API Key si la tienes
+                const res = await fetch(`/api/juego/stats?userId=${userId}`);
                 const result = await res.json();
                 if (result.status) {
-                    clicksLocales = result.data.clicks || 0;
-                    ahorradoLocal = result.data.ahorrado || 0;
+                    clicksLocales = result.clicks || 0;
+                    ahorradoLocal = result.ahorrado || 0;
                     actualizarUI();
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Error de Autenticación', text: result.message || 'La API devolvió status false' });
                 }
             } catch (e) {
-                Swal.fire({ icon: 'error', title: 'Error de Red', text: 'No se pudo conectar con /api/auth/me: ' + e.message });
+                console.error("Error al sincronizar:", e);
             }
         }
 
@@ -201,16 +191,17 @@
             document.getElementById('click-progress').style.width = `${porcentaje}%`;
         }
 
+        // REGISTRAR CLICK TOTALMENTE GRATIS (SIN API KEY)
         async function registrarClick() {
             try {
                 const res = await fetch('/api/juego/click', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ apiKey: userApiKey })
+                    body: JSON.stringify({ userId: userId }) // Enviamos el ID, NO la Key
                 });
 
                 if (!res.ok) {
-                    Swal.fire({ icon: 'error', title: `Error ${res.status} al hacer Click`, text: 'El endpoint del juego devolvió un estado erróneo.' });
+                    Swal.fire({ icon: 'error', title: 'Error del Servidor', text: 'El servidor no pudo procesar el clic.' });
                     return;
                 }
 
@@ -233,11 +224,9 @@
                             color: '#f3f4f6'
                         });
                     }
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Click no registrado', text: data.message || 'El servidor denegó la suma.' });
                 }
             } catch (e) {
-                Swal.fire({ icon: 'error', title: 'Fallo de Envío', text: 'No se pudo procesar el fetch a /api/juego/click: ' + e.message });
+                console.error("Error en click:", e);
             }
         }
 
@@ -267,7 +256,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        apiKey: userApiKey,
+                        userId: userId,
                         uidReceptor: uid,
                         numTarjetaReceptor: tarjeta
                     })
