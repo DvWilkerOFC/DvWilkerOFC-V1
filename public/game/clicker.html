@@ -107,7 +107,7 @@
                 </div>
             </div>
 
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">¡Presiona el botón! Cada 50 clics generas 1 KZM directo a tu saldo.</p>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">¡Presiona el botón! Cada 20 clics generas 5 KZM directo a tu saldo.</p>
 
             <button class="btn-click" onclick="registrarClick()">
                 <i class="fas fa-pointer" style="font-size: 2rem;"></i>
@@ -170,7 +170,7 @@
                     actualizarUI();
                 }
             } catch (e) {
-                console.error("Error cargando perfil:", e);
+                console.error(e);
             }
         }
 
@@ -179,7 +179,7 @@
             document.getElementById('display-ahorrado').innerText = `${ahorradoLocal} KZM`;
             document.getElementById('withdraw-total').innerText = `${ahorradoLocal} KZM`;
             
-            const porcentaje = (clicksLocales / 50) * 100;
+            const porcentaje = (clicksLocales / 20) * 100;
             document.getElementById('click-progress').style.width = `${porcentaje}%`;
         }
 
@@ -202,7 +202,7 @@
                             toast: true,
                             position: 'top-end',
                             icon: 'success',
-                            title: '+1 KZM Generado',
+                            title: '+5 KZM Generados',
                             showConfirmButton: false,
                             timer: 1500,
                             background: '#16171f',
