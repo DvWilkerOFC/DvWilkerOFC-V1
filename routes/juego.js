@@ -14,7 +14,7 @@ const getUsers = () => JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
 const saveUsers = (data) => fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 
 router.post('/click', (req, res) => {
-    const { apiKey } = body = req.body;
+    const { apiKey } = req.body;
     if (!apiKey) return res.status(400).json({ status: false, message: "ApiKey requerida" });
 
     let users = getUsers();
@@ -27,9 +27,9 @@ router.post('/click', (req, res) => {
     users[userIdx].clicks += 1;
 
     let subioNivel = false;
-    if (users[userIdx].clicks >= 50) {
+    if (users[userIdx].clicks >= 20) {
         users[userIdx].clicks = 0;
-        users[userIdx].ahorrado += 1;
+        users[userIdx].ahorrado += 5;
         subioNivel = true;
     }
 
