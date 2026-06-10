@@ -31,21 +31,19 @@
 
     <p class="instruccion">Toca cualquier parte de la pantalla para sumar 1 KZM por clic mientras ves los anuncios.</p>
 
-    <button class="btn-back" onclick="window.location.href='/game/clicker'">Terminar y volver al juego</button>
+    <button class="btn-back" onclick="window.location.href='/game/clicker'">Volver al juego</button>
 
     <script>
+        // Obtenemos datos si existen, si no, usamos un valor anónimo para evitar errores
         const userData = JSON.parse(localStorage.getItem('kazuma_user'));
-        if (!userData) window.location.href = '/login';
+        const userEmail = userData ? (userData.email || (userData.data && userData.data.email)) : 'anonimo@kazuma.com';
         
-        const userEmail = userData.email || (userData.data && userData.data.email);
         let kzmAds = 0;
 
-        // Cada vez que tocan la pantalla
         document.body.addEventListener('click', async () => {
             kzmAds++;
             document.getElementById('ads-kzm').innerText = `${kzmAds} KZM`;
 
-            // Enviamos el progreso al servidor automáticamente
             try {
                 await fetch('/api/juego/click', {
                     method: 'POST',
