@@ -33,8 +33,8 @@ const authHandler = (req, res, next) => {
     if (user.requestToday >= user.limit) {
         return res.status(429).json({
             status: false,
-            creator: "Félix Ofc",
-            message: `Límite diario alcanzado (${user.limit}). Mejora tu plan en Kazuma API.`
+            creator: "DvWilkerOFC",
+            message: `Límite diario alcanzado (${user.limit}). Mejora tu plan en DvWilkerOFC Api.`
         });
     }
 
@@ -57,7 +57,7 @@ const generateKey = () => {
         }
         return result;
     };
-    return `kzm-${gen(8)}-${gen(8)}`;
+    return `dvw-${gen(8)}-${gen(8)}`;
 };
 
 module.exports = { authHandler, generateKey };
