@@ -49,7 +49,7 @@ router.get('/', async (req, res) => {
     if (!url || !/open\.spotify\.com\/track\//i.test(url)) {
         return res.status(400).json({
             status: false,
-            creator: "Félix Ofc",
+            creator: "DvWilkerOFC",
             error: "Proporciona una URL válida de Spotify Track."
         });
     }
@@ -86,7 +86,7 @@ router.get('/', async (req, res) => {
 
         res.json({
             status: true,
-            creator: "Félix Ofc",
+            creator: "DvWilkerOFC",
             result: {
                 title: oembed.name,
                 artist: oembed.artist,
@@ -98,7 +98,7 @@ router.get('/', async (req, res) => {
     } catch (err) {
         res.status(500).json({
             status: false,
-            creator: "Félix Ofc",
+            creator: "DvWilkerOFC",
             error: "Error al procesar la canción de Spotify."
         });
     }
