@@ -103,11 +103,11 @@
                 </div>
                 <div class="score-box highlight">
                     <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Balance Ahorrado</div>
-                    <div id="display-ahorrado" class="score-val">0 <span style="font-size: 0.9rem; color: #eab308;">KZM</span></div>
+                    <div id="display-ahorrado" class="score-val">0 <span style="font-size: 0.9rem; color: #eab308;">USD</span></div>
                 </div>
             </div>
 
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">¡Presiona el botón! Cada 20 clics generas 5 KZM directo a tu saldo.</p>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">¡Presiona el botón! Cada 20 clics generas 5 USD directo a tu saldo.</p>
 
             <button class="btn-click" onclick="registrarClick()">
                 <i class="fas fa-pointer" style="font-size: 2rem;"></i>
@@ -115,14 +115,14 @@
             </button>
 
             <button class="btn-submit" onclick="window.location.href='/game/ads'" style="background: #eab308; margin-top: 10px;">
-                <i class="fas fa-ad"></i> Gana 5 KZM extra con anuncios
+                <i class="fas fa-ad"></i> Gana 5 USD extra con anuncios
             </button>
         </div>
 
         <div id="view-retirar" class="game-view">
             <div class="score-box highlight" style="margin-bottom: 30px;">
                 <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Disponible para Enviar</div>
-                <div id="withdraw-total" style="font-size: 2.2rem; font-weight: 800; color: #eab308; margin-top: 5px;">0 KZM</div>
+                <div id="withdraw-total" style="font-size: 2.2rem; font-weight: 800; color: #eab308; margin-top: 5px;">0 USD</div>
             </div>
 
             <div class="score-box" style="text-align: left; padding: 25px;">
@@ -133,7 +133,7 @@
 
                 <div class="input-group">
                     <label class="input-label">Número de Tarjeta de Destino</label>
-                    <input type="text" id="input-card" class="input-kazuma" placeholder="Ej: KZM-••••••••172">
+                    <input type="text" id="input-card" class="input-kazuma" placeholder="Ej: USD-••••••••172">
                 </div>
 
                 <button class="btn-submit" onclick="solicitarRetiro()">
@@ -164,7 +164,7 @@
             } else {
                 document.querySelectorAll('.tab-btn')[1].classList.add('active');
                 document.getElementById('view-retirar').classList.add('active');
-                document.getElementById('withdraw-total').innerText = `${ahorradoLocal} KZM`;
+                document.getElementById('withdraw-total').innerText = `${ahorradoLocal} USD`;
             }
         }
 
@@ -184,8 +184,8 @@
 
         function actualizarUI() {
             document.getElementById('display-clicks').innerText = clicksLocales;
-            document.getElementById('display-ahorrado').innerText = `${ahorradoLocal} KZM`;
-            document.getElementById('withdraw-total').innerText = `${ahorradoLocal} KZM`;
+            document.getElementById('display-ahorrado').innerText = `${ahorradoLocal} USD`;
+            document.getElementById('withdraw-total').innerText = `${ahorradoLocal} USD`;
 
             const porcentaje = ((clicksLocales % 20) / 20) * 100;
             document.getElementById('click-progress').style.width = `${porcentaje}%`;
@@ -216,7 +216,7 @@
                             toast: true,
                             position: 'top-end',
                             icon: 'success',
-                            title: '+5 KZM Generados',
+                            title: '+5 USD Generados',
                             showConfirmButton: false,
                             timer: 1500,
                             background: '#16171f',
