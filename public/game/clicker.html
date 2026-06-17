@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kazuma | Clicker Click</title>
+    <title>DvWilkerOFC | Clicker Click</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root { 
@@ -53,7 +53,7 @@
         .tab-btn.active { color: var(--neon-blue); }
 
         .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 40px 16px; box-sizing: border-box; flex-grow: 1; }
-        
+
         .game-view { display: none; animation: fadeIn 0.3s ease; }
         .game-view.active { display: block; }
 
@@ -84,7 +84,7 @@
 <body>
 
     <header>
-        <div class="brand">KAZUMA <span>CLICK</span></div>
+        <div class="brand">DvWilkerOFC <span>CLICK</span></div>
         <nav class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('inicio')"><i class="fas fa-gamepad"></i> Inicio</button>
             <button class="tab-btn" onclick="switchTab('retirar')"><i class="fas fa-wallet"></i> Retirar</button>
@@ -113,7 +113,7 @@
                 <i class="fas fa-pointer" style="font-size: 2rem;"></i>
                 CLICK
             </button>
-            
+
             <button class="btn-submit" onclick="window.location.href='/game/ads'" style="background: #eab308; margin-top: 10px;">
                 <i class="fas fa-ad"></i> Gana 5 KZM extra con anuncios
             </button>
@@ -127,7 +127,7 @@
 
             <div class="score-box" style="text-align: left; padding: 25px;">
                 <div class="input-group">
-                    <label class="input-label">UID de Cuenta (Bank Kazuma)</label>
+                    <label class="input-label">UID de Cuenta (Bank DvWilkerOFC)</label>
                     <input type="text" id="input-uid" class="input-kazuma" placeholder="Ej: 224-•••">
                 </div>
 
@@ -186,7 +186,7 @@
             document.getElementById('display-clicks').innerText = clicksLocales;
             document.getElementById('display-ahorrado').innerText = `${ahorradoLocal} KZM`;
             document.getElementById('withdraw-total').innerText = `${ahorradoLocal} KZM`;
-            
+
             const porcentaje = ((clicksLocales % 20) / 20) * 100;
             document.getElementById('click-progress').style.width = `${porcentaje}%`;
         }
@@ -244,7 +244,7 @@
             }
 
             Swal.fire({
-                title: 'Conectando con Bank Kazuma',
+                title: 'Conectando con Bank DvWilkerOFC',
                 text: 'Despachando fondos desde la cuenta central...',
                 allowOutsideClick: false,
                 didOpen: () => { Swal.showLoading(); }
