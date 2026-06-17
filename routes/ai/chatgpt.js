@@ -91,7 +91,7 @@ class ChatGPTAPI {
 
         return {
             status: true,
-            creator: "Félix Ofc",
+            creator: "DvWilkerOFC",
             data: {
                 response: finalResponse,
                 conversationID: cID,
