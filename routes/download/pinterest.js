@@ -226,7 +226,7 @@ router.get('/', async (req, res) => {
 
         return res.json({
             status: true,
-            creator: 'Félix Ofc',
+            creator: 'DvWilkerOFC',
             data: result.result
         });
     } catch (error) {
