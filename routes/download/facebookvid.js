@@ -42,7 +42,7 @@ router.get('/', async (req, res) => {
 
     return res.json({
       status: true,
-      creator: 'Félix Ofc',
+      creator: 'DvWilkerOFC',
       metadata: {
         title: meta.title,
         description: meta.description,
