@@ -6,7 +6,6 @@
     <title>DvWilkerOFC | Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://www.google.com/recaptcha/api.js?render=6Lfw-dwsAAAAACc6y5K4sfFnplSqbskYPia1ADh5"></script>
 
     <style>
         :root { 
@@ -39,17 +38,6 @@
             overflow-x: hidden; 
             transition: background-color var(--transition), color var(--transition);
         }
-
-        .grecaptcha-badge { 
-            width: 70px !important; 
-            overflow: hidden !important; 
-            transition: all 0.3s ease !important;
-            left: auto !important; 
-            right: 0px !important; 
-            bottom: 20px !important;
-            z-index: 9999 !important;
-        }
-        .grecaptcha-badge:hover { width: 256px !important; }
 
         #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: background var(--transition); }
         .spinner { width: 50px; height: 50px; border: 3px solid rgba(0, 243, 255, 0.1); border-top: 3px solid var(--neon-blue); border-radius: 50%; animation: spin 1s linear infinite; box-shadow: 0 0 15px var(--neon-blue); }
@@ -286,12 +274,6 @@
                 document.body.classList.add('light-mode');
                 document.getElementById('theme-btn').querySelector('i').classList.replace('fa-moon', 'fa-sun');
             }
-
-            grecaptcha.ready(function() {
-                grecaptcha.execute('6Lfw-dwsAAAAACc6y5K4sfFnplSqbskYPia1ADh5', {action: 'dashboard_load'}).then(function(token) {
-                    console.log('Protocolo reCAPTCHA V3 Activo');
-                });
-            });
 
             const area = document.getElementById('content-area');
             const pre = document.getElementById('preloader');
