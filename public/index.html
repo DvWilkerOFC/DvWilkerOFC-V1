@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Api DvWilkerOFC V1 | Surubi Protocol</title>
+    <title>DvWilkerOFC API | Surubi Team</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -17,6 +17,7 @@
             --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* Variables para Modo Claro */
         body.light-mode {
             --dark-bg: #f4f4f9;
             --card-bg: #ffffff;
@@ -34,6 +35,7 @@
             transition: background-color var(--transition), color var(--transition);
         }
 
+        /* Header Estilo Alya */
         header {
             background: rgba(12, 12, 20, 0.8);
             backdrop-filter: blur(15px);
@@ -85,6 +87,7 @@
             color: #1a1a1a;
         }
 
+        /* Banner Principal Inclinado */
         .hero-banner {
             position: relative;
             padding: 60px 20px;
@@ -152,6 +155,7 @@
 
         .dot { width: 8px; height: 8px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 10px #00ff88; }
 
+        /* Centro de Información */
         .info-section {
             text-align: center;
             padding: 40px 20px;
@@ -179,6 +183,7 @@
             transition: color var(--transition);
         }
 
+        /* Stats Estilo Moderno */
         .stats-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -215,6 +220,7 @@
             font-weight: 800;
         }
 
+        /* Botón de Acción */
         .cta-container {
             padding: 0 20px;
             margin-bottom: 60px;
@@ -235,6 +241,7 @@
             box-shadow: 0 10px 30px rgba(0, 243, 255, 0.2);
         }
 
+        /* Sección Categorías / Características */
         .section-label {
             padding: 0 20px;
             font-size: 0.75rem;
@@ -278,6 +285,7 @@
         .feature-info h3 { margin: 0; font-size: 1.1rem; }
         .feature-info p { margin: 5px 0 0 0; font-size: 0.8rem; color: var(--text-muted); }
 
+        /* Perfil DvWilkerOFC */
         .dev-section {
             background: var(--card-bg);
             margin: 40px 20px;
@@ -337,6 +345,7 @@
             background: #f0f0f5;
         }
 
+        /* Footer */
         footer {
             padding: 40px 20px;
             text-align: center;
@@ -346,6 +355,7 @@
         .footer-logo { font-weight: 900; opacity: 0.5; margin-bottom: 10px; }
         .copyright { font-size: 0.7rem; color: var(--text-muted); }
 
+        /* Sidebar */
         .sidebar {
             position: fixed;
             top: 0; right: -100%;
@@ -466,7 +476,7 @@
         <h2 class="dev-name">DvWilkerOFC</h2>
         <span class="dev-tag">System Admin & Dev</span>
         <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 15px;">
-            Creador de Api DvWilkerOFC V1. Especialista en diversos ámbitos de programación, principalmente en diseño web.
+            Creador de DvWilkerOFC API. Especialista en diversos ámbitos de programación, principalmente en diseño web.
         </p>
         <div class="skill-tags">
             <div class="skill-tag"><i class="fab fa-node-js"></i> Node.js</div>
@@ -478,16 +488,18 @@
     </div>
 
     <footer>
-        <div class="footer-logo">Api DvWilkerOFC V1</div>
-        <div class="copyright">© 2026 Api DvWilkerOFC V1. All rights reserved. Powered by PixelCrew-Team</div>
+        <div class="footer-logo">DvWilkerOFC API</div>
+        <div class="copyright">© 2026 DvWilkerOFC API. All rights reserved. Powered by Surubi Team</div>
     </footer>
 
     <script>
+        // Función para abrir/cerrar menú
         function toggleMenu() {
             document.getElementById('sidebar').classList.toggle('active');
             document.getElementById('overlay').classList.toggle('active');
         }
 
+        // Función para cambiar el Tema (Light/Dark)
         function toggleTheme() {
             const body = document.body;
             const themeBtn = document.getElementById('theme-btn');
@@ -504,20 +516,23 @@
             }
         }
 
+        // Cargar estadísticas y tema guardado al iniciar
         async function initPage() {
+            // 1. Verificar tema guardado
             const savedTheme = localStorage.getItem('kazuma-theme');
             if (savedTheme === 'light') {
                 document.body.classList.add('light-mode');
                 document.getElementById('theme-btn').querySelector('i').classList.replace('fa-moon', 'fa-sun');
             }
 
+            // 2. Fetch de estadísticas
             try {
                 const res = await fetch('/api/auth/stats');
                 const data = await res.json();
                 document.getElementById('userCount').innerText = `+${data.users || 0}`;
                 document.getElementById('endpointCount').innerText = `+${data.endpoints || 0}`;
             } catch (e) {
-                console.log("Error sincronizando con backend");
+                console.log("Error sincronizando con backend Surubi Team");
                 document.getElementById('userCount').innerText = "+250";
                 document.getElementById('endpointCount').innerText = "+150";
             }
