@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kazuma | Perfil</title>
+    <title>DvWilkerOFC | Perfil</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,7 +26,6 @@
             --text-muted: #636366;
         }
 
-        /* Bloqueo de pantalla negra inicial */
         #safety-block {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 10000; display: block;
@@ -55,7 +54,7 @@
         .input-kazuma:focus { border-color: var(--neon-blue); outline: none; }
 
         .btn-blue { background: var(--neon-blue); color: #000; font-weight: 900; }
-        
+
         .grecaptcha-badge { 
             width: 70px !important; overflow: hidden !important; transition: 0.3s !important;
             right: 0px !important; bottom: 20px !important; z-index: 9999 !important;
@@ -71,7 +70,7 @@
 
     <header class="p-4 flex justify-between items-center sticky top-0 z-50">
         <div class="font-black text-xl tracking-tighter cursor-pointer" onclick="location.href='/dash'">
-            KAZUMA <span style="color: var(--neon-blue)">DASH</span>
+            DvWilkerOFC <span style="color: var(--neon-blue)">DASH</span>
         </div>
         <div class="flex items-center gap-4">
             <div class="text-xl cursor-pointer" style="color: var(--neon-blue)" onclick="toggleTheme()" id="theme-btn">
@@ -146,12 +145,10 @@
     </main>
 
     <script>
-        // EJECUCIÓN INMEDIATA: Bloqueo de seguridad
         const userData = JSON.parse(localStorage.getItem('kazuma_user'));
         if (!userData) {
             window.location.href = '/login';
         } else {
-            // Si hay usuario, quitamos el negro después de un breve momento
             document.addEventListener("DOMContentLoaded", () => {
                 setTimeout(() => {
                     document.getElementById('safety-block').style.display = 'none';
