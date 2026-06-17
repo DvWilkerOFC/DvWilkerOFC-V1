@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Descargas | Kazuma API</title>
+    <title>Descargas | Api DvWilkerOFC V1</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -80,7 +80,7 @@
 
     <header class="p-4 flex justify-between items-center sticky top-0 z-50">
         <div class="font-black text-xl tracking-tighter cursor-pointer" onclick="location.href='/dash'">
-            KAZUMA <span style="color: var(--neon-blue)">DASH</span>
+            DvWilkerOFC <span style="color: var(--neon-blue)">DASH</span>
         </div>
         <div class="flex items-center gap-4">
             <div class="text-xl cursor-pointer" style="color: var(--neon-blue)" onclick="toggleTheme()" id="theme-btn">
@@ -182,7 +182,7 @@
             const body = document.body;
             const isLight = body.classList.toggle('light-mode');
             document.getElementById('theme-btn').querySelector('i').classList.replace(isLight ? 'fa-moon' : 'fa-sun', isLight ? 'fa-sun' : 'fa-moon');
-            localStorage.setItem('kazuma-theme', isLight ? 'light' : 'dark');
+            localStorage.setItem('dvwilker-theme', isLight ? 'light' : 'dark');
         }
 
         async function testApi(id, route) {
@@ -214,7 +214,7 @@
         }
 
         window.onload = () => {
-            if (localStorage.getItem('kazuma-theme') === 'light') toggleTheme();
+            if (localStorage.getItem('dvwilker-theme') === 'light') toggleTheme();
             grecaptcha.ready(() => { grecaptcha.execute('6Lfw-dwsAAAAACc6y5K4sfFnplSqbskYPia1ADh5', {action: 'download_test'}); });
         };
     </script>
