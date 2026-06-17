@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.google.com/recaptcha/api.js?render=6Lfw-dwsAAAAACc6y5K4sfFnplSqbskYPia1ADh5"></script>
 
     <style>
         :root { --neon-blue: #00f3ff; --dark-bg: #09090b; --card-bg: #11111d; --text-main: #ffffff; --code-bg: #05050a; }
@@ -19,7 +18,6 @@
         .btn-test { background: var(--neon-blue); color: #000; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer; }
         .img-result { width: 100%; border-radius: 15px; border: 2px solid var(--neon-blue); display: none; margin-top: 15px; }
         h2 { border-left: 5px solid var(--neon-blue); padding-left: 15px; font-weight: 900; }
-        .grecaptcha-badge { width: 70px !important; overflow: hidden !important; transition: 0.3s !important; right: 0px !important; bottom: 20px !important; z-index: 9999 !important; }
         .res-box { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 15px; margin-top: 15px; display: none; font-size: 0.8rem; border: 1px solid rgba(0,243,255,0.2); }
         .res-item { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2px; }
         .res-label { color: #888; font-weight: bold; }
@@ -154,7 +152,9 @@
             imgEl.src = finalUrl;
             imgEl.onload = () => { imgEl.style.display = 'block'; Swal.close(); };
         }
-        window.onload = () => { grecaptcha.ready(() => { grecaptcha.execute('6Lfw-dwsAAAAACc6y5K4sfFnplSqbskYPia1ADh5', {action: 'tools_test'}); }); };
+        window.onload = () => {
+            // reCAPTCHA eliminado
+        };
     </script>
 </body>
 </html>
