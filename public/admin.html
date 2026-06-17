@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kazuma | Staff Panel</title>
+    <title>DvWilkerOFC | Staff Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -80,7 +80,7 @@
 </head>
 <body class="min-h-screen flex flex-col">
     <header class="p-4 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
-        <div class="font-bold text-xl uppercase tracking-tighter">KAZUMA <span style="color: var(--neon-pink);">STAFF</span></div>
+        <div class="font-bold text-xl uppercase tracking-tighter">DvWilkerOFC <span style="color: var(--neon-pink);">STAFF</span></div>
         <button onclick="location.href='/dash'" class="text-sm bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition">
             <i class="fas fa-arrow-left mr-2"></i> Volver
         </button>
@@ -171,23 +171,17 @@
             } catch (e) { console.error(e); }
         }
 
-        /* CORRECCIÓN SENSITIVA DE MAYÚSCULAS/MINÚSCULAS */
         async function loadThemes() {
             try {
                 const res = await fetch(`/api/auth/admin/themes?apiKey=${userData.key}`);
                 const data = await res.json();
                 if (data.status) {
                     const selector = document.getElementById('theme-selector');
-                    
-                    // Respetamos de forma nativa el formato del backend (Kurayami con K mayúscula)
                     let activeTheme = data.active || localStorage.getItem('kazuma_active_theme') || 'default';
-
                     selector.innerHTML = data.themes.map(t => {
-                        // Comparación estricta para el selector sin forzar minúsculas destructivas
                         const isCurrent = t === activeTheme;
                         return `<option value="${t}" ${isCurrent ? 'selected' : ''}>${t}</option>`;
                     }).join('');
-
                     if (activeTheme !== 'default') {
                         injectThemeStyles(activeTheme);
                     }
@@ -198,7 +192,6 @@
         function injectThemeStyles(themeName) {
             const oldLink = document.getElementById('theme-dynamic-css');
             if (oldLink) oldLink.remove();
-
             const link = document.createElement('link');
             link.id = 'theme-dynamic-css';
             link.rel = 'stylesheet';
@@ -249,25 +242,21 @@
 
         function applyFilterAndSearch() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
-
             let filtered = allUsers;
             if (currentFilter !== 'all') {
                 filtered = filtered.filter(u => u.role === currentFilter);
             }
-
             if (query !== '') {
                 filtered = filtered.filter(u => 
                     (u.username && u.username.toLowerCase().includes(query)) || 
                     (u.email && u.email.toLowerCase().includes(query))
                 );
             }
-
             renderTable(filtered);
         }
 
         async function confirmThemeChange() {
             const selectedTheme = document.getElementById('theme-selector').value;
-
             const confirm = await Swal.fire({
                 title: '<span style="color: var(--neon-blue); font-weight:900; letter-spacing:-1px;">¿CONFIRMAR CAMBIO?</span>',
                 text: `¿Estás seguro de que deseas aplicar el tema "${selectedTheme}" a toda la API?`,
@@ -284,7 +273,6 @@
                     cancelButton: 'rounded-2xl font-black'
                 }
             });
-
             if (confirm.isConfirmed) {
                 try {
                     const res = await fetch('/api/auth/admin/theme/set', {
@@ -354,7 +342,6 @@
                     denyButton: 'rounded-2xl font-black text-[10px]'
                 }
             });
-
             if (formValues) {
                 const newData = {
                     username: document.getElementById('swal-user').value,
