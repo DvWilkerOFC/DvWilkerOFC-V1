@@ -33,7 +33,7 @@ router.get('/', async (req, res) => {
     if (!query) {
         return res.status(400).json({
             status: false,
-            creator: "Félix Ofc",
+            creator: "DvWilkerOFC",
             error: "Falta el parámetro 'q'"
         });
     }
@@ -46,7 +46,7 @@ router.get('/', async (req, res) => {
         if (items.length === 0) {
             return res.json({
                 status: true,
-                creator: "Félix Ofc",
+                creator: "DvWilkerOFC",
                 query: query,
                 total_results: 0,
                 result: []
@@ -90,7 +90,7 @@ router.get('/', async (req, res) => {
 
         res.json({
             status: true,
-            creator: "Félix Ofc",
+            creator: "DvWilkerOFC",
             query: query,
             total_results: results.length,
             result: results
@@ -99,7 +99,7 @@ router.get('/', async (req, res) => {
     } catch (error) {
         res.status(500).json({
             status: false,
-            creator: "Félix Ofc",
+            creator: "DvWilkerOFC",
             error: "Error al realizar la búsqueda en YouTube."
         });
     }
