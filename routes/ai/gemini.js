@@ -76,7 +76,7 @@ class GeminiAPI {
         }
         return {
             status: true,
-            creator: "Félix Ofc",
+            creator: "DvWilkerOFC",
             data: {
                 response: messageText.replace(/http:\/\/googleusercontent\.com\/[^ ]+/g, "").trim(),
                 conversationID: cID,
