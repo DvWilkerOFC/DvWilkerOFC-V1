@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         :root { 
             --neon-blue: #00f3ff; 
@@ -93,8 +92,6 @@
         .checkmark:after { content: ""; position: absolute; display: none; left: 6px; top: 2px; width: 5px; height: 10px; border: solid black; border-width: 0 2px 2px 0; transform: rotate(45deg); }
         .checkbox-container input:checked ~ .checkmark:after { display: block; }
 
-        .g-recaptcha { display: flex; justify-content: center; margin: 15px 0; }
-
         .theme-btn-fixed {
             position: fixed;
             top: 20px;
@@ -156,8 +153,6 @@
                     </span>
                 </label>
             </div>
-
-            <div class="g-recaptcha" data-sitekey="6Lcz9dwsAAAAAMJ3mdr0wYqws6j7eys_hNdMDKcj" data-theme="dark"></div>
 
             <button type="submit" id="btnSubmit" class="btn-blue w-full py-4 rounded-xl shadow-lg mt-2 font-black">
                 Registrar Cuenta
@@ -221,11 +216,6 @@
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const captchaResponse = grecaptcha.getResponse();
-            if (!captchaResponse) {
-                return Swal.fire({ title: 'Security', text: 'Resuelve el CAPTCHA', icon: 'warning', background: 'var(--card-bg)', color: 'var(--text-main)' });
-            }
-
             const pass = document.getElementById('password').value;
             const confirm = document.getElementById('confirmPassword').value;
 
@@ -244,8 +234,7 @@
                     body: JSON.stringify({
                         username: document.getElementById('username').value,
                         email: document.getElementById('email').value,
-                        password: pass,
-                        captcha: captchaResponse
+                        password: pass
                     })
                 });
 
@@ -268,12 +257,10 @@
                     Swal.fire({ title: 'Error', text: data.message, icon: 'error', background: 'var(--card-bg)', color: 'var(--text-main)' });
                     btn.disabled = false;
                     btn.innerText = 'Registrar Cuenta';
-                    grecaptcha.reset();
                 }
             } catch (err) {
                 btn.disabled = false;
                 btn.innerText = 'Registrar Cuenta';
-                grecaptcha.reset();
                 Swal.fire({ title: 'Error', text: 'Fallo al conectar con el servidor', icon: 'error', background: 'var(--card-bg)', color: 'var(--text-main)' });
             }
         });
