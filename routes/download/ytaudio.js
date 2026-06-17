@@ -38,7 +38,7 @@ router.get('/', async (req, res) => {
     if (!url) {
         return res.status(400).json({
             status: false,
-            creator: "Félix Ofc",
+            creator: "DvWilkerOFC",
             error: "Falta el parámetro ?url="
         });
     }
@@ -47,7 +47,7 @@ router.get('/', async (req, res) => {
     if (!id) {
         return res.status(400).json({
             status: false,
-            creator: "Félix Ofc",
+            creator: "DvWilkerOFC",
             error: "URL de YouTube no válida."
         });
     }
@@ -75,7 +75,7 @@ router.get('/', async (req, res) => {
 
         res.json({
             status: true,
-            creator: "Félix Ofc",
+            creator: "DvWilkerOFC",
             result: {
                 title: dec.title,
                 thumbnail: dec.thumbnail || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
@@ -87,7 +87,7 @@ router.get('/', async (req, res) => {
     } catch (err) {
         res.status(500).json({
             status: false,
-            creator: "Félix Ofc",
+            creator: "DvWilkerOFC",
             error: "Error interno al procesar el audio."
         });
     }
