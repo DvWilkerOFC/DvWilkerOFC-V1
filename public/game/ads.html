@@ -4,7 +4,7 @@
     <script src="https://quge5.com/88/tag.min.js" data-zone="248457" async data-cfasync="false"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gana KZM | Kazuma Ads</title>
+    <title>Gana USD | DvWilkerOFC Ads</title>
     <style>
         body { 
             background: #0d0e12; color: #f3f4f6; font-family: 'Plus Jakarta Sans', sans-serif; 
@@ -25,24 +25,24 @@
 <body>
 
     <div class="stats">
-        <div style="font-size: 0.8rem; text-transform: uppercase;">KZM Ganados aquí</div>
-        <div id="ads-kzm" class="val">0 KZM</div>
+        <div style="font-size: 0.8rem; text-transform: uppercase;">USD Ganados aquí</div>
+        <div id="ads-usd" class="val">0 USD</div>
     </div>
 
-    <p class="instruccion">Toca cualquier parte de la pantalla para sumar 1 KZM por clic mientras ves los anuncios.</p>
+    <p class="instruccion">Toca cualquier parte de la pantalla para sumar 1 USD por clic mientras ves los anuncios.</p>
 
     <button class="btn-back" onclick="window.location.href='/game/clicker'">Volver al juego</button>
 
     <script>
         // Obtenemos datos si existen, si no, usamos un valor anónimo para evitar errores
         const userData = JSON.parse(localStorage.getItem('kazuma_user'));
-        const userEmail = userData ? (userData.email || (userData.data && userData.data.email)) : 'anonimo@kazuma.com';
-        
-        let kzmAds = 0;
+        const userEmail = userData ? (userData.email || (userData.data && userData.data.email)) : 'anonimo@dvwilkerofc.com';
+
+        let usdAds = 0;
 
         document.body.addEventListener('click', async () => {
-            kzmAds++;
-            document.getElementById('ads-kzm').innerText = `${kzmAds} KZM`;
+            usdAds++;
+            document.getElementById('ads-usd').innerText = `${usdAds} USD`;
 
             try {
                 await fetch('/api/juego/click', {
@@ -51,7 +51,7 @@
                     body: JSON.stringify({ email: userEmail })
                 });
             } catch (e) {
-                console.error("Error sumando KZM:", e);
+                console.error("Error sumando USD:", e);
             }
         });
     </script>
