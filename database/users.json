@@ -1,0 +1,14 @@
+[
+  {
+    "username": "DvWilkerOFC",
+    "email": "developer.wilker.ofc@gmail.com",
+    "password": "DvWilkerOFC",
+    "key": "dvwilkerofc",
+    "role": "admin",
+    "plan": "ADMIN VIP",
+    "limit": 100000,
+    "requestToday": 0,
+    "totalRequest": 0,
+    "lastRequestDate": "2026-06-17"
+  }
+]
