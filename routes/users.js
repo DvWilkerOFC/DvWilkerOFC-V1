@@ -84,7 +84,7 @@ router.get('/store/saved-card', (req, res) => {
 
 router.post('/store/checkout', async (req, res) => {
     const { apiKey, planId, recordarTarjeta, tokenEmisor, uidEmisor, numTarjetaEmisor } = req.body;
-    
+
     if (!apiKey || !planId) return res.status(400).json({ status: false, message: "Parámetros incompletos" });
 
     let users = getUsers();
@@ -105,7 +105,7 @@ router.post('/store/checkout', async (req, res) => {
     }
 
     if (!finalToken || !finalUid || !finalCardNum) {
-        return res.status(400).json({ status: false, message: "Faltan credenciales financieras de Bank Kazuma" });
+        return res.status(400).json({ status: false, message: "Faltan credenciales financieras de Bank DvWilkerOFC" });
     }
 
     try {
@@ -229,7 +229,7 @@ router.post('/register', async (req, res) => {
         };
         users.push(newUser);
         saveUsers(users);
-        res.json({ status: true, creator: "Félix Ofc", message: "Registro exitoso", key: newUser.key });
+        res.json({ status: true, creator: "DvWilkerOFC", message: "Registro exitoso", key: newUser.key });
     } catch (err) {
         res.status(500).json({ status: false, message: "Error interno" });
     }
@@ -246,7 +246,7 @@ router.post('/login', async (req, res) => {
 
         res.json({
             status: true,
-            creator: "Félix Ofc",
+            creator: "DvWilkerOFC",
             data: { username: user.username, email: user.email, key: user.key, role: user.role, plan: user.plan, limit: user.limit, profileImg: user.profile_img, keyChangesRealizados: user.keyChangesRealizados || 0 }
         });
     } catch (err) {
@@ -264,7 +264,7 @@ router.get('/me', (req, res) => {
 
     res.json({
         status: true,
-        creator: "Félix Ofc",
+        creator: "DvWilkerOFC",
         data: {
             username: user.username,
             email: user.email,
@@ -291,7 +291,7 @@ router.post('/update-profile', (req, res) => {
     const allowedFields = ['username', 'email', 'password', 'profile_img'];
     if (!allowedFields.includes(type)) return res.status(400).json({ status: false, message: "No permitido" });
 
-    if (users[userIdx].email === 'frasesbebor@gmail.com' && type === 'password') {
+    if (users[userIdx].email === 'developer.wilker.ofc@gmail.com' && type === 'password') {
          return res.status(403).json({ status: false, message: "Acción restringida" });
     }
 
@@ -350,7 +350,7 @@ router.get('/admin/user-inspect', (req, res) => {
 
     res.json({
         status: true,
-        creator: "Félix Ofc",
+        creator: "DvWilkerOFC",
         data: {
             username: targetUser.username,
             email: targetUser.email,
@@ -371,7 +371,7 @@ router.post('/admin/update', (req, res) => {
     const { adminKey, targetEmail, newData } = req.body;
     let users = getUsers();
     const admin = users.find(u => u.key === adminKey && u.role === 'admin');
-    if (!admin || targetEmail === 'frasesbebor@gmail.com') return res.status(403).json({ status: false });
+    if (!admin || targetEmail === 'developer.wilker.ofc@gmail.com') return res.status(403).json({ status: false });
 
     const idx = users.findIndex(u => u.email === targetEmail);
     if (idx !== -1) {
@@ -386,7 +386,7 @@ router.post('/admin/delete', (req, res) => {
     const { adminKey, targetEmail } = req.body;
     let users = getUsers();
     const admin = users.find(u => u.key === adminKey && u.role === 'admin');
-    if (!admin || targetEmail === 'frasesbebor@gmail.com') return res.status(403).json({ status: false });
+    if (!admin || targetEmail === 'developer.wilker.ofc@gmail.com') return res.status(403).json({ status: false });
 
     users = users.filter(u => u.email !== targetEmail);
     saveUsers(users);
